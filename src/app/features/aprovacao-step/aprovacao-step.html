@@ -1,0 +1,141 @@
+<div class="container">
+  <mat-card class="header-card">
+    <mat-card-content>
+      <div class="flex-between">
+        <h2 class="title">Step 03 - Aprovação de Cotações</h2>
+        <button mat-button (click)="voltar()" class="back-btn">
+          <mat-icon>arrow_back</mat-icon> Voltar ao Painel
+        </button>
+      </div>
+      <div class="alert info">
+        <mat-icon>info</mat-icon>
+        <span><strong>Importante:</strong> Você tem 30 minutos úteis para aprovar ou reprovar a cotação. Após esse período, o sistema escalará para o próximo nível da matriz de aprovação.</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="approval-grid">
+    <!-- Painel Lateral: Cotações Pendentes -->
+    <div class="side-panel">
+      <mat-card class="full-height">
+        <mat-card-header>
+          <mat-card-title>Pendentes de Aprovação</mat-card-title>
+        </mat-card-header>
+        <mat-divider></mat-divider>
+        <mat-card-content class="scrollable-list">
+          @if (fretesEmAnalise().length === 0) {
+            <p class="empty-msg">Nenhuma cotação pendente</p>
+          } @else {
+            @for (frete of fretesEmAnalise(); track frete.id) {
+              <mat-card 
+                class="frete-item" 
+                [class.selected]="selectedFreteId() === frete.id"
+                (click)="selectFrete(frete.id)"
+              >
+                <mat-card-content>
+                  <span class="frete-id">Frete #{{ frete.id }}</span>
+                  <p class="route">{{ frete.enderecoColeta }} → {{ frete.enderecoEntrega }}</p>
+                  <p class="value">Valor: R$ {{ frete.cotacao?.cotacaoIndividual | number:'1.2-2':'pt-BR' }}</p>
+                  @if (frete.aglutinadorId) {
+                    <mat-chip class="agrupado-chip" size="small">Agrupado</mat-chip>
+                  }
+                </mat-card-content>
+              </mat-card>
+            }
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Painel Central: Análise -->
+    <div class="main-panel">
+      @if (!freteSelecionado()) {
+        <mat-card class="empty-state">
+          <mat-card-content>
+            <mat-icon class="large-icon">check_circle_outline</mat-icon>
+            <h3>Selecione uma cotação para analisar</h3>
+          </mat-card-content>
+        </mat-card>
+      } @else {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Análise de Cotação - Frete #{{ freteSelecionado()?.id }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (hasVarianceAlert()) {
+              <div class="alert warning mb-4">
+                <mat-icon>warning</mat-icon>
+                <span><strong>Alerta de Dupla Checagem!</strong> A cotação apresenta variação superior a 10% em relação ao valor de referência.</span>
+              </div>
+            }
+
+            <div class="details-box">
+              <h4 class="box-title">Dados do Frete</h4>
+              <div class="grid-3">
+                <div class="detail-item"><label>Cliente</label><span>{{ freteSelecionado()?.cliente }}</span></div>
+                <div class="detail-item"><label>Fornecedor</label><span>{{ freteSelecionado()?.fornecedor }}</span></div>
+                <div class="detail-item"><label>Endereço de Coleta</label><span>{{ freteSelecionado()?.enderecoColeta }}</span></div>
+                <div class="detail-item"><label>Endereço de Entrega</label><span>{{ freteSelecionado()?.enderecoEntrega }}</span></div>
+                <div class="detail-item"><label>Distância</label><span>{{ freteSelecionado()?.distancia }} km</span></div>
+                <div class="detail-item"><label>Necessidade</label><span>{{ freteSelecionado()?.dataNecessidadeEntrega }}</span></div>
+              </div>
+            </div>
+
+            <mat-divider class="my-4"></mat-divider>
+
+            <h3 class="section-subtitle">Detalhes da Cotação</h3>
+            <div class="grid-3 mb-4">
+              <mat-form-field appearance="outline">
+                <mat-label>Valor Individual (R$)</mat-label>
+                <input matInput [value]="freteSelecionado()?.cotacao?.cotacaoIndividual | number:'1.2-2':'pt-BR'" readonly>
+              </mat-form-field>
+
+              @if (freteSelecionado()?.aglutinadorId) {
+                <mat-form-field appearance="outline">
+                  <mat-label>Valor Complementar (R$)</mat-label>
+                  <input matInput [value]="freteSelecionado()?.cotacao?.cotacaoComplementar | number:'1.2-2':'pt-BR'" readonly>
+                </mat-form-field>
+              }
+
+              <mat-form-field appearance="outline">
+                <mat-label>TT Coleta (h)</mat-label>
+                <input matInput [value]="freteSelecionado()?.cotacao?.transitTimeColeta" readonly>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>TT Entrega (h)</mat-label>
+                <input matInput [value]="freteSelecionado()?.cotacao?.transitTimeEntrega" readonly>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Transportadora</mat-label>
+                <input matInput [value]="freteSelecionado()?.cotacao?.transportadoraId" readonly>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Data Submissão</mat-label>
+                <input matInput [value]="freteSelecionado()?.cotacao?.dataSubmissao" readonly>
+              </mat-form-field>
+            </div>
+
+            <mat-divider class="my-4"></mat-divider>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Justificativa (opcional)</mat-label>
+              <textarea matInput rows="3" [(ngModel)]="justificativa" placeholder="Adicione comentários para sua decisão..."></textarea>
+            </mat-form-field>
+
+            <div class="actions">
+              <button mat-stroked-button color="warn" class="large-btn" (click)="reprovar()">
+                <mat-icon>cancel</mat-icon> Reprovar Cotação
+              </button>
+              <button mat-flat-button color="primary" class="large-btn success-btn" (click)="aprovar()">
+                <mat-icon>check_circle</mat-icon> Aprovar Cotação
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </div>
+</div>

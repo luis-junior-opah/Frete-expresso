@@ -1,0 +1,285 @@
+<div class="container">
+  <div class="header-actions">
+    <button mat-button (click)="voltar()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon> Voltar ao Painel
+    </button>
+    <button mat-flat-button class="historico-btn" (click)="historico()">
+      Histórico
+    </button>
+  </div>
+
+  <mat-stepper [linear]="false" #stepper class="stepper-container" (selectionChange)="activeStep = $event.selectedIndex">
+    <!-- Customizar ícones para mostrar sempre números (1-7) -->
+    <ng-template matStepperIcon="number" let-index="index">{{index + 1}}</ng-template>
+    <ng-template matStepperIcon="edit" let-index="index">{{index + 1}}</ng-template>
+    <ng-template matStepperIcon="done" let-index="index">{{index + 1}}</ng-template>
+    
+    <mat-step *ngFor="let step of steps">
+      <ng-template matStepLabel>{{ step }}</ng-template>
+    </mat-step>
+  </mat-stepper>
+
+  <div [ngSwitch]="activeStep">
+    <!-- Step 0: Solicitação -->
+    <mat-card class="main-card" *ngSwitchCase="0">
+      <h3 class="section-title">Solicitação de Frete Expresso</h3>
+
+      <form [formGroup]="solicitacaoForm" class="grid-container">
+        <!-- Linha 1: 3 campos -->
+        <mat-form-field appearance="outline" class="col-4 bg-white pointer">
+          <mat-label>Fornecedor *</mat-label>
+          <input matInput formControlName="fornecedor" readonly (click)="openSearchModal('fornecedor')" placeholder="Selecione o fornecedor">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="col-4 bg-white">
+          <mat-label>Cód. Unidade *</mat-label>
+          <mat-select formControlName="codUnidade" placeholder="Selecione a unidade">
+            <mat-option value="3Q00">3Q00</mat-option>
+            <mat-option value="BM00">BM00</mat-option>
+            <mat-option value="BZ00">BZ00</mat-option>
+            <mat-option value="CQ00">CQ00</mat-option>
+            <mat-option value="NW00">NW00</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="col-4 bg-white pointer">
+          <mat-label>Cliente *</mat-label>
+          <input matInput formControlName="cliente" readonly (click)="openSearchModal('cliente')" placeholder="Selecione o cliente">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Linha 2: 2 campos -->
+        <mat-form-field appearance="outline" class="col-6 bg-white">
+          <mat-label>Endereço de coleta</mat-label>
+          <input matInput formControlName="enderecoColeta" placeholder="Rua, número, bairro, cidade - UF">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="col-6 bg-white">
+          <mat-label>Endereço de entrega</mat-label>
+          <input matInput formControlName="enderecoEntrega" placeholder="Rua, número, bairro, cidade - UF">
+        </mat-form-field>
+
+        <!-- Linha 3: 6 campos -->
+        <div class="row-6-cols">
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="d1.showPicker()">
+            <mat-label>Início janela *</mat-label>
+            <input #d1 matInput type="date" formControlName="dataInicioJanela" placeholder="DD/MM/AAAA">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="t1.showPicker()">
+            <mat-label>Hora início *</mat-label>
+            <input #t1 matInput type="time" formControlName="horaInicioJanela" placeholder="00:00">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="d2.showPicker()">
+            <mat-label>Fim janela *</mat-label>
+            <input #d2 matInput type="date" formControlName="dataFimJanela" placeholder="DD/MM/AAAA">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="t2.showPicker()">
+            <mat-label>Hora fim *</mat-label>
+            <input #t2 matInput type="time" formControlName="horaFimJanela" placeholder="00:00">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="d3.showPicker()">
+            <mat-label>Necessidade *</mat-label>
+            <input #d3 matInput type="date" formControlName="dataNecessidadeEntrega" placeholder="DD/MM/AAAA">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="t3.showPicker()">
+            <mat-label>Hora necessidade *</mat-label>
+            <input #t3 matInput type="time" formControlName="horaNecessidadeEntrega" placeholder="00:00">
+          </mat-form-field>
+        </div>
+
+        <!-- Linha 4: 5 campos -->
+        <div class="row-5-cols">
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Modal *</mat-label>
+            <mat-select formControlName="modal" placeholder="Selecione o modal">
+              <mat-option value="Rodoviário">Rodoviário</mat-option>
+              <mat-option value="Aéreo">Aéreo</mat-option>
+              <mat-option value="Rodoviário+Aéreo">Rodoviário+Aéreo</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Tipo de veículo *</mat-label>
+            <mat-select formControlName="tipoVeiculo" placeholder="Selecione o veículo" panelClass="wide-select-panel">
+              <mat-option value="Aéreo">Aéreo - Capacidade máx: 999999.0 Kgs - 94.5 m³</mat-option>
+              <mat-option value="Truck Aberto">Truck Aberto - Capacidade máx: 12000.0 Kgs - 50.63 m³</mat-option>
+              <mat-option value="3/4 Aberto">3/4 Aberto - Capacidade máx: 3000.0 Kgs - 20.0 m³</mat-option>
+              <mat-option value="Carreta Bau">Carreta Bau - Capacidade máx: 25000.0 Kgs - 94.5 m³</mat-option>
+              <mat-option value="Carreta Vanderleia">Carreta Vanderleia - Capacidade máx: 34000.0 Kgs - 94.5 m³</mat-option>
+              <mat-option value="Utilitario">Utilitario - Capacidade máx: 500.0 Kgs - 2.85 m³</mat-option>
+              <mat-option value="Van">Van - Capacidade máx: 1500.0 Kgs - 9.03 m³</mat-option>
+              <mat-option value="3/4">3/4 - Capacidade máx: 3000.0 Kgs - 20.0 m³</mat-option>
+              <mat-option value="Toco">Toco - Capacidade máx: 6000.0 Kgs - 46.38 m³</mat-option>
+              <mat-option value="Truck Sider">Truck Sider - Capacidade máx: 12000.0 Kgs - 50.63 m³</mat-option>
+              <mat-option value="Carreta Sider">Carreta Sider - Capacidade máx: 25000.0 Kgs - 94.5 m³</mat-option>
+              <mat-option value="Rodotrem Sider">Rodotrem Sider - Capacidade máx: 45000.0 Kgs - 168.75 m³</mat-option>
+              <mat-option value="Carreta Aberta">Carreta Aberta - Capacidade máx: 25000.0 Kgs - 94.5 m³</mat-option>
+              <mat-option value="Rodotrem Light">Rodotrem Light - Capacidade máx: 22000.0 Kgs - 189.0 m³</mat-option>
+              <mat-option value="Truck Van">Truck Van - Capacidade máx: 25000.0 Kgs - 94.5 m³</mat-option>
+              <mat-option value="Truck Bau">Truck Bau - Capacidade máx: 12000.0 Kgs - 50.63 m³</mat-option>
+              <mat-option value="Rodotrem Bau">Rodotrem Bau - Capacidade máx: 22000.0 Kgs - 189.0 m³</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Fluxo *</mat-label>
+            <mat-select formControlName="fluxo" placeholder="Selecione o fluxo">
+              <mat-option value="Fabrica">Fabrica</mat-option>
+              <mat-option value="Fornecedor">Fornecedor</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Tipo de material *</mat-label>
+            <mat-select formControlName="tipoMaterial" placeholder="Selecione o material">
+              <mat-option value="Direto">Direto</mat-option>
+              <mat-option value="Embalagem">Embalagem</mat-option>
+              <mat-option value="Indireto">Indireto</mat-option>
+              <mat-option value="Reposição">Reposição</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Justificativa *</mat-label>
+            <mat-select formControlName="justificativa" placeholder="Selecione o motivo" panelClass="wide-select-panel">
+              <mat-option value="Ajuste de inventário">Ajuste de inventário</mat-option>
+              <mat-option value="Alteração de fornecedor">Alteração de fornecedor</mat-option>
+              <mat-option value="Antecipação de produção">Antecipação de produção</mat-option>
+              <mat-option value="Atraso da transportadora">Atraso da transportadora</mat-option>
+              <mat-option value="Atraso da transportadora, causado pelo fornecedor">Atraso da transportadora, causado pelo fornecedor</mat-option>
+              <mat-option value="Atraso no desembaraço">Atraso no desembaraço</mat-option>
+              <mat-option value="Ação de marketing">Ação de marketing</mat-option>
+              <mat-option value="Erro de especificação (engenharia)">Erro de especificação (engenharia)</mat-option>
+              <mat-option value="Expresso como modelo padrão">Expresso como modelo padrão</mat-option>
+              <mat-option value="Falta de embalagem">Falta de embalagem</mat-option>
+              <mat-option value="Força maior">Força maior</mat-option>
+              <mat-option value="Lançamento de novos produtos (novo projeto, nova máquina)">Lançamento de novos produtos (novo projeto, nova máquina)</mat-option>
+              <mat-option value="Mudança de programa na produção">Mudança de programa na produção</mat-option>
+              <mat-option value="Mudança na decisão do planejamento, produção ou distribuição">Mudança na decisão do planejamento, produção ou distribuição</mat-option>
+              <mat-option value="Necessidades solicitadas externamente (arrendatário, fazendeiro)">Necessidades solicitadas externamente (arrendatário, fazendeiro)</mat-option>
+              <mat-option value="Problema de qualidade da fábrica">Problema de qualidade da fábrica</mat-option>
+              <mat-option value="Problema de qualidade do fornecedor">Problema de qualidade do fornecedor</mat-option>
+              <mat-option value="Problema do fornecedor">Problema do fornecedor</mat-option>
+              <mat-option value="Serviço (estoque / reabastecimento)">Serviço (estoque / reabastecimento)</mat-option>
+              <mat-option value="Urgência dos distribuidores">Urgência dos distribuidores</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Linha 5: 5 campos -->
+        <div class="row-5-cols">
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Altura (m)</mat-label>
+            <input matInput type="number" formControlName="altura" placeholder="0.00">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Comprimento (m)</mat-label>
+            <input matInput type="number" formControlName="comprimento" placeholder="0.00">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Largura (m)</mat-label>
+            <input matInput type="number" formControlName="largura" placeholder="0.00">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Volumetria (m³)</mat-label>
+            <input matInput type="number" formControlName="volumetria" placeholder="0.00">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="bg-white">
+            <mat-label>Peso (kg) *</mat-label>
+            <input matInput type="number" formControlName="peso" placeholder="0.00">
+          </mat-form-field>
+        </div>
+
+        <!-- Linha 6: 1 campo -->
+        <div class="col-12 toggle-box">
+          <span class="toggle-label">Permite agrupamento com outras demandas</span>
+          <div class="toggle-controls">
+            <span [class.active-no]="!solicitacaoForm.get('permitirAgrupamento')?.value" class="state-label">Não</span>
+            <mat-slide-toggle formControlName="permitirAgrupamento"></mat-slide-toggle>
+            <span [class.active-yes]="solicitacaoForm.get('permitirAgrupamento')?.value" class="state-label">Sim</span>
+          </div>
+        </div>
+
+        <!-- Linha 7: 1 campo -->
+        <mat-form-field appearance="outline" class="col-12 bg-white">
+          <mat-label>Observações</mat-label>
+          <textarea matInput rows="4" formControlName="observacoes" placeholder="Digite observações adicionais..."></textarea>
+        </mat-form-field>
+
+        <!-- Seção de Logs de Alteração -->
+        <div class="col-12 logs-container" *ngIf="logsAlteracao.length > 0">
+          <h4 class="logs-title">
+            <mat-icon>history</mat-icon> Histórico de Alterações
+          </h4>
+          <div class="log-item" *ngFor="let log of logsAlteracao">
+            <div class="log-info">
+              <span class="log-date">{{ log.data }} às {{ log.hora }}</span>
+              <span class="log-user">{{ log.usuario }}</span>
+              <span class="log-description">{{ log.detalhes || log.acao }}</span>
+            </div>
+          </div>
+        </div>
+      </form>
+      
+      <div class="action-buttons-spacer"></div>
+    </mat-card>
+
+    <!-- Step 1: Cotação -->
+    <app-cotacao-step-view *ngSwitchCase="1" [frete]="getCurrentFrete()"></app-cotacao-step-view>
+
+    <!-- Step 2: Aprovação -->
+    <app-aprovacao-step-view *ngSwitchCase="2" 
+      [frete]="getCurrentFrete()"
+      [groupedDemands]="sharedGroupedDemands"
+      [aglutinadosTipoVeiculo]="sharedVehicle"
+      (onApproval)="handleApproval($event)">
+    </app-aprovacao-step-view>
+
+    <!-- Step 3: Validação -->
+    <app-validacao-step-view *ngSwitchCase="3" 
+      [frete]="getCurrentFrete()"
+      [groupedDemands]="sharedGroupedDemands"
+      [aglutinadosTipoVeiculo]="sharedVehicle"
+      [approvedQuotation]="sharedApprovedQuotation"
+      [aprovadoresAtuais]="sharedAprovadoresAtuais"
+      [usuarioAprovador]="sharedUsuarioAprovador"
+      [tipoAprovacao]="sharedTipoAprovacao">
+    </app-validacao-step-view>
+
+    <!-- Step 4: Pedido -->
+    <app-pedido-step-view *ngSwitchCase="4" 
+      [frete]="getCurrentFrete()"
+      [approvedQuotation]="sharedApprovedQuotation"
+      [groupedDemands]="sharedGroupedDemands"
+      [aglutinadosTipoVeiculo]="sharedVehicle">
+    </app-pedido-step-view>
+
+    <!-- Step 5: Resumo -->
+    <app-resumo-step-view *ngSwitchCase="5" 
+      [frete]="getCurrentFrete()"
+      [approvedQuotation]="sharedApprovedQuotation"
+      [groupedDemands]="sharedGroupedDemands"
+      [aglutinadosTipoVeiculo]="sharedVehicle">
+    </app-resumo-step-view>
+  </div>
+
+  <!-- Stepper Navigation -->
+  <mat-card class="stepper-nav-card">
+    <mat-card-content class="nav-container">
+      <div class="nav-left">
+        <button mat-stroked-button (click)="voltar()" [disabled]="activeStep === 0 && !freteEdicaoId">
+          <mat-icon>arrow_back</mat-icon> Voltar
+        </button>
+      </div>
+      
+      <div class="nav-center">
+        <button mat-flat-button color="primary" class="nav-save-btn" (click)="onSubmit()" *ngIf="activeStep === 0">
+          <mat-icon>save</mat-icon> Salvar
+        </button>
+        <button mat-flat-button color="primary" class="nav-approval-btn" (click)="enviarParaAprovacao()" *ngIf="activeStep === 1">
+          <mat-icon>send</mat-icon> Enviar para aprovação
+        </button>
+      </div>
+
+      <div class="nav-right">
+        <button mat-flat-button color="primary" class="nav-next-btn" (click)="avancar()" [disabled]="activeStep === steps.length - 1" *ngIf="activeStep !== 1">
+          Avançar <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,68 @@
+<div class="modal-header">
+  <h2 mat-dialog-title class="white-text">{{ dynamicTitle }}</h2>
+  <button mat-icon-button (click)="fechar()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="modal-content">
+  <div class="search-area">
+    <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+      <mat-label>{{ dynamicPlaceholder }}</mat-label>
+      <input matInput [(ngModel)]="searchTerm" (keyup.enter)="buscar()" placeholder="CNPJ, Nome ou Código ERP">
+      <mat-icon matSuffix (click)="buscar()" class="pointer">search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="table-wrapper mt-4">
+    <table mat-table [dataSource]="dataSource" class="w-full">
+      <ng-container matColumnDef="cnpj">
+        <th mat-header-cell *matHeaderCellDef> CNPJ </th>
+        <td mat-cell *matCellDef="let row" [matTooltip]="row.cnpj"> {{row.cnpj}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="nome">
+        <th mat-header-cell *matHeaderCellDef> Nome </th>
+        <td mat-cell *matCellDef="let row" [matTooltip]="row.nome"> {{row.nome}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="nomeReduzido">
+        <th mat-header-cell *matHeaderCellDef> Nome Reduzido </th>
+        <td mat-cell *matCellDef="let row" [matTooltip]="row.nomeReduzido"> {{row.nomeReduzido}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="codErp">
+        <th mat-header-cell *matHeaderCellDef> Cód ERP </th>
+        <td mat-cell *matCellDef="let row" [matTooltip]="row.codErp"> {{row.codErp}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="municipio">
+        <th mat-header-cell *matHeaderCellDef> Município </th>
+        <td mat-cell *matCellDef="let row" [matTooltip]="row.municipio"> {{row.municipio}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="uf">
+        <th mat-header-cell *matHeaderCellDef> UF </th>
+        <td mat-cell *matCellDef="let row" [matTooltip]="row.uf"> {{row.uf}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef align="center"> Ações </th>
+        <td mat-cell *matCellDef="let row" align="center">
+          <button mat-flat-button color="primary" class="select-btn" (click)="selecionar(row)">
+            Selecionar
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+  
+  <mat-paginator [pageSizeOptions]="[5, 10]" showFirstLastButtons></mat-paginator>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="fechar()">Cancelar</button>
+</mat-dialog-actions>

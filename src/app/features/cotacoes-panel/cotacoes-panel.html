@@ -1,0 +1,229 @@
+<div class="container-wrapper">
+
+  <mat-card class="main-card">
+    <div class="header-container">
+      <div class="title-group">
+        <h2 class="title">{{ titulo }}</h2>
+        <button mat-icon-button (click)="toggleFilters()" matTooltip="Exibir/Ocultar Filtros">
+          <mat-icon>{{ showFilters() ? 'filter_list_off' : 'filter_list' }}</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters Area -->
+    <div class="filters-container" *ngIf="showFilters()">
+      <div class="filters-grid">
+        <!-- Row 1 -->
+        <mat-form-field appearance="outline" class="bg-white" subscriptSizing="dynamic">
+          <mat-label>ID</mat-label>
+          <input matInput [(ngModel)]="id" placeholder="Digite o ID">
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="bg-white pointer" subscriptSizing="dynamic">
+          <mat-label>Cliente</mat-label>
+          <input matInput [(ngModel)]="cliente" readonly (click)="openSearchModal('cliente')" placeholder="Pesquisar cliente...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="bg-white pointer" subscriptSizing="dynamic">
+          <mat-label>Fornecedor</mat-label>
+          <input matInput [(ngModel)]="fornecedor" readonly (click)="openSearchModal('fornecedor')" placeholder="Pesquisar fornecedor...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="bg-white pointer" subscriptSizing="dynamic">
+          <mat-label>Transportador</mat-label>
+          <input matInput [(ngModel)]="transportador" readonly (click)="openSearchModal('transportador')" placeholder="Pesquisar transportador...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Row 2 -->
+        <mat-form-field appearance="outline" class="bg-white" subscriptSizing="dynamic">
+          <mat-label>Grp Transportador</mat-label>
+          <mat-select [(ngModel)]="grpTransportador" placeholder="Selecione o grupo">
+            <mat-option value="">Todos</mat-option>
+            <mat-option value="Grupo A">Grupo A</mat-option>
+            <mat-option value="Grupo B">Grupo B</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="bg-white" subscriptSizing="dynamic">
+          <mat-label>Usuário</mat-label>
+          <mat-select [(ngModel)]="usuario" placeholder="Selecione o usuário" (openedChange)="onUsuarioSelectOpen($event)" panelClass="user-search-panel">
+            <mat-option disabled class="search-option-wrapper">
+              <div class="search-container" (keydown)="$event.stopPropagation()">
+                <input type="text" [(ngModel)]="usuarioSearch" (ngModelChange)="onUsuarioSearchChange($event)" placeholder="Buscar usuário..." autocomplete="off" class="search-input" (click)="$event.stopPropagation()">
+                <mat-icon class="search-icon">search</mat-icon>
+              </div>
+            </mat-option>
+            <mat-option value="Todos">Todos</mat-option>
+            <mat-option *ngFor="let u of filteredUsuarios" [value]="u">{{u}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="bg-white" subscriptSizing="dynamic">
+          <mat-label>Número do Pedido</mat-label>
+          <input matInput [(ngModel)]="numeroPedido" placeholder="Digite o número do pedido">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="bg-white" subscriptSizing="dynamic">
+          <mat-label>Código de Coleta</mat-label>
+          <input matInput [(ngModel)]="codigoColeta" placeholder="Digite o código de coleta">
+        </mat-form-field>
+
+        <!-- Row 3 -->
+        <mat-form-field appearance="outline" class="bg-white" subscriptSizing="dynamic">
+          <mat-label>Data Inicial</mat-label>
+          <input matInput [matDatepicker]="pickerInicial" [(ngModel)]="dataInicial" placeholder="DD/MM/AAAA">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerInicial"></mat-datepicker-toggle>
+          <mat-datepicker #pickerInicial></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="bg-white" subscriptSizing="dynamic">
+          <mat-label>Data Final</mat-label>
+          <input matInput [matDatepicker]="pickerFinal" [(ngModel)]="dataFinal" placeholder="DD/MM/AAAA">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFinal"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFinal></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="bg-white" subscriptSizing="dynamic">
+          <mat-label>Etapa</mat-label>
+          <mat-select [(ngModel)]="etapas" multiple placeholder="Selecione a etapa">
+            <mat-option value="Todos">Todos</mat-option>
+            <mat-option value="Cotações">Cotações</mat-option>
+            <mat-option value="Aprovações">Aprovações</mat-option>
+            <mat-option value="Código Nox">Código Nox</mat-option>
+            <mat-option value="Validação">Validação</mat-option>
+            <mat-option value="Pedido">Pedido</mat-option>
+            <mat-option value="Resumo">Resumo</mat-option>
+            <mat-option value="Finalizada">Finalizada</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="bg-white" subscriptSizing="dynamic">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="statusSelecionados" multiple placeholder="Selecione o status">
+            <mat-option value="Todos">Todos</mat-option>
+            <mat-option value="Aprovado">Aprovado</mat-option>
+            <mat-option value="Aprovado edição">Aprovado edição</mat-option>
+            <mat-option value="Cancelado">Cancelado</mat-option>
+            <mat-option value="Em andamento">Em andamento</mat-option>
+            <mat-option value="Em aprovação">Em aprovação</mat-option>
+            <mat-option value="Finalizado">Finalizado</mat-option>
+            <mat-option value="Expirado">Expirado</mat-option>
+            <mat-option value="Contigência Adm">Contigência Adm</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      
+      <div class="filter-action">
+        <button mat-flat-button class="primary-btn action-btn" (click)="aplicarFiltro()">Buscar</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef matTooltip="ID"> ID </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.id"> {{element.id}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cliente">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Cliente"> Cliente </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.cliente"> {{element.cliente}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fornecedor">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Fornecedor"> Fornecedor </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.fornecedor"> {{element.fornecedor}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="transportador">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Transportador"> Transportador </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.transportador"> {{element.transportador}} </td>
+        </ng-container>
+        
+        <ng-container matColumnDef="dataInicioJanela">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Início janela"> Início janela </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.dataInicioJanela"> {{element.dataInicioJanela?.split(' ')[0] || '-'}} </td>
+        </ng-container>
+        
+        <ng-container matColumnDef="dataFimJanela">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Fim janela"> Fim janela </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.dataFimJanela"> {{element.dataFimJanela?.split(' ')[0] || '-'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fluxo">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Fluxo"> Fluxo </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.fluxo || ''"> {{element.fluxo || '-'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dataNecessidadeEntrega">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Necessidade Entrega"> Necessidade Entrega </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.dataNecessidadeEntrega || ''"> {{element.dataNecessidadeEntrega || '-'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="codigoNox">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Código NOX"> Código NOX </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.codigoNox || ''"> {{element.codigoNox || '-'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="numeroPedido">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Número pedido"> Número pedido </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.numeroPedido || ''"> {{element.numeroPedido || '-'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="codigoColeta">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Código coleta"> Código coleta </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.codigoColeta || ''"> {{element.codigoColeta || '-'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="solicitante">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Solicitante"> Solicitante </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.solicitante"> {{element.solicitante}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="etapa">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Etapa"> Etapa </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.etapa"> {{element.etapa}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Status"> Status </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.status">
+            <span [style.color]="getStatusColor(element.status)" style="font-weight: 600;">{{element.status}}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Ações"> Ações </th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Ações">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" class="compact-menu">
+              <button mat-menu-item>
+                <mat-icon>visibility</mat-icon>
+                <span>Visualizar</span>
+              </button>
+              <button mat-menu-item (click)="editarFrete(element.id)">
+                <mat-icon>edit</mat-icon>
+                <span>Editar</span>
+              </button>
+              <button mat-menu-item>
+                <mat-icon>description</mat-icon>
+                <span>Documentos</span>
+              </button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'row-expirada': row.status === 'Expirada', 'row-alerta': row.status === 'Alerta Adm'}"></tr>
+      </table>
+    </div>
+    
+    <mat-paginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
+  </mat-card>
+</div>

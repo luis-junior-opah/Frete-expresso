@@ -1,0 +1,133 @@
+<div class="card-container" *ngIf="frete">
+  <h3 class="card-title">Solicitação</h3>
+
+  <div class="details-wrapper">
+    <!-- Linha 1 -->
+    <div class="details-row">
+      <div class="detail-item col-4">
+        <label>ID</label>
+        <span>{{ frete.id || '-' }}</span>
+      </div>
+      <div class="detail-item col-4">
+        <label>Solicitante</label>
+        <span>{{ frete.solicitante || '-' }}</span>
+      </div>
+      <div class="detail-item col-4">
+        <label>Data e hora da solicitação</label>
+        <span>{{ (frete.dataCriacao | date:'dd/MM/yyyy - HH:mm') || '-' }}</span>
+      </div>
+    </div>
+
+    <!-- Linha 2 -->
+    <div class="details-row">
+      <div class="detail-item col-4">
+        <label>Fornecedor</label>
+        <span>{{ frete.fornecedor || '-' }}</span>
+      </div>
+      <div class="detail-item col-4">
+        <label>Cód. Unidade</label>
+        <span>{{ frete.unitCD || '-' }}</span>
+      </div>
+      <div class="detail-item col-4">
+        <label>Cliente</label>
+        <span>{{ frete.cliente || '-' }}</span>
+      </div>
+    </div>
+
+    <!-- Linha 3: Invertida e com endereços completos -->
+    <div class="details-row">
+      <div class="detail-item col-6">
+        <label>Local de Coleta</label>
+        <span>{{ frete.enderecoColeta || '-' }}</span>
+      </div>
+      <div class="detail-item col-6">
+        <label>Local de Entrega</label>
+        <span>{{ frete.enderecoEntrega || '-' }}</span>
+      </div>
+    </div>
+
+    <!-- Linha 4 -->
+    <div class="details-row">
+      <div class="detail-item col-4">
+        <label>Data e hora início da janela</label>
+        <span>{{ frete.dataInicioJanela || '-' }}</span>
+      </div>
+      <div class="detail-item col-4">
+        <label>Data e hora fim da janela</label>
+        <span>{{ frete.dataFimJanela || '-' }}</span>
+      </div>
+      <div class="detail-item col-4">
+        <label>Data e hora necessidade de entrega</label>
+        <span>{{ frete.dataNecessidadeEntrega || '-' }}</span>
+      </div>
+    </div>
+
+    <!-- Linha 5 -->
+    <div class="details-row">
+      <div class="detail-item col-5-items">
+        <label>Modal</label>
+        <span>{{ frete.modal || '-' }}</span>
+      </div>
+      <div class="detail-item col-5-items">
+        <label>Tipo de veículo</label>
+        <span>{{ frete.tipoVeiculo || '-' }}</span>
+      </div>
+      <div class="detail-item col-5-items">
+        <label>Fluxo</label>
+        <span>{{ frete.fluxo || '-' }}</span>
+      </div>
+      <div class="detail-item col-5-items">
+        <label>Tipo de material</label>
+        <span>{{ frete.tipoMaterial || '-' }}</span>
+      </div>
+      <div class="detail-item col-5-items">
+        <label>Justificativa</label>
+        <span>{{ frete.justificativa || '-' }}</span>
+      </div>
+    </div>
+
+    <!-- Linha 6 -->
+    <div class="details-row">
+      <div class="detail-item col-6-items">
+        <label>Altura (m)</label>
+        <span>{{ frete.altura || '-' }}</span>
+      </div>
+      <div class="detail-item col-6-items">
+        <label>Comprimento (m)</label>
+        <span>{{ frete.comprimento || '-' }}</span>
+      </div>
+      <div class="detail-item col-6-items">
+        <label>Largura (m)</label>
+        <span>{{ frete.largura || '-' }}</span>
+      </div>
+      <div class="detail-item col-6-items">
+        <label>Volumetria (m³)</label>
+        <span>{{ frete.volumetria || '-' }}</span>
+      </div>
+      <div class="detail-item col-6-items">
+        <label>Peso (kg)</label>
+        <span>{{ frete.peso || '-' }}</span>
+      </div>
+      <div class="detail-item col-6-items">
+        <label>Peso Cubado (kg)</label>
+        <span>{{ pesoCubado | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Linha 7 -->
+    <div class="details-row">
+      <div class="detail-item col-12">
+        <label>Permite agrupamento com outras demandas</label>
+        <span>{{ frete.permitirAgrupamento ? 'Sim' : 'Não' }}</span>
+      </div>
+    </div>
+
+    <!-- Linha 8 -->
+    <div class="details-row">
+      <div class="detail-item col-12">
+        <label>Observações</label>
+        <span class="obs-text">{{ frete.observacoes || '-' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

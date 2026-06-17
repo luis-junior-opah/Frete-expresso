@@ -1,0 +1,255 @@
+<div class="step-view">
+  <app-solicitacao-card [frete]="frete"></app-solicitacao-card>
+
+  <!-- Card Fretes Aglutinados (Paridade Step 3/4/5) - Condicional -->
+  <mat-card class="grouping-card mt-4" *ngIf="groupedDemands.length > 0">
+    <mat-card-header class="flex-column align-items-start">
+      <mat-card-title>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          Fretes Aglutinados
+          <span *ngIf="aglutinadorAtual" class="aglutinador-badge">{{ aglutinadorAtual }}</span>
+        </div>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <!-- Linha de Cabeçalho -->
+      <div class="info-row mb-4">
+        <div class="info-group col-2">
+          <label>Cód. Unidade</label>
+          <div class="disabled-field">{{ codUnidadeAtual }}</div>
+        </div>
+        <div class="info-group col-4">
+          <label>Cliente</label>
+          <div class="disabled-field truncate-text" [matTooltip]="clienteAtual">{{ clienteAtual }}</div>
+        </div>
+        <div class="info-group col-6">
+          <label>Local de Entrega</label>
+          <div class="disabled-field truncate-text" [matTooltip]="localEntregaAtual">{{ localEntregaAtual }}</div>
+        </div>
+      </div>
+
+      <!-- Linha de Métricas -->
+      <div class="info-row mb-4">
+        <div class="info-group col-3">
+          <label>Tipo de veículo</label>
+          <mat-form-field appearance="outline" class="editable-field">
+            <mat-select [(ngModel)]="aglutinadosTipoVeiculo" disabled>
+              <mat-option *ngFor="let type of vehicleTypes" [value]="type.value">
+                {{ type.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Volumetria (m³)</label>
+          <div class="disabled-field">{{ aglutinadosVolumetria }}</div>
+        </div>
+        <div class="info-group col-3">
+          <label>Peso (kg)</label>
+          <div class="disabled-field">{{ aglutinadosPeso }}</div>
+        </div>
+        <div class="info-group col-3">
+          <label>Peso Cubado (kg)</label>
+          <div class="disabled-field">{{ aglutinadosPesoCubado | number:'1.2-2' }}</div>
+        </div>
+      </div>
+
+      <div class="table-container full-grid">
+        <table mat-table [dataSource]="groupedDemands" class="mat-elevation-z0 w-100">
+          <ng-container matColumnDef="ag_id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_pedido">
+            <th mat-header-cell *matHeaderCellDef> Pedido </th>
+            <td mat-cell *matCellDef="let element"> {{element.pedido}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_fornecedor">
+            <th mat-header-cell *matHeaderCellDef> Fornecedor </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="line-clamp-2" [matTooltip]="element.fornecedor">{{element.fornecedor}}</div>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_localColeta">
+            <th mat-header-cell *matHeaderCellDef> Local de Coleta </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="line-clamp-2" [matTooltip]="element.localColeta">{{element.localColeta}}</div>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_distancia">
+            <th mat-header-cell *matHeaderCellDef> Distância </th>
+            <td mat-cell *matCellDef="let element"> {{element.distancia}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_inicioJanela">
+            <th mat-header-cell *matHeaderCellDef> Início Janela </th>
+            <td mat-cell *matCellDef="let element"> {{element.inicioJanela}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_fimJanela">
+            <th mat-header-cell *matHeaderCellDef> Fim Janela </th>
+            <td mat-cell *matCellDef="let element"> {{element.fimJanela}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_necessidadeEntrega">
+            <th mat-header-cell *matHeaderCellDef> Necessidade de Entrega </th>
+            <td mat-cell *matCellDef="let element"> {{element.necessidadeEntrega}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_modal">
+            <th mat-header-cell *matHeaderCellDef> Modal </th>
+            <td mat-cell *matCellDef="let element"> {{element.modal}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_tipoVeiculo">
+            <th mat-header-cell *matHeaderCellDef> Tipo de veículo </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="line-clamp-2" [matTooltip]="element.tipoVeiculo">{{element.tipoVeiculo}}</div>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_fluxo">
+            <th mat-header-cell *matHeaderCellDef> Fluxo </th>
+            <td mat-cell *matCellDef="let element"> {{element.fluxo}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_tipoMaterial">
+            <th mat-header-cell *matHeaderCellDef> Tipo de material </th>
+            <td mat-cell *matCellDef="let element"> {{element.tipoMaterial}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_altura">
+            <th mat-header-cell *matHeaderCellDef> Altura </th>
+            <td mat-cell *matCellDef="let element"> {{element.altura}}m </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_comprimento">
+            <th mat-header-cell *matHeaderCellDef> Comprimento </th>
+            <td mat-cell *matCellDef="let element"> {{element.comprimento}}m </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_largura">
+            <th mat-header-cell *matHeaderCellDef> Largura </th>
+            <td mat-cell *matCellDef="let element"> {{element.largura}}m </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_peso">
+            <th mat-header-cell *matHeaderCellDef> Peso </th>
+            <td mat-cell *matCellDef="let element"> {{element.peso}}kg </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_volumetria">
+            <th mat-header-cell *matHeaderCellDef> Volumetria </th>
+            <td mat-cell *matCellDef="let element"> {{element.volumetria}}m³ </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_solicitante">
+            <th mat-header-cell *matHeaderCellDef> Solicitante </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="truncate-text" [matTooltip]="element.solicitante">{{element.solicitante}}</div>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_dataCriacao">
+            <th mat-header-cell *matHeaderCellDef> Data Solicitação </th>
+            <td mat-cell *matCellDef="let element"> {{element.dataCriacao}} </td>
+          </ng-container>
+          <ng-container matColumnDef="ag_observacoes">
+            <th mat-header-cell *matHeaderCellDef class="text-center"> Observações </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <button mat-icon-button color="primary" 
+                      *ngIf="element.observacoes && element.observacoes !== '-'"
+                      (click)="abrirObservacao(element.observacoes)" 
+                      matTooltip="Ver Observação">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <span *ngIf="!element.observacoes || element.observacoes === '-'" style="color: #94a3b8; font-style: italic; font-size: 0.75rem;">Sem obs.</span>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="aglutinadosColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: aglutinadosColumns;"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Card Pedido -->
+  <mat-card class="order-card section mt-4">
+    <mat-card-header>
+      <mat-card-title class="standard-title">Pedido</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="generation-container">
+        <p class="generation-text">Gerar pedido para <strong>{{ approvedQuotation?.transportadora || 'JM PREMIER' }}</strong></p>
+        
+        <div class="generation-actions">
+          <button mat-flat-button color="primary" (click)="gerarPedido()" [disabled]="pedidoGerado">
+            <mat-icon>settings_applications</mat-icon> Gerar Pedido
+          </button>
+          
+          <div class="generated-badge" *ngIf="pedidoGerado">
+            <mat-icon>check_circle</mat-icon>
+            Pedido: <strong>{{ numeroPedidoGerado }}</strong>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Card Coleta -->
+  <mat-card class="order-card section mt-4">
+    <mat-card-header>
+      <mat-card-title class="standard-title">Coleta</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="generation-container">
+        <p class="generation-text">Gerar coleta para <strong>{{ approvedQuotation?.transportadora || 'JM PREMIER' }}</strong></p>
+        
+        <div class="generation-actions">
+          <button mat-flat-button color="primary" (click)="gerarColeta()" [disabled]="coletaGerada">
+            <mat-icon>local_shipping</mat-icon> Gerar Coleta
+          </button>
+          
+          <div class="generated-badge" *ngIf="coletaGerada">
+            <mat-icon>check_circle</mat-icon>
+            Coleta: <strong>{{ numeroColetaGerado }}</strong>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Ações de Validação -->
+  <mat-card class="validation-card actions-card mt-4">
+    <mat-card-header>
+      <mat-card-title class="standard-title">Ações de Validação</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="actions-grid-container mt-4">
+        <mat-form-field appearance="outline" class="justificativa-field bg-white">
+          <mat-label>Justificativa</mat-label>
+          <textarea matInput rows="4" [(ngModel)]="justificativaValidacao"></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="actions-footer mt-4">
+        <div class="left-actions">
+          <button mat-flat-button color="accent" (click)="adicionarAnexo()">
+            <mat-icon>attach_file</mat-icon> Adicionar anexo
+          </button>
+        </div>
+        
+        <div class="right-actions">
+          <button mat-flat-button color="warn" class="cancel-btn mr-2" (click)="cancelarFrete()">
+            <mat-icon>cancel</mat-icon> Cancelar Frete Expresso
+          </button>
+          <button mat-flat-button color="primary" class="approve-btn" (click)="aprovarFrete()">
+            <mat-icon>check_circle</mat-icon> Aprovar Frete Expresso
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Histórico de Alterações da Etapa -->
+  <div class="logs-wrapper" *ngIf="logsAlteracao.length > 0">
+    <div class="logs-container">
+      <h4 class="logs-title">
+        <mat-icon>history</mat-icon> Histórico de Alterações da Etapa
+      </h4>
+      <div class="log-item" *ngFor="let log of logsAlteracao">
+        <div class="log-info">
+          <span class="log-date">{{ log.data }} às {{ log.hora }}</span>
+          <span class="log-user">{{ log.usuario }}</span>
+          <span class="log-description">{{ log.detalhes || log.acao }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

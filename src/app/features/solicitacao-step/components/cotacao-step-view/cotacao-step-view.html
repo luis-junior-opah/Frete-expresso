@@ -1,0 +1,529 @@
+<div class="step-view">
+  <app-solicitacao-card [frete]="frete"></app-solicitacao-card>
+
+  <!-- Grid de Agrupamento -->
+  <mat-card class="grouping-card" *ngIf="frete?.permitirAgrupamento">
+    <mat-card-header class="flex-between">
+      <mat-card-title>Demandas Agrupáveis</mat-card-title>
+      <div class="header-buttons">
+        <button mat-flat-button color="primary" class="group-btn mr-2" (click)="agrupar()" [disabled]="selection.selected.length === 0">
+          <mat-icon>group_work</mat-icon> Agrupar
+        </button>
+        <button mat-stroked-button class="filter-btn" (click)="openFilterModal()">
+          <mat-icon>filter_list</mat-icon> Filtrar
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-container">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z0 w-100">
+
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? toggleAllRows() : null"
+                            [checked]="selection.hasValue() && isAllSelected()"
+                            [indeterminate]="selection.hasValue() && !isAllSelected()"
+                            [aria-label]="checkboxLabel()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                            (change)="$event ? selection.toggle(row) : null"
+                            [checked]="selection.isSelected(row)"
+                            [aria-label]="checkboxLabel(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+          </ng-container>
+
+          <!-- Aglutinador Column -->
+          <ng-container matColumnDef="aglutinador">
+            <th mat-header-cell *matHeaderCellDef> Aglutinador </th>
+            <td mat-cell *matCellDef="let element"> {{element.aglutinador}} </td>
+          </ng-container>
+
+          <!-- Pedido Column -->
+          <ng-container matColumnDef="pedido">
+            <th mat-header-cell *matHeaderCellDef> Pedido </th>
+            <td mat-cell *matCellDef="let element"> {{element.pedido}} </td>
+          </ng-container>
+
+          <!-- Início Janela Column -->
+          <ng-container matColumnDef="inicioJanela">
+            <th mat-header-cell *matHeaderCellDef> Início Janela </th>
+            <td mat-cell *matCellDef="let element"> {{element.inicioJanela}} </td>
+          </ng-container>
+
+          <!-- Fim Janela Column -->
+          <ng-container matColumnDef="fimJanela">
+            <th mat-header-cell *matHeaderCellDef> Fim Janela </th>
+            <td mat-cell *matCellDef="let element"> {{element.fimJanela}} </td>
+          </ng-container>
+
+          <!-- Necessidade de Entrega Column -->
+          <ng-container matColumnDef="necessidadeEntrega">
+            <th mat-header-cell *matHeaderCellDef> Necessidade de Entrega </th>
+            <td mat-cell *matCellDef="let element"> {{element.necessidadeEntrega}} </td>
+          </ng-container>
+
+          <!-- Local de Coleta Column -->
+          <ng-container matColumnDef="localColeta">
+            <th mat-header-cell *matHeaderCellDef> Local de Coleta </th>
+            <td mat-cell *matCellDef="let element" [matTooltip]="element.localColeta"> {{element.localColeta}} </td>
+          </ng-container>
+
+          <!-- Local de Entrega Column -->
+          <ng-container matColumnDef="localEntrega">
+            <th mat-header-cell *matHeaderCellDef> Local de Entrega </th>
+            <td mat-cell *matCellDef="let element" [matTooltip]="element.localEntrega"> {{element.localEntrega}} </td>
+          </ng-container>
+
+          <!-- Distância Column -->
+          <ng-container matColumnDef="distancia">
+            <th mat-header-cell *matHeaderCellDef> Distância </th>
+            <td mat-cell *matCellDef="let element"> {{element.distancia}} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+              (click)="selection.toggle(row)"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Card Fretes Aglutinados -->
+  <mat-card class="grouping-card mt-4" *ngIf="groupedDemands.length > 0">
+    <mat-card-header class="flex-column align-items-start">
+      <mat-card-title>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          Fretes Aglutinados
+          <span *ngIf="aglutinadorAtual" class="aglutinador-badge">{{ aglutinadorAtual }}</span>
+        </div>
+      </mat-card-title>
+      <div class="grouping-header-info" *ngIf="groupedDemands.length > 0">
+        <span><strong class="label-muted">Cód. Unidade:</strong> {{ codUnidadeAtual }}</span>
+        <span class="divider">•</span>
+        <span><strong class="label-muted">Cliente:</strong> {{ clienteAtual }}</span>
+        <span class="divider">•</span>
+        <span><strong class="label-muted">Local de Entrega:</strong> {{ localEntregaAtual }}</span>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-row mb-4">
+        <div class="info-group col-3">
+          <label>Tipo de veículo</label>
+          <mat-form-field appearance="outline" class="editable-field">
+            <mat-select [(ngModel)]="aglutinadosTipoVeiculo" (selectionChange)="onAglutinadosChange('Tipo de veículo', $event.value)">
+              <mat-option value="">Selecione o tipo de veículo...</mat-option>
+              <mat-option *ngFor="let type of vehicleTypes" [value]="type.value">
+                {{ type.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Volumetria (m³)</label>
+          <mat-form-field appearance="outline" class="editable-field">
+            <input matInput type="number" [(ngModel)]="aglutinadosVolumetria">
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Peso (kg)</label>
+          <mat-form-field appearance="outline" class="editable-field">
+            <input matInput type="number" [(ngModel)]="aglutinadosPeso">
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Peso Cubado (kg)</label>
+          <mat-form-field appearance="outline" class="editable-field">
+            <input matInput type="text" [value]="aglutinadosPesoCubado | number:'1.2-2'" disabled>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="flex-end mb-4">
+        <button mat-flat-button color="primary" class="save-group-btn" (click)="confirmarSalvamentoAglutinados()">
+          <mat-icon>save</mat-icon> Salvar Alterações
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table mat-table [dataSource]="groupedDemands" class="mat-elevation-z0 w-100">
+          <!-- Desagrupar Column -->
+          <ng-container matColumnDef="ag_select">
+            <th mat-header-cell *matHeaderCellDef> Ações </th>
+            <td mat-cell *matCellDef="let row">
+              <button mat-icon-button color="warn" (click)="desagrupar(row)" matTooltip="Desagrupar">
+                <mat-icon>link_off</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- ID Column -->
+          <ng-container matColumnDef="ag_id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+          </ng-container>
+
+          <!-- Pedido Column -->
+          <ng-container matColumnDef="ag_pedido">
+            <th mat-header-cell *matHeaderCellDef> Pedido </th>
+            <td mat-cell *matCellDef="let element"> {{element.pedido}} </td>
+          </ng-container>
+
+          <!-- Fornecedor Column -->
+          <ng-container matColumnDef="ag_fornecedor">
+            <th mat-header-cell *matHeaderCellDef> Fornecedor </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="line-clamp-2" [matTooltip]="element.fornecedor">{{element.fornecedor}}</div>
+            </td>
+          </ng-container>
+
+          <!-- Local de Coleta Column -->
+          <ng-container matColumnDef="ag_localColeta">
+            <th mat-header-cell *matHeaderCellDef> Local de Coleta </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="line-clamp-2" [matTooltip]="element.localColeta">{{element.localColeta}}</div>
+            </td>
+          </ng-container>
+
+          <!-- Distância Column -->
+          <ng-container matColumnDef="ag_distancia">
+            <th mat-header-cell *matHeaderCellDef> Distância </th>
+            <td mat-cell *matCellDef="let element"> {{element.distancia}} </td>
+          </ng-container>
+
+          <!-- Início Janela Column -->
+          <ng-container matColumnDef="ag_inicioJanela">
+            <th mat-header-cell *matHeaderCellDef> Início Janela </th>
+            <td mat-cell *matCellDef="let element"> {{element.inicioJanela}} </td>
+          </ng-container>
+
+          <!-- Fim Janela Column -->
+          <ng-container matColumnDef="ag_fimJanela">
+            <th mat-header-cell *matHeaderCellDef> Fim Janela </th>
+            <td mat-cell *matCellDef="let element"> {{element.fimJanela}} </td>
+          </ng-container>
+
+          <!-- Necessidade de Entrega Column -->
+          <ng-container matColumnDef="ag_necessidadeEntrega">
+            <th mat-header-cell *matHeaderCellDef> Necessidade de Entrega </th>
+            <td mat-cell *matCellDef="let element"> {{element.necessidadeEntrega}} </td>
+          </ng-container>
+
+          <!-- Modal Column -->
+          <ng-container matColumnDef="ag_modal">
+            <th mat-header-cell *matHeaderCellDef> Modal </th>
+            <td mat-cell *matCellDef="let element"> {{element.modal}} </td>
+          </ng-container>
+
+          <!-- Tipo de veículo Column -->
+          <ng-container matColumnDef="ag_tipoVeiculo">
+            <th mat-header-cell *matHeaderCellDef> Tipo de veículo </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="line-clamp-2" [matTooltip]="element.tipoVeiculo">{{element.tipoVeiculo}}</div>
+            </td>
+          </ng-container>
+
+          <!-- Fluxo Column -->
+          <ng-container matColumnDef="ag_fluxo">
+            <th mat-header-cell *matHeaderCellDef> Fluxo </th>
+            <td mat-cell *matCellDef="let element"> {{element.fluxo}} </td>
+          </ng-container>
+
+          <!-- Tipo de material Column -->
+          <ng-container matColumnDef="ag_tipoMaterial">
+            <th mat-header-cell *matHeaderCellDef> Tipo de material </th>
+            <td mat-cell *matCellDef="let element"> {{element.tipoMaterial}} </td>
+          </ng-container>
+
+          <!-- Altura Column -->
+          <ng-container matColumnDef="ag_altura">
+            <th mat-header-cell *matHeaderCellDef> Altura </th>
+            <td mat-cell *matCellDef="let element"> {{element.altura}}m </td>
+          </ng-container>
+
+          <!-- Comprimento Column -->
+          <ng-container matColumnDef="ag_comprimento">
+            <th mat-header-cell *matHeaderCellDef> Comprimento </th>
+            <td mat-cell *matCellDef="let element"> {{element.comprimento}}m </td>
+          </ng-container>
+
+          <!-- Largura Column -->
+          <ng-container matColumnDef="ag_largura">
+            <th mat-header-cell *matHeaderCellDef> Largura </th>
+            <td mat-cell *matCellDef="let element"> {{element.largura}}m </td>
+          </ng-container>
+
+          <!-- Peso Column -->
+          <ng-container matColumnDef="ag_peso">
+            <th mat-header-cell *matHeaderCellDef> Peso </th>
+            <td mat-cell *matCellDef="let element"> {{element.peso}}kg </td>
+          </ng-container>
+
+          <!-- Volumetria Column -->
+          <ng-container matColumnDef="ag_volumetria">
+            <th mat-header-cell *matHeaderCellDef> Volumetria </th>
+            <td mat-cell *matCellDef="let element"> {{element.volumetria}}m³ </td>
+          </ng-container>
+
+          <!-- Solicitante Column -->
+          <ng-container matColumnDef="ag_solicitante">
+            <th mat-header-cell *matHeaderCellDef> Solicitante </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="truncate-text" [matTooltip]="element.solicitante">{{element.solicitante}}</div>
+            </td>
+          </ng-container>
+
+          <!-- Data e hora da solicitação Column -->
+          <ng-container matColumnDef="ag_dataCriacao">
+            <th mat-header-cell *matHeaderCellDef> Data Solicitação </th>
+            <td mat-cell *matCellDef="let element"> {{element.dataCriacao}} </td>
+          </ng-container>
+
+          <!-- Observações Column -->
+          <ng-container matColumnDef="ag_observacoes">
+            <th mat-header-cell *matHeaderCellDef class="text-center"> Observações </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <button mat-icon-button color="primary" 
+                      *ngIf="element.observacoes && element.observacoes !== '-'"
+                      (click)="abrirObservacao(element.observacoes)" 
+                      matTooltip="Ver Observação">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <span *ngIf="!element.observacoes || element.observacoes === '-'" style="color: #94a3b8; font-style: italic; font-size: 0.75rem;">Sem obs.</span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="aglutinadosColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: aglutinadosColumns;"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="quotations-header">
+    <h2 class="quotations-title">Cotações</h2>
+    <button mat-flat-button color="primary" class="invite-btn" (click)="enviarCotacao()">
+      <mat-icon>send</mat-icon> Enviar cotação
+    </button>
+  </div>
+
+  <!-- Seção de Cotações por Transportadora -->
+  <div class="quotations-list">
+    <mat-card class="carrier-card" *ngFor="let q of quotations">
+      <mat-card-header class="carrier-header">
+        <div class="header-main">
+          <mat-card-title>Cotação {{ q.id }}</mat-card-title>
+          <div class="header-chips">
+            <span class="status-chip" [attr.data-status]="q.status">{{ q.status }}</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button mat-icon-button color="primary" [disabled]="!q.temAnexo" matTooltip="Download Anexos">
+            <mat-icon>download</mat-icon>
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="cardMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #cardMenu="matMenu">
+            <button mat-menu-item (click)="reabrirCotacao(q.id)">
+              <mat-icon>refresh</mat-icon>
+              <span>Reabrir cotação</span>
+            </button>
+            <button mat-menu-item (click)="cancelarCotacao(q.id)">
+              <mat-icon>cancel</mat-icon>
+              <span>Cancelar</span>
+            </button>
+          </mat-menu>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content class="carrier-content">
+        <!-- Linha 1: Transportadora e Observação -->
+        <div class="info-row">
+          <div class="info-group col-3">
+            <label>Transportadora</label>
+            <div class="disabled-field">{{ q.transportadora }}</div>
+          </div>
+          <div class="info-group col-9">
+            <label>Observação</label>
+            <div class="disabled-field">{{ q.observacao }}</div>
+          </div>
+        </div>
+
+        <!-- Linha 2: Endereços e Datas (Contexto do Frete Principal) -->
+        <div class="info-row" *ngIf="frete">
+          <div class="info-group col-3">
+            <label>Local de Coleta</label>
+            <div class="disabled-field truncate-text" [matTooltip]="frete.enderecoColeta || ''">{{ frete.enderecoColeta }}</div>
+          </div>
+          <div class="info-group col-3">
+            <label>Início Janela</label>
+            <div class="disabled-field">{{ frete.dataInicioJanela }}</div>
+          </div>
+          <div class="info-group col-3">
+            <label>Fim Janela</label>
+            <div class="disabled-field">{{ frete.dataFimJanela }}</div>
+          </div>
+          <div class="info-group col-3">
+            <label>Necessidade</label>
+            <div class="disabled-field">{{ frete.dataNecessidadeEntrega }}</div>
+          </div>
+        </div>
+
+        <!-- Linha 1: Individual -->
+        <div class="info-row highlight-row">
+          <div class="info-group col-3">
+            <label>TT Coleta (Individual)</label>
+            <div class="disabled-field">{{ q.individual.ttColeta }}h</div>
+          </div>
+          <div class="info-group col-3">
+            <label>TT Entrega (Individual)</label>
+            <div class="disabled-field">{{ q.individual.ttEntrega }}h</div>
+          </div>
+          <div class="info-group col-3">
+            <label>TT Total (Individual)</label>
+            <div class="disabled-field font-bold">{{ q.individual.ttTotal }}h</div>
+          </div>
+          <div class="info-group col-3">
+            <label>Valor (Individual)</label>
+            <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info'">
+              <span>{{ q.individual.valor | currency:'BRL' }}</span>
+              <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor, q.individual.valorHistorico).message)">{{ getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção de Agrupamento (Só visível se houver demandas agrupadas) -->
+        <ng-container *ngIf="groupedDemands.length > 0">
+          <!-- Cabeçalho e Dados Complementares -->
+          <div class="complementary-header">
+            <span class="complementary-title">Valores complementares a cotação #{{ q.complementar.id }}</span>
+            <button mat-button class="toggle-comp-btn" (click)="q.showComplementar = !q.showComplementar">
+              {{ q.showComplementar ? 'Ocultar detalhes' : 'Reexibir detalhes' }}
+              <mat-icon>{{ q.showComplementar ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+          </div>
+
+          <ng-container *ngIf="q.showComplementar">
+            <div class="info-row">
+              <div class="info-group col-3">
+                <label>Local de Coleta</label>
+                <div class="disabled-field truncate-text" [matTooltip]="q.complementar.localColeta || ''">{{ q.complementar.localColeta }}</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Início Janela</label>
+                <div class="disabled-field">{{ q.complementar.dataInicio }}</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Fim Janela</label>
+                <div class="disabled-field">{{ q.complementar.dataFim }}</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Necessidade</label>
+                <div class="disabled-field">{{ q.complementar.necessidade }}</div>
+              </div>
+            </div>
+
+            <!-- Linha 2: ID (Frete Principal agrupado) -->
+            <div class="info-row highlight-row" *ngIf="frete">
+              <div class="info-group col-3">
+                <label>TT Coleta Frete #{{ q.complementar.id }}</label>
+                <div class="disabled-field">{{ q.individual.ttColeta }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>TT Entrega Frete #{{ q.complementar.id }}</label>
+                <div class="disabled-field">{{ q.individual.ttEntrega }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>TT Total Frete #{{ q.complementar.id }}</label>
+                <div class="disabled-field font-bold">{{ q.individual.ttTotal }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Valor Frete #{{ q.complementar.id }}</label>
+                <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info'">
+                  <span>{{ q.individual.valor | currency:'BRL' }}</span>
+                  <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor, q.individual.valorHistorico).message)">{{ getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
+                </div>
+              </div>
+            </div>
+
+            <!-- Linha 3: Complementar -->
+            <div class="info-row">
+              <div class="info-group col-3">
+                <label>TT Coleta (Complementar)</label>
+                <div class="disabled-field">{{ q.complementar.ttColeta }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>TT Entrega (Complementar)</label>
+                <div class="disabled-field">{{ q.complementar.ttEntrega }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>TT Total (Complementar)</label>
+                <div class="disabled-field font-bold">{{ q.complementar.ttTotal }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Valor (Complementar)</label>
+                <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'info'">
+                  <span>{{ q.complementar.valor | currency:'BRL' }}</span>
+                  <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).message)">{{ getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Linha 4: Totais (Geral = ID + Complementar) -->
+          <div class="info-row total-row">
+            <div class="info-group col-3">
+              <label>TT Coleta (Total)</label>
+              <div class="disabled-field">{{ q.individual.ttColeta + q.complementar.ttColeta }}h</div>
+            </div>
+            <div class="info-group col-3">
+              <label>TT Entrega (Total)</label>
+              <div class="disabled-field">{{ q.individual.ttEntrega + q.complementar.ttEntrega }}h</div>
+            </div>
+            <div class="info-group col-3">
+              <label>TT (Total)</label>
+              <div class="disabled-field font-black">{{ q.individual.ttTotal + q.complementar.ttTotal }}h</div>
+            </div>
+            <div class="info-group col-3">
+              <label>Valor (Total)</label>
+              <div class="disabled-field font-black price-total" 
+                   [class.duplo-check-danger]="getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'danger'" 
+                   [class.duplo-check-info]="getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'info'">
+                <span>{{ (q.individual.valor + q.complementar.valor) | currency:'BRL' }}</span>
+                <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).message)">
+                  {{ getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'danger' ? 'warning' : 'info' }}
+                </mat-icon>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Seção de Logs de Alteração Step 2 -->
+  <div class="logs-wrapper" *ngIf="logsAlteracao.length > 0">
+    <div class="logs-container">
+      <h4 class="logs-title">
+        <mat-icon>history</mat-icon> Histórico de Alterações (Etapa Cotação)
+      </h4>
+      <div class="log-item" *ngFor="let log of logsAlteracao">
+        <div class="log-info">
+          <span class="log-date">{{ log.data }} às {{ log.hora }}</span>
+          <span class="log-user">{{ log.usuario }}</span>
+          <span class="log-description">{{ log.detalhes || log.acao }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

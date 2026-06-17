@@ -1,0 +1,190 @@
+<div class="container">
+  <div class="nav-back">
+    <button mat-button (click)="voltar()">
+      <mat-icon>arrow_back</mat-icon> Voltar
+    </button>
+  </div>
+
+  <mat-card class="main-card">
+    <mat-card-content>
+      <h2 class="title text-center">Configurações Administrativas - Portal Integrator</h2>
+
+      <mat-tab-group [(selectedIndex)]="activeTab">
+        <!-- TAB 1: Parametrizações -->
+        <mat-tab label="Parametrizações de Negócio">
+          <div class="tab-content">
+            <h3 class="section-subtitle">Regras e Expediente - Configurações Gerais</h3>
+            <mat-divider class="mb-4"></mat-divider>
+
+            <div class="grid-container">
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Raio Máximo de Aglutinação (KM)</mat-label>
+                <input matInput type="number" [(ngModel)]="raioMaxAglutinacao">
+                <mat-hint>Default: 10 KM</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>SLA de Expiração da Cotação (Min. Úteis)</mat-label>
+                <input matInput type="number" [(ngModel)]="slaExpiracaoCotacao">
+                <mat-hint>Default: 40 Minutos Úteis</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>SLA de Prorrogação (Min. Úteis)</mat-label>
+                <input matInput type="number" [(ngModel)]="slaProrrogacao">
+                <mat-hint>Default: 30 Minutos Úteis</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>SLA de Escalonamento (Min. Úteis)</mat-label>
+                <input matInput type="number" [(ngModel)]="slaEscalonamento">
+                <mat-hint>Default: 30 Minutos Úteis</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Margem de Tolerância (%)</mat-label>
+                <input matInput type="number" [(ngModel)]="margemTolerancia">
+                <mat-hint>Default: 10%</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Período de Histórico (Dias)</mat-label>
+                <input matInput type="number" [(ngModel)]="periodoHistorico">
+                <mat-hint>Default: 180 Dias</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Limite Tamanho Arquivo (MB)</mat-label>
+                <input matInput type="number" [(ngModel)]="limiteArquivo">
+                <mat-hint>Default: 25 MB</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Início Expediente</mat-label>
+                <input matInput type="time" [(ngModel)]="horarioInicio">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Fim Expediente</mat-label>
+                <input matInput type="time" [(ngModel)]="horarioFim">
+              </mat-form-field>
+            </div>
+
+            <div class="flex-center mt-4">
+              <button mat-flat-button color="primary" class="save-btn" (click)="salvarParametros()">
+                <mat-icon>save</mat-icon> Salvar Parametrizações
+              </button>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 2: Feriados -->
+        <mat-tab label="Feriados Nacionais">
+          <div class="tab-content">
+            <div class="flex-between mb-4">
+              <h3 class="section-subtitle no-margin">Calendário Operacional - Feriados Nacionais</h3>
+              <button mat-flat-button color="primary">
+                <mat-icon>add</mat-icon> Adicionar Feriado
+              </button>
+            </div>
+            
+            <table mat-table [dataSource]="feriados()" class="w-full">
+              <ng-container matColumnDef="data">
+                <th mat-header-cell *matHeaderCellDef> Data </th>
+                <td mat-cell *matCellDef="let f"> {{ f.data | date:'dd/MM/yyyy' }} </td>
+              </ng-container>
+              <ng-container matColumnDef="descricao">
+                <th mat-header-cell *matHeaderCellDef> Descrição </th>
+                <td mat-cell *matCellDef="let f"> {{ f.descricao }} </td>
+              </ng-container>
+              <ng-container matColumnDef="acoes">
+                <th mat-header-cell *matHeaderCellDef align="right"> Ações </th>
+                <td mat-cell *matCellDef="let f" align="right">
+                  <button mat-icon-button><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button color="warn" (click)="deleteFeriado(f.id)"><mat-icon>delete</mat-icon></button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['data', 'descricao', 'acoes']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['data', 'descricao', 'acoes'];"></tr>
+            </table>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 3: Homologação -->
+        <mat-tab label="Homologação de Transportadoras">
+          <div class="tab-content">
+            <div class="flex-between mb-4">
+              <h3 class="section-subtitle no-margin">Elegibilidade e Homologação</h3>
+              <button mat-flat-button color="primary">
+                <mat-icon>add</mat-icon> Adicionar Vínculo
+              </button>
+            </div>
+
+            <table mat-table [dataSource]="transportadoras()" class="w-full">
+              <ng-container matColumnDef="nome">
+                <th mat-header-cell *matHeaderCellDef> Transportadora </th>
+                <td mat-cell *matCellDef="let t"> {{ t.nome }} </td>
+              </ng-container>
+              <ng-container matColumnDef="cliente">
+                <th mat-header-cell *matHeaderCellDef> Cliente </th>
+                <td mat-cell *matCellDef="let t"> {{ t.cliente }} </td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef align="center"> Homologada </th>
+                <td mat-cell *matCellDef="let t" align="center">
+                  <mat-slide-toggle [checked]="t.homologada" (change)="toggleHomologacao(t.id)" color="primary"></mat-slide-toggle>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['nome', 'cliente', 'status']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['nome', 'cliente', 'status'];"></tr>
+            </table>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 4: Alçadas -->
+        <mat-tab label="Matriz de Alçadas">
+          <div class="tab-content">
+            <div class="flex-between mb-4">
+              <h3 class="section-subtitle no-margin">Matriz de Alçadas - Hierarquia</h3>
+              <div class="flex-gap-2">
+                <button mat-stroked-button><mat-icon>history</mat-icon> Histórico</button>
+                <button mat-flat-button color="primary"><mat-icon>add</mat-icon> Adicionar Alçada</button>
+              </div>
+            </div>
+
+            <table mat-table [dataSource]="alcadas()" class="w-full">
+              <ng-container matColumnDef="unit">
+                <th mat-header-cell *matHeaderCellDef> Unit CD </th>
+                <td mat-cell *matCellDef="let a"> {{ a.unitCD }} </td>
+              </ng-container>
+              <ng-container matColumnDef="seq">
+                <th mat-header-cell *matHeaderCellDef> Seq. </th>
+                <td mat-cell *matCellDef="let a"> {{ a.sequencia }} </td>
+              </ng-container>
+              <ng-container matColumnDef="limite">
+                <th mat-header-cell *matHeaderCellDef> Faixa (R$) </th>
+                <td mat-cell *matCellDef="let a"> {{ a.limiteInferior | number:'1.2-2' }} - {{ a.limiteSuperior | number:'1.2-2' }} </td>
+              </ng-container>
+              <ng-container matColumnDef="aprovador">
+                <th mat-header-cell *matHeaderCellDef> Aprovador </th>
+                <td mat-cell *matCellDef="let a"> {{ a.aprovador }} </td>
+              </ng-container>
+              <ng-container matColumnDef="acoes">
+                <th mat-header-cell *matHeaderCellDef align="right"> Ações </th>
+                <td mat-cell *matCellDef="let a" align="right">
+                  <button mat-icon-button><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button color="warn" (click)="deleteAlcada(a.id)"><mat-icon>delete</mat-icon></button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['unit', 'seq', 'limite', 'aprovador', 'acoes']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['unit', 'seq', 'limite', 'aprovador', 'acoes'];"></tr>
+            </table>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,64 @@
+/* Global Styles for Frete Expresso - Material Design 3 */
+:root {
+  /* Semantic Status Colors mapped to M3 principles */
+  --sys-color-success: #146c2e;
+  --sys-color-on-success: #ffffff;
+  --sys-color-success-container: #c8f0cd;
+  --sys-color-on-success-container: #002107;
+
+  --sys-color-warning: #7D5260; /* M3 Tertiary fallback for warning/in-progress */
+  --sys-color-on-warning: #ffffff;
+  --sys-color-warning-container: #FFD8E4;
+  --sys-color-on-warning-container: #31111D;
+  
+  --sys-color-info: #0061a4;
+  --sys-color-on-info: #ffffff;
+  --sys-color-info-container: #d1e4ff;
+  --sys-color-on-info-container: #001d36;
+
+  /* Legacy variable mappings to M3 */
+  --primary-color: var(--mat-sys-primary);
+  --secondary-color: var(--mat-sys-secondary);
+  --bg-color: var(--mat-sys-surface-container-lowest);
+}
+
+body {
+  margin: 0;
+  font-family: var(--mat-sys-body-medium-font);
+  background-color: var(--mat-sys-surface-container-lowest);
+  color: var(--mat-sys-on-surface);
+  overflow: hidden; /* Force scrollbar to mat-sidenav-content only */
+}
+
+/* Material Component Overrides */
+.mat-mdc-tab-group.mat-primary .mat-mdc-tab-labels {
+  background-color: var(--mat-sys-surface);
+}
+
+.mat-mdc-form-field-focus-overlay {
+  background-color: transparent !important;
+}
+
+/* Custom Utilities */
+.text-center { text-align: center; }
+.w-full { width: 100%; }
+.mb-4 { margin-bottom: 16px; }
+.mt-4 { margin-top: 16px; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-center { display: flex; justify-content: center; align-items: center; }
+.flex-end { display: flex; justify-content: flex-end; align-items: center; }
+.flex-gap-2 { display: flex; gap: 16px; }
+.gap-2 { gap: 8px; }
+
+/* Densidade e Alinhamento Global */
+.mat-mdc-card {
+  border-radius: 12px !important; /* M3 standard rounding */
+}
+
+.mat-mdc-table {
+  background: var(--mat-sys-surface);
+}
+
+.mat-mdc-header-cell {
+  font-weight: 600 !important;
+}

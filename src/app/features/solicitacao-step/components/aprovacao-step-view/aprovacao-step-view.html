@@ -1,0 +1,479 @@
+<div class="step-view">
+  <app-solicitacao-card [frete]="frete"></app-solicitacao-card>
+
+  <!-- Card Fretes Aglutinados Replicado do Step 02 -->
+  <mat-card class="grouping-card mt-4" *ngIf="groupedDemands.length > 0">
+    <mat-card-header class="flex-column align-items-start">
+      <mat-card-title>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          Fretes Aglutinados
+          <span *ngIf="aglutinadorAtual" class="aglutinador-badge">{{ aglutinadorAtual }}</span>
+        </div>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <!-- Linha de Cabeçalho (Campos estruturados) -->
+      <div class="info-row mb-4">
+        <div class="info-group col-2">
+          <label>Cód. Unidade</label>
+          <div class="disabled-field">{{ codUnidadeAtual }}</div>
+        </div>
+        <div class="info-group col-4">
+          <label>Cliente</label>
+          <div class="disabled-field truncate-text" [matTooltip]="clienteAtual">{{ clienteAtual }}</div>
+        </div>
+        <div class="info-group col-6">
+          <label>Local de Entrega</label>
+          <div class="disabled-field truncate-text" [matTooltip]="localEntregaAtual">{{ localEntregaAtual }}</div>
+        </div>
+      </div>
+
+      <div class="info-row mb-4">
+        <div class="info-group col-3">
+          <label>Tipo de veículo</label>
+          <mat-form-field appearance="outline" class="editable-field">
+            <mat-select [(ngModel)]="aglutinadosTipoVeiculo" disabled>
+              <mat-option *ngFor="let type of vehicleTypes" [value]="type.value">
+                {{ type.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Volumetria (m³)</label>
+          <mat-form-field appearance="outline" class="editable-field">
+            <input matInput type="number" [(ngModel)]="aglutinadosVolumetria" disabled>
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Peso (kg)</label>
+          <mat-form-field appearance="outline" class="editable-field">
+            <input matInput type="number" [(ngModel)]="aglutinadosPeso" disabled>
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Peso Cubado (kg)</label>
+          <mat-form-field appearance="outline" class="editable-field">
+            <input matInput type="text" [value]="aglutinadosPesoCubado | number:'1.2-2'" disabled>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="table-container full-grid">
+        <table mat-table [dataSource]="groupedDemands" class="mat-elevation-z0 w-100">
+          <!-- ID Column -->
+          <ng-container matColumnDef="ag_id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+          </ng-container>
+
+          <!-- Pedido Column -->
+          <ng-container matColumnDef="ag_pedido">
+            <th mat-header-cell *matHeaderCellDef> Pedido </th>
+            <td mat-cell *matCellDef="let element"> {{element.pedido}} </td>
+          </ng-container>
+
+          <!-- Fornecedor Column -->
+          <ng-container matColumnDef="ag_fornecedor">
+            <th mat-header-cell *matHeaderCellDef> Fornecedor </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="line-clamp-2" [matTooltip]="element.fornecedor">{{element.fornecedor}}</div>
+            </td>
+          </ng-container>
+
+          <!-- Local de Coleta Column -->
+          <ng-container matColumnDef="ag_localColeta">
+            <th mat-header-cell *matHeaderCellDef> Local de Coleta </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="line-clamp-2" [matTooltip]="element.localColeta">{{element.localColeta}}</div>
+            </td>
+          </ng-container>
+
+          <!-- Distância Column -->
+          <ng-container matColumnDef="ag_distancia">
+            <th mat-header-cell *matHeaderCellDef> Distância </th>
+            <td mat-cell *matCellDef="let element"> {{element.distancia}} </td>
+          </ng-container>
+
+          <!-- Início Janela Column -->
+          <ng-container matColumnDef="ag_inicioJanela">
+            <th mat-header-cell *matHeaderCellDef> Início Janela </th>
+            <td mat-cell *matCellDef="let element"> {{element.inicioJanela}} </td>
+          </ng-container>
+
+          <!-- Fim Janela Column -->
+          <ng-container matColumnDef="ag_fimJanela">
+            <th mat-header-cell *matHeaderCellDef> Fim Janela </th>
+            <td mat-cell *matCellDef="let element"> {{element.fimJanela}} </td>
+          </ng-container>
+
+          <!-- Necessidade de Entrega Column -->
+          <ng-container matColumnDef="ag_necessidadeEntrega">
+            <th mat-header-cell *matHeaderCellDef> Necessidade de Entrega </th>
+            <td mat-cell *matCellDef="let element"> {{element.necessidadeEntrega}} </td>
+          </ng-container>
+
+          <!-- Modal Column -->
+          <ng-container matColumnDef="ag_modal">
+            <th mat-header-cell *matHeaderCellDef> Modal </th>
+            <td mat-cell *matCellDef="let element"> {{element.modal}} </td>
+          </ng-container>
+
+          <!-- Tipo de veículo Column -->
+          <ng-container matColumnDef="ag_tipoVeiculo">
+            <th mat-header-cell *matHeaderCellDef> Tipo de veículo </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="line-clamp-2" [matTooltip]="element.tipoVeiculo">{{element.tipoVeiculo}}</div>
+            </td>
+          </ng-container>
+
+          <!-- Fluxo Column -->
+          <ng-container matColumnDef="ag_fluxo">
+            <th mat-header-cell *matHeaderCellDef> Fluxo </th>
+            <td mat-cell *matCellDef="let element"> {{element.fluxo}} </td>
+          </ng-container>
+
+          <!-- Tipo de material Column -->
+          <ng-container matColumnDef="ag_tipoMaterial">
+            <th mat-header-cell *matHeaderCellDef> Tipo de material </th>
+            <td mat-cell *matCellDef="let element"> {{element.tipoMaterial}} </td>
+          </ng-container>
+
+          <!-- Altura Column -->
+          <ng-container matColumnDef="ag_altura">
+            <th mat-header-cell *matHeaderCellDef> Altura </th>
+            <td mat-cell *matCellDef="let element"> {{element.altura}}m </td>
+          </ng-container>
+
+          <!-- Comprimento Column -->
+          <ng-container matColumnDef="ag_comprimento">
+            <th mat-header-cell *matHeaderCellDef> Comprimento </th>
+            <td mat-cell *matCellDef="let element"> {{element.comprimento}}m </td>
+          </ng-container>
+
+          <!-- Largura Column -->
+          <ng-container matColumnDef="ag_largura">
+            <th mat-header-cell *matHeaderCellDef> Largura </th>
+            <td mat-cell *matCellDef="let element"> {{element.largura}}m </td>
+          </ng-container>
+
+          <!-- Peso Column -->
+          <ng-container matColumnDef="ag_peso">
+            <th mat-header-cell *matHeaderCellDef> Peso </th>
+            <td mat-cell *matCellDef="let element"> {{element.peso}}kg </td>
+          </ng-container>
+
+          <!-- Volumetria Column -->
+          <ng-container matColumnDef="ag_volumetria">
+            <th mat-header-cell *matHeaderCellDef> Volumetria </th>
+            <td mat-cell *matCellDef="let element"> {{element.volumetria}}m³ </td>
+          </ng-container>
+
+          <!-- Solicitante Column -->
+          <ng-container matColumnDef="ag_solicitante">
+            <th mat-header-cell *matHeaderCellDef> Solicitante </th>
+            <td mat-cell *matCellDef="let element">
+              <div class="truncate-text" [matTooltip]="element.solicitante">{{element.solicitante}}</div>
+            </td>
+          </ng-container>
+
+          <!-- Data e hora da solicitação Column -->
+          <ng-container matColumnDef="ag_dataCriacao">
+            <th mat-header-cell *matHeaderCellDef> Data Solicitação </th>
+            <td mat-cell *matCellDef="let element"> {{element.dataCriacao}} </td>
+          </ng-container>
+
+          <!-- Observações Column -->
+          <ng-container matColumnDef="ag_observacoes">
+            <th mat-header-cell *matHeaderCellDef class="text-center"> Observações </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <button mat-icon-button color="primary" 
+                      *ngIf="element.observacoes && element.observacoes !== '-'"
+                      (click)="abrirObservacao(element.observacoes)" 
+                      matTooltip="Ver Observação">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <span *ngIf="!element.observacoes || element.observacoes === '-'" style="color: #94a3b8; font-style: italic; font-size: 0.75rem;">Sem obs.</span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="aglutinadosColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: aglutinadosColumns;"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Lista de Cotações -->
+  <div class="quotations-header">
+    <h2 class="quotations-title">Aprovações</h2>
+  </div>
+
+  <!-- Matriz de Alçadas e SLA -->
+  <div class="approval-flow-container">
+    <div class="sla-header">
+      <div class="timer-box" [class.timer-warning]="timerSeconds < 60">
+        <mat-icon>timer</mat-icon>
+        <span class="timer-label">Próximo Escalonamento em:</span>
+        <span class="timer-value">{{ formattedTimer }}</span>
+      </div>
+    </div>
+
+    <div class="approvers-list">
+      <div class="approver-row" *ngFor="let a of aprovadoresAtuais; let last = last" 
+           [class.active-approver]="last && !aprovacaoRealizada"
+           [class.approver-final]="aprovacaoRealizada && a.nome === usuarioAprovador">
+        <div class="approver-avatar">{{ a.avatar }}</div>
+        <div class="approver-info">
+          <span class="approver-name">{{ a.nome }}</span>
+          <span class="approver-email">{{ a.email }}</span>
+        </div>
+        <div class="approver-status">
+          <span class="status-tag" 
+                [class.tag-pending]="last && !aprovacaoRealizada" 
+                [class.tag-escalated]="!last && (!aprovacaoRealizada || a.nome !== usuarioAprovador)"
+                [class.tag-approved]="aprovacaoRealizada && a.nome === usuarioAprovador">
+            {{ (aprovacaoRealizada && a.nome === usuarioAprovador) ? 'Aprovação Realizada' : (last ? 'Aguardando Aprovação' : 'SLA Excedido - Escalonado') }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quotations-list">
+    <mat-card class="carrier-card" *ngFor="let q of quotations"
+              [class.approved-card]="aprovacaoRealizada && q.id === idAprovado"
+              [class.reproved-card]="aprovacaoRealizada && q.id !== idAprovado">
+      <mat-card-header class="carrier-header">
+        <div class="header-main">
+          <mat-card-title>{{ q.transportadora }}</mat-card-title>
+          <div class="header-chips">
+            <span class="status-chip" [attr.data-status]="q.status">{{ q.status }}</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <!-- Botões de Aprovação (Exclusivos Step 3) -->
+          <ng-container *ngIf="groupedDemands.length > 0; else btnSimples">
+            <button mat-flat-button color="primary" class="approve-btn mr-2" (click)="aprovar(q, 'individual')" [disabled]="aprovacaoRealizada">
+              Aprovar Individual
+            </button>
+            <button mat-flat-button color="primary" class="approve-btn mr-2" (click)="aprovar(q, 'agrupado')" [disabled]="aprovacaoRealizada">
+              Aprovar Agrupado
+            </button>
+          </ng-container>
+          <ng-template #btnSimples>
+            <button mat-flat-button color="primary" class="approve-btn mr-2" (click)="aprovar(q, 'simples')" [disabled]="aprovacaoRealizada">
+              Aprovar
+            </button>
+          </ng-template>
+
+          <button mat-icon-button color="primary" [disabled]="!q.temAnexo" matTooltip="Download Anexos">
+            <mat-icon>download</mat-icon>
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="cardMenu" [disabled]="aprovacaoRealizada">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #cardMenu="matMenu">
+            <button mat-menu-item (click)="reabrirCotacao(q.id)">
+              <mat-icon>refresh</mat-icon>
+              <span>Reabrir cotação</span>
+            </button>
+            <button mat-menu-item (click)="cancelarCotacao(q.id)">
+              <mat-icon>cancel</mat-icon>
+              <span>Cancelar</span>
+            </button>
+          </mat-menu>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content class="carrier-content">
+        <!-- Linha 1: Observação -->
+        <div class="info-row">
+          <div class="info-group col-12">
+            <label>Observação</label>
+            <div class="disabled-field">{{ q.observacao }}</div>
+          </div>
+        </div>
+
+        <!-- Linha 2: Endereços e Datas -->
+        <div class="info-row" *ngIf="frete">
+          <div class="info-group col-3">
+            <label>Local de Coleta</label>
+            <div class="disabled-field truncate-text" [matTooltip]="frete.enderecoColeta || ''">{{ frete.enderecoColeta }}</div>
+          </div>
+          <div class="info-group col-3">
+            <label>Início Janela</label>
+            <div class="disabled-field">{{ frete.dataInicioJanela }}</div>
+          </div>
+          <div class="info-group col-3">
+            <label>Fim Janela</label>
+            <div class="disabled-field">{{ frete.dataFimJanela }}</div>
+          </div>
+          <div class="info-group col-3">
+            <label>Necessidade</label>
+            <div class="disabled-field">{{ frete.dataNecessidadeEntrega }}</div>
+          </div>
+        </div>
+
+        <!-- Linha 3: Individual -->
+        <div class="info-row highlight-row choice-row" 
+             [class.approved-choice]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'"
+             [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'agrupado'">
+          
+          <!-- Badge de Decisão -->
+          <span class="approval-badge badge-success" *ngIf="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">Selecionado</span>
+          <span class="approval-badge badge-muted" *ngIf="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'agrupado'">Não Utilizado</span>
+
+          <div class="info-group col-3">
+            <label>TT Coleta (Individual)</label>
+            <div class="disabled-field">{{ q.individual.ttColeta }}h</div>
+          </div>
+          <div class="info-group col-3">
+            <label>TT Entrega (Individual)</label>
+            <div class="disabled-field">{{ q.individual.ttEntrega }}h</div>
+          </div>
+          <div class="info-group col-3">
+            <label>TT Total (Individual)</label>
+            <div class="disabled-field font-bold">{{ q.individual.ttTotal }}h</div>
+          </div>
+          <div class="info-group col-3">
+            <label>Valor (Individual)</label>
+            <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info'">
+              <span>{{ q.individual.valor | currency:'BRL' }}</span>
+              <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor, q.individual.valorHistorico).message)">{{ getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção de Agrupamento (Só visível se houver demandas agrupadas) -->
+        <ng-container *ngIf="groupedDemands.length > 0">
+          <!-- Cabeçalho e Dados Complementares -->
+          <div class="complementary-header" [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
+            <span class="complementary-title">Valores complementares a cotação #{{ q.complementar.id }}</span>
+            <button mat-button class="toggle-comp-btn" (click)="q.showComplementar = !q.showComplementar" [disabled]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
+              {{ q.showComplementar ? 'Ocultar detalhes' : 'Reexibir detalhes' }}
+              <mat-icon>{{ q.showComplementar ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+          </div>
+
+          <ng-container *ngIf="q.showComplementar">
+            <div class="info-row" [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
+              <div class="info-group col-3">
+                <label>Local de Coleta</label>
+                <div class="disabled-field truncate-text" [matTooltip]="q.complementar.localColeta || ''">{{ q.complementar.localColeta }}</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Início Janela</label>
+                <div class="disabled-field">{{ q.complementar.dataInicio }}</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Fim Janela</label>
+                <div class="disabled-field">{{ q.complementar.dataFim }}</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Necessidade</label>
+                <div class="disabled-field">{{ q.complementar.necessidade }}</div>
+              </div>
+            </div>
+
+            <!-- Linha 4: ID (Frete Principal agrupado) -->
+            <div class="info-row highlight-row" *ngIf="frete" [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
+              <div class="info-group col-3">
+                <label>TT Coleta Frete #{{ q.complementar.id }}</label>
+                <div class="disabled-field">{{ q.individual.ttColeta }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>TT Entrega Frete #{{ q.complementar.id }}</label>
+                <div class="disabled-field">{{ q.individual.ttEntrega }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>TT Total Frete #{{ q.complementar.id }}</label>
+                <div class="disabled-field font-bold">{{ q.individual.ttTotal }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Valor Frete #{{ q.complementar.id }}</label>
+                <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info'">
+                  <span>{{ q.individual.valor | currency:'BRL' }}</span>
+                  <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor, q.individual.valorHistorico).message)">{{ getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
+                </div>
+              </div>
+            </div>
+
+            <!-- Linha 5: Complementar -->
+            <div class="info-row" [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
+              <div class="info-group col-3">
+                <label>TT Coleta (Complementar)</label>
+                <div class="disabled-field">{{ q.complementar.ttColeta }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>TT Entrega (Complementar)</label>
+                <div class="disabled-field">{{ q.complementar.ttEntrega }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>TT Total (Complementar)</label>
+                <div class="disabled-field font-bold">{{ q.complementar.ttTotal }}h</div>
+              </div>
+              <div class="info-group col-3">
+                <label>Valor (Complementar)</label>
+                <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'info'">
+                  <span>{{ q.complementar.valor | currency:'BRL' }}</span>
+                  <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).message)">{{ getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Linha 6: Totais -->
+          <div class="info-row total-row choice-row" 
+               [class.approved-choice]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'agrupado'"
+               [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
+            
+            <!-- Badge de Decisão -->
+            <span class="approval-badge badge-success" *ngIf="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'agrupado'">Aprovado</span>
+            <span class="approval-badge badge-muted" *ngIf="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">Não Selecionado</span>
+
+            <div class="info-group col-3">
+              <label>TT Coleta (Total)</label>
+              <div class="disabled-field">{{ q.individual.ttColeta + q.complementar.ttColeta }}h</div>
+            </div>
+            <div class="info-group col-3">
+              <label>TT Entrega (Total)</label>
+              <div class="disabled-field">{{ q.individual.ttEntrega + q.complementar.ttEntrega }}h</div>
+            </div>
+            <div class="info-group col-3">
+              <label>TT (Total)</label>
+              <div class="disabled-field font-black">{{ q.individual.ttTotal + q.complementar.ttTotal }}h</div>
+            </div>
+            <div class="info-group col-3">
+              <label>Valor (Total)</label>
+              <div class="disabled-field font-black price-total" 
+                   [class.duplo-check-danger]="getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'danger'" 
+                   [class.duplo-check-info]="getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'info'">
+                <span>{{ (q.individual.valor + q.complementar.valor) | currency:'BRL' }}</span>
+                <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).message)">
+                  {{ getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'danger' ? 'warning' : 'info' }}
+                </mat-icon>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Histórico de Alterações -->
+  <div class="logs-wrapper" *ngIf="logsAlteracao.length > 0">
+    <div class="logs-container">
+      <h4 class="logs-title">
+        <mat-icon>history</mat-icon> Histórico de Alterações da Etapa
+      </h4>
+      <div class="log-item" *ngFor="let log of logsAlteracao">
+        <div class="log-info">
+          <span class="log-date">{{ log.data }} às {{ log.hora }}</span>
+          <span class="log-user">{{ log.usuario }}</span>
+          <span class="log-description">{{ log.detalhes || log.acao }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
