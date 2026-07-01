@@ -1,0 +1,338 @@
+.step-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 80px;
+}
+
+.mt-4 {
+  margin-top: 1.5rem !important;
+}
+
+.mr-3 {
+  margin-right: 1rem !important;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.col-4 {
+  flex: 1 1 calc(33.333% - 16px);
+  min-width: 200px;
+}
+
+.col-6 {
+  flex: 1 1 calc(50% - 16px);
+  min-width: 250px;
+}
+
+.col-12 {
+  width: 100%;
+}
+
+label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.disabled-field {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #1e293b;
+  font-size: 0.95rem;
+  min-height: 22px;
+}
+
+.disabled-field.font-bold {
+  font-weight: 700;
+}
+
+.disabled-field.price {
+  color: #0f766e;
+}
+
+.disabled-field.price-delta {
+  font-size: 1.1rem;
+}
+
+.flex-align-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-link {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+.textarea-field {
+  white-space: pre-wrap;
+  line-height: 1.5;
+  min-height: 80px;
+}
+
+.grid-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bg-white {
+  background-color: #ffffff;
+}
+
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upload-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.drag-drop-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+}
+
+.drag-drop-zone:hover {
+  border-color: #6366f1;
+  background-color: #f1f5f9;
+}
+
+.drag-drop-zone.file-loaded {
+  border-color: #22c55e;
+  background-color: #f0fdf4;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  width: 40px;
+  height: 40px;
+  color: #94a3b8;
+}
+
+.file-loaded .upload-icon {
+  color: #22c55e;
+}
+
+.upload-text {
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.upload-text.file-name {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.status-chip {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-chip[data-status='Pendente'] {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.status-chip[data-status='Aprovado'] {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.status-chip[data-status='Recusado'] {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.alcada-container {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+}
+
+.alcada-title {
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+
+.approvers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.approver-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.approver-row.active-approver {
+  border-color: #6366f1;
+  background-color: #e0e7ff;
+}
+
+.approver-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+}
+
+.active-approver .approver-avatar {
+  background-color: #6366f1;
+  color: #ffffff;
+}
+
+.approver-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.approver-name {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.approver-role {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.status-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background-color: #e2e8f0;
+  color: #64748b;
+}
+
+.tag-approved {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.tag-refused {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.tag-pending {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+}
+
+.approver-action-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.approver-action-box h5 {
+  font-weight: 800;
+  margin: 0;
+  color: #1e293b;
+}
+
+.approver-action-box .description {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.buttons-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.success-btn {
+  background-color: #22c55e !important;
+  color: #ffffff !important;
+}
+
+.success-btn:hover {
+  background-color: #16a34a !important;
+}

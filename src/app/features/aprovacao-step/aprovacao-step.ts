@@ -1,4 +1,4 @@
-﻿import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -41,7 +41,7 @@ export class AprovacaoStep {
   fretes = this.freteService.fretes;
 
   fretesEmAnalise = computed(() => 
-    this.fretes().filter(f => f.status === 'Em aprovação')
+    this.fretes().filter(f => f.status === 'Em Aprovação')
   );
 
   selectedFreteId = signal<string>('');

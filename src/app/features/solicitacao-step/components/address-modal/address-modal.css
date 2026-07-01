@@ -1,0 +1,87 @@
+.dialog-title {
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: #1e293b;
+  margin: 0;
+  padding: 20px 24px 12px 24px !important;
+  letter-spacing: -0.5px;
+}
+
+.dialog-content {
+  padding: 12px 24px 20px 24px !important;
+  max-width: 600px;
+}
+
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
+
+/* Column sizes */
+.col-12 { grid-column: span 12; }
+.col-8 { grid-column: span 8; }
+.col-6 { grid-column: span 6; }
+.col-4 { grid-column: span 4; }
+.col-3 { grid-column: span 3; }
+
+/* Custom mat-form-field appearance overrides */
+::ng-deep .mat-mdc-text-field-wrapper {
+  background-color: #f8fafc !important;
+  border-radius: 12px !important;
+}
+
+::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  background-color: white !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 20px 24px !important;
+}
+
+/* Button design consistency */
+.btn-cancel, .btn-save {
+  height: 38px !important;
+  min-height: 38px !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  border-radius: 100px !important;
+  padding: 0 20px !important;
+}
+
+.btn-cancel {
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+.btn-save {
+  background-color: #2563eb !important;
+  color: white !important;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2) !important;
+}
+
+.btn-save:hover {
+  filter: brightness(1.1) !important;
+}
+
+@media (max-width: 600px) {
+  .col-8, .col-6, .col-4, .col-3 {
+    grid-column: span 12;
+  }
+}
+
+/* Adjustments for the UF select panel list */
+::ng-deep .uf-select-panel {
+  min-width: 250px !important;
+  max-width: 90vw !important;
+}
+
+::ng-deep .uf-select-panel .mat-mdc-option .mdc-list-item__primary-text {
+  white-space: nowrap !important;
+  font-size: 0.85rem !important;
+}
+

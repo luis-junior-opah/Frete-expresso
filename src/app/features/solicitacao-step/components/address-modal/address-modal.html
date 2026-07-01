@@ -1,0 +1,65 @@
+<h2 mat-dialog-title class="dialog-title">Preenchimento de Endereço</h2>
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="addressForm" class="address-grid">
+    
+    <!-- Logradouro e Número -->
+    <mat-form-field appearance="outline" class="col-8">
+      <mat-label>Logradouro</mat-label>
+      <input matInput formControlName="logradouro" placeholder="Ex: Rua das Flores">
+      <mat-error *ngIf="addressForm.get('logradouro')?.hasError('required')">Logradouro é obrigatório</mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="col-4">
+      <mat-label>Número</mat-label>
+      <input matInput formControlName="numero" placeholder="Ex: 123">
+      <mat-error *ngIf="addressForm.get('numero')?.hasError('required')">Número é obrigatório</mat-error>
+    </mat-form-field>
+
+    <!-- Complemento e Bairro -->
+    <mat-form-field appearance="outline" class="col-6">
+      <mat-label>Complemento</mat-label>
+      <input matInput formControlName="complemento" placeholder="Ex: Apto 101, Bloco B">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col-6">
+      <mat-label>Bairro</mat-label>
+      <input matInput formControlName="bairro" placeholder="Ex: Centro">
+      <mat-error *ngIf="addressForm.get('bairro')?.hasError('required')">Bairro é obrigatório</mat-error>
+    </mat-form-field>
+
+    <!-- Cidade, UF, CEP -->
+    <mat-form-field appearance="outline" class="col-6">
+      <mat-label>Cidade</mat-label>
+      <input matInput formControlName="cidade" placeholder="Ex: São Paulo">
+      <mat-error *ngIf="addressForm.get('cidade')?.hasError('required')">Cidade é obrigatória</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col-3">
+      <mat-label>UF</mat-label>
+      <mat-select formControlName="uf" placeholder="Selecione" panelClass="uf-select-panel">
+        <mat-option *ngFor="let item of ufs" [value]="item.sigla">
+          {{ item.sigla }} - {{ item.nome }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="addressForm.get('uf')?.hasError('required')">UF é obrigatória</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col-3">
+      <mat-label>CEP</mat-label>
+      <input matInput formControlName="cep" (input)="onCepInput($event)" placeholder="00000-000">
+      <mat-error *ngIf="addressForm.get('cep')?.hasError('required')">CEP é obrigatório</mat-error>
+      <mat-error *ngIf="addressForm.get('cep')?.hasError('pattern')">CEP inválido (format: 00000-000)</mat-error>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions class="dialog-actions">
+  <button mat-stroked-button (click)="voltar()" class="btn-cancel">
+    Voltar
+  </button>
+  <button mat-flat-button color="primary" (click)="salvar()" class="btn-save">
+    Salvar
+  </button>
+</mat-dialog-actions>

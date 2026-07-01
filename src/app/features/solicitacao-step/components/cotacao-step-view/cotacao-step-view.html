@@ -311,19 +311,36 @@
 
   <div class="quotations-header">
     <h2 class="quotations-title">Cotações</h2>
-    <button mat-flat-button color="primary" class="invite-btn" (click)="enviarCotacao()">
-      <mat-icon>send</mat-icon> Enviar cotação
-    </button>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <!-- Cronômetro Pai (Maior tempo das cotações em aberto) -->
+      <div class="timer-box" [class.timer-warning]="timerSeconds < 300" *ngIf="timerSeconds > 0">
+        <mat-icon>timer</mat-icon>
+        <span class="timer-label">Tempo restante:</span>
+        <span class="timer-value">{{ formattedTimer }}</span>
+      </div>
+      <button mat-flat-button color="primary" class="invite-btn" (click)="enviarCotacao()">
+        <mat-icon>person_add</mat-icon> Enviar cotação
+      </button>
+      <button mat-flat-button color="accent" class="force-btn" (click)="forcarEnvioAprovacao()" [disabled]="rodada === 1 || hasPendente()">
+        <mat-icon>gavel</mat-icon> Forçar Envio Aprovação
+      </button>
+    </div>
   </div>
 
   <!-- Seção de Cotações por Transportadora -->
   <div class="quotations-list">
     <mat-card class="carrier-card" *ngFor="let q of quotations">
       <mat-card-header class="carrier-header">
-        <div class="header-main">
+        <div class="header-main" style="width: 100%; display: flex; align-items: center;">
           <mat-card-title>Cotação {{ q.id }}</mat-card-title>
           <div class="header-chips">
             <span class="status-chip" [attr.data-status]="q.status">{{ q.status }}</span>
+          </div>
+          <!-- Cronômetro Individual -->
+          <div class="timer-box" [class.timer-warning]="q.slaRestante < 300" *ngIf="q.status === 'Pendente'" style="margin-left: auto;">
+            <mat-icon>timer</mat-icon>
+            <span class="timer-label">Tempo restante:</span>
+            <span class="timer-value">{{ getFormattedTime(q.slaRestante) }}</span>
           </div>
         </div>
         <div class="header-actions">
@@ -334,7 +351,7 @@
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #cardMenu="matMenu">
-            <button mat-menu-item (click)="reabrirCotacao(q.id)">
+            <button mat-menu-item (click)="reabrirCotacaoExcepcionalmente(q.id)" [disabled]="q.status !== 'Declinada' && q.status !== 'Expirada' && q.status !== 'Reprovada'">
               <mat-icon>refresh</mat-icon>
               <span>Reabrir cotação</span>
             </button>
@@ -406,105 +423,112 @@
         <ng-container *ngIf="groupedDemands.length > 0">
           <!-- Cabeçalho e Dados Complementares -->
           <div class="complementary-header">
-            <span class="complementary-title">Valores complementares a cotação #{{ q.complementar.id }}</span>
-            <button mat-button class="toggle-comp-btn" (click)="q.showComplementar = !q.showComplementar">
-              {{ q.showComplementar ? 'Ocultar detalhes' : 'Reexibir detalhes' }}
-              <mat-icon>{{ q.showComplementar ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </button>
+            <span class="complementary-title">Valores complementares a cotação {{ getComplementaresIds(q) }}</span>
           </div>
 
           <ng-container *ngIf="q.showComplementar">
-            <div class="info-row">
-              <div class="info-group col-3">
-                <label>Local de Coleta</label>
-                <div class="disabled-field truncate-text" [matTooltip]="q.complementar.localColeta || ''">{{ q.complementar.localColeta }}</div>
+            <ng-container *ngFor="let c of getFilteredComplementares(q); let isFirst = first; let isLast = last">
+              <div class="info-row" [class.mt-3]="!isFirst">
+                <div class="info-group col-3">
+                  <label>Local de Coleta #{{ c.id }}</label>
+                  <div class="disabled-field truncate-text" [matTooltip]="c.localColeta || ''">{{ c.localColeta }}</div>
+                </div>
+                <div class="info-group col-3">
+                  <label>Início Janela #{{ c.id }}</label>
+                  <div class="disabled-field">{{ c.dataInicio }}</div>
+                </div>
+                <div class="info-group col-3">
+                  <label>Fim Janela #{{ c.id }}</label>
+                  <div class="disabled-field">{{ c.dataFim }}</div>
+                </div>
+                <div class="info-group col-3">
+                  <label>Necessidade #{{ c.id }}</label>
+                  <div class="disabled-field">{{ c.necessidade }}</div>
+                </div>
               </div>
-              <div class="info-group col-3">
-                <label>Início Janela</label>
-                <div class="disabled-field">{{ q.complementar.dataInicio }}</div>
-              </div>
-              <div class="info-group col-3">
-                <label>Fim Janela</label>
-                <div class="disabled-field">{{ q.complementar.dataFim }}</div>
-              </div>
-              <div class="info-group col-3">
-                <label>Necessidade</label>
-                <div class="disabled-field">{{ q.complementar.necessidade }}</div>
-              </div>
-            </div>
 
-            <!-- Linha 2: ID (Frete Principal agrupado) -->
-            <div class="info-row highlight-row" *ngIf="frete">
+              <!-- Linha 2: ID (Vinculado) -->
+              <div class="info-row highlight-row">
+                <div class="info-group col-3">
+                  <label>TT Coleta Frete #{{ c.id }} (Vinculado)</label>
+                  <div class="disabled-field">{{ c.ttColeta }}h</div>
+                </div>
+                <div class="info-group col-3">
+                  <label>TT Entrega Frete #{{ c.id }} (Vinculado)</label>
+                  <div class="disabled-field">{{ c.ttEntrega }}h</div>
+                </div>
+                <div class="info-group col-3">
+                  <label>TT Total Frete #{{ c.id }} (Vinculado)</label>
+                  <div class="disabled-field font-bold">{{ c.ttTotal }}h</div>
+                </div>
+                <div class="info-group col-3">
+                  <label>Valor Frete #{{ c.id }} (Vinculado)</label>
+                  <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(c.valor, c.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(c.valor, c.valorHistorico).status === 'info'">
+                    <span>{{ c.valor | currency:'BRL' }}</span>
+                    <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(c.valor, c.valorHistorico).message)">{{ getDuploCheck(c.valor, c.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- Linha Adicionais (Apenas as demandas complementares / diferença) -->
+            <div class="info-row" *ngIf="getAdicionais(q) as adicionais">
               <div class="info-group col-3">
-                <label>TT Coleta Frete #{{ q.complementar.id }}</label>
-                <div class="disabled-field">{{ q.individual.ttColeta }}h</div>
+                <label>TT Coleta (Adicional)</label>
+                <div class="disabled-field">{{ adicionais.ttColeta }}h</div>
               </div>
               <div class="info-group col-3">
-                <label>TT Entrega Frete #{{ q.complementar.id }}</label>
-                <div class="disabled-field">{{ q.individual.ttEntrega }}h</div>
+                <label>TT Entrega Frete (Adicional)</label>
+                <div class="disabled-field">{{ adicionais.ttEntrega }}h</div>
               </div>
               <div class="info-group col-3">
-                <label>TT Total Frete #{{ q.complementar.id }}</label>
-                <div class="disabled-field font-bold">{{ q.individual.ttTotal }}h</div>
+                <label>TT Total (Adicional)</label>
+                <div class="disabled-field font-bold">{{ adicionais.ttTotal }}h</div>
               </div>
               <div class="info-group col-3">
-                <label>Valor Frete #{{ q.complementar.id }}</label>
-                <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info'">
-                  <span>{{ q.individual.valor | currency:'BRL' }}</span>
-                  <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor, q.individual.valorHistorico).message)">{{ getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
+                <label>Valor (Adicional)</label>
+                <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(adicionais.valor, adicionais.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(adicionais.valor, adicionais.valorHistorico).status === 'info'">
+                  <span>{{ adicionais.valor | currency:'BRL' }}</span>
+                  <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(adicionais.valor, adicionais.valorHistorico).message)">{{ getDuploCheck(adicionais.valor, adicionais.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
                 </div>
               </div>
             </div>
 
-            <!-- Linha 3: Complementar -->
-            <div class="info-row">
-              <div class="info-group col-3">
-                <label>TT Coleta (Complementar)</label>
-                <div class="disabled-field">{{ q.complementar.ttColeta }}h</div>
-              </div>
-              <div class="info-group col-3">
-                <label>TT Entrega (Complementar)</label>
-                <div class="disabled-field">{{ q.complementar.ttEntrega }}h</div>
-              </div>
-              <div class="info-group col-3">
-                <label>TT Total (Complementar)</label>
-                <div class="disabled-field font-bold">{{ q.complementar.ttTotal }}h</div>
-              </div>
-              <div class="info-group col-3">
-                <label>Valor (Complementar)</label>
-                <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'info'">
-                  <span>{{ q.complementar.valor | currency:'BRL' }}</span>
-                  <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).message)">{{ getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
-                </div>
-              </div>
-            </div>
           </ng-container>
 
-          <!-- Linha 4: Totais (Geral = ID + Complementar) -->
-          <div class="info-row total-row">
+          <!-- Linha Totais (Geral = ID Principal + Complementares) -->
+          <div class="info-row total-row" *ngIf="getTotals(q) as totals">
             <div class="info-group col-3">
               <label>TT Coleta (Total)</label>
-              <div class="disabled-field">{{ q.individual.ttColeta + q.complementar.ttColeta }}h</div>
+              <div class="disabled-field">{{ totals.ttColeta }}h</div>
             </div>
             <div class="info-group col-3">
               <label>TT Entrega (Total)</label>
-              <div class="disabled-field">{{ q.individual.ttEntrega + q.complementar.ttEntrega }}h</div>
+              <div class="disabled-field">{{ totals.ttEntrega }}h</div>
             </div>
             <div class="info-group col-3">
               <label>TT (Total)</label>
-              <div class="disabled-field font-black">{{ q.individual.ttTotal + q.complementar.ttTotal }}h</div>
+              <div class="disabled-field font-black">{{ totals.ttTotal }}h</div>
             </div>
             <div class="info-group col-3">
               <label>Valor (Total)</label>
               <div class="disabled-field font-black price-total" 
-                   [class.duplo-check-danger]="getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'danger'" 
-                   [class.duplo-check-info]="getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'info'">
-                <span>{{ (q.individual.valor + q.complementar.valor) | currency:'BRL' }}</span>
-                <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).message)">
-                  {{ getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'danger' ? 'warning' : 'info' }}
+                   [class.duplo-check-danger]="getDuploCheck(totals.valor, totals.valorHistorico).status === 'danger'" 
+                   [class.duplo-check-info]="getDuploCheck(totals.valor, totals.valorHistorico).status === 'info'">
+                <span>{{ totals.valor | currency:'BRL' }}</span>
+                <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(totals.valor, totals.valorHistorico).message)">
+                  {{ getDuploCheck(totals.valor, totals.valorHistorico).status === 'danger' ? 'warning' : 'info' }}
                 </mat-icon>
               </div>
             </div>
+          </div>
+
+          <!-- Bottom Action for Toggle Details -->
+          <div class="toggle-details-container">
+            <button mat-stroked-button color="primary" class="toggle-details-btn-bottom" (click)="q.showComplementar = !q.showComplementar">
+              <mat-icon>{{ q.showComplementar ? 'expand_less' : 'expand_more' }}</mat-icon>
+              {{ q.showComplementar ? 'Ocultar detalhes' : 'Visualizar detalhes' }}
+            </button>
           </div>
         </ng-container>
       </mat-card-content>

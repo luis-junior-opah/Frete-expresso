@@ -1,4 +1,4 @@
-import { Component, Input, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, inject, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -56,7 +56,7 @@ export class PedidoObservacaoModal {
   templateUrl: './pedido-step-view.html',
   styleUrl: './pedido-step-view.css',
 })
-export class PedidoStepView {
+export class PedidoStepView implements OnInit {
   @Input() frete?: Frete;
   @Input() approvedQuotation: any = null;
   @Input() groupedDemands: any[] = [];
@@ -77,6 +77,19 @@ export class PedidoStepView {
   numeroColetaGerado = '';
   logsAlteracao: any[] = [];
 
+  ngOnInit() {
+    if (this.frete) {
+      if (this.frete.numeroPedido) {
+        this.numeroPedidoGerado = this.frete.numeroPedido;
+        this.pedidoGerado = true;
+      }
+      if (this.frete.codigoColeta) {
+        this.numeroColetaGerado = this.frete.codigoColeta;
+        this.coletaGerada = true;
+      }
+    }
+  }
+
   aglutinadosColumns: string[] = [
     'ag_id', 'ag_pedido', 'ag_fornecedor', 'ag_localColeta', 
     'ag_distancia', 'ag_inicioJanela', 'ag_fimJanela', 
@@ -86,23 +99,23 @@ export class PedidoStepView {
   ];
 
   vehicleTypes = [
-    { value: 'Aéreo', label: 'Aéreo - Capacidade máx: 999999.0 Kgs - 94.5 m³' },
-    { value: 'Truck Aberto', label: 'Truck Aberto - Capacidade máx: 12000.0 Kgs - 50.63 m³' },
-    { value: '3/4 Aberto', label: '3/4 Aberto - Capacidade máx: 3000.0 Kgs - 20.0 m³' },
-    { value: 'Carreta Bau', label: 'Carreta Bau - Capacidade máx: 25000.0 Kgs - 94.5 m³' },
-    { value: 'Carreta Vanderleia', label: 'Carreta Vanderleia - Capacidade máx: 34000.0 Kgs - 94.5 m³' },
-    { value: 'Utilitario', label: 'Utilitario - Capacidade máx: 500.0 Kgs - 2.85 m³' },
-    { value: 'Van', label: 'Van - Capacidade máx: 1500.0 Kgs - 9.03 m³' },
-    { value: '3/4', label: '3/4 - Capacidade máx: 3000.0 Kgs - 20.0 m³' },
-    { value: 'Toco', label: 'Toco - Capacidade máx: 6000.0 Kgs - 46.38 m³' },
-    { value: 'Truck Sider', label: 'Truck Sider - Capacidade máx: 12000.0 Kgs - 50.63 m³' },
-    { value: 'Carreta Sider', label: 'Carreta Sider - Capacidade máx: 25000.0 Kgs - 94.5 m³' },
-    { value: 'Rodotrem Sider', label: 'Rodotrem Sider - Capacidade máx: 45000.0 Kgs - 168.75 m³' },
-    { value: 'Carreta Aberta', label: 'Carreta Aberta - Capacidade máx: 25000.0 Kgs - 94.5 m³' },
-    { value: 'Rodotrem Light', label: 'Rodotrem Light - Capacidade máx: 22000.0 Kgs - 189.0 m³' },
-    { value: 'Truck Van', label: 'Truck Van - Capacidade máx: 25000.0 Kgs - 94.5 m³' },
-    { value: 'Truck Bau', label: 'Truck Bau - Capacidade máx: 12000.0 Kgs - 50.63 m³' },
-    { value: 'Rodotrem Bau', label: 'Rodotrem Bau - Capacidade máx: 22000.0 Kgs - 189.0 m³' }
+    { value: 'Aéreo', label: 'Aéreo - Capacidade máx: 999999.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Truck Aberto', label: 'Truck Aberto - Capacidade máx: 12000.0 Kgs - 50.63 m³', volumetria: 50.63 },
+    { value: '3/4 Aberto', label: '3/4 Aberto - Capacidade máx: 3000.0 Kgs - 20.0 m³', volumetria: 20.0 },
+    { value: 'Carreta Bau', label: 'Carreta Bau - Capacidade máx: 25000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Carreta Vanderleia', label: 'Carreta Vanderleia - Capacidade máx: 34000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Utilitario', label: 'Utilitario - Capacidade máx: 500.0 Kgs - 2.85 m³', volumetria: 2.85 },
+    { value: 'Van', label: 'Van - Capacidade máx: 1500.0 Kgs - 9.03 m³', volumetria: 9.03 },
+    { value: '3/4', label: '3/4 - Capacidade máx: 3000.0 Kgs - 20.0 m³', volumetria: 20.0 },
+    { value: 'Toco', label: 'Toco - Capacidade máx: 6000.0 Kgs - 46.38 m³', volumetria: 46.38 },
+    { value: 'Truck Sider', label: 'Truck Sider - Capacidade máx: 12000.0 Kgs - 50.63 m³', volumetria: 50.63 },
+    { value: 'Carreta Sider', label: 'Carreta Sider - Capacidade máx: 25000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Rodotrem Sider', label: 'Rodotrem Sider - Capacidade máx: 45000.0 Kgs - 168.75 m³', volumetria: 168.75 },
+    { value: 'Carreta Aberta', label: 'Carreta Aberta - Capacidade máx: 25000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Rodotrem Light', label: 'Rodotrem Light - Capacidade máx: 22000.0 Kgs - 189.0 m³', volumetria: 189.0 },
+    { value: 'Truck Van', label: 'Truck Van - Capacidade máx: 25000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Truck Bau', label: 'Truck Bau - Capacidade máx: 12000.0 Kgs - 50.63 m³', volumetria: 50.63 },
+    { value: 'Rodotrem Bau', label: 'Rodotrem Bau - Capacidade máx: 22000.0 Kgs - 189.0 m³', volumetria: 189.0 }
   ];
 
   get aglutinadosPeso(): number {
@@ -161,6 +174,9 @@ export class PedidoStepView {
       if (result) {
         this.numeroPedidoGerado = '4500' + Math.floor(100000 + Math.random() * 900000).toString();
         this.pedidoGerado = true;
+        if (this.frete) {
+          this.frete.numeroPedido = this.numeroPedidoGerado;
+        }
         
         this.registrarLog('Geração de Pedido', `Pedido ${this.numeroPedidoGerado} gerado para ${transportadora}`);
         
@@ -188,6 +204,9 @@ export class PedidoStepView {
       if (result) {
         this.numeroColetaGerado = 'COL-' + Math.floor(100000 + Math.random() * 900000).toString();
         this.coletaGerada = true;
+        if (this.frete) {
+          this.frete.codigoColeta = this.numeroColetaGerado;
+        }
         
         this.registrarLog('Geração de Coleta', `Coleta ${this.numeroColetaGerado} gerada para ${transportadora}`);
         

@@ -1,4 +1,4 @@
-﻿export type FreteStatus = 'Aprovado' | 'Aprovado edição' | 'Cancelado' | 'Em andamento' | 'Em aprovação' | 'Finalizado' | 'Expirado' | 'Contigência Adm';
+export type FreteStatus = 'Aprovado' | 'Aprovado Edição' | 'Cancelado' | 'Em Andamento' | 'Em Aprovação' | 'Finalizado' | 'Expirado' | 'Alerta - Contingência Administrativa';
 export type FreteEtapa = 'Cotações' | 'Aprovações' | 'Código Nox' | 'Validação' | 'Pedido' | 'Resumo' | 'Finalizada';
 export type FluxoTipo = 'Fábrica' | 'Fornecedor';
 
@@ -47,5 +47,6 @@ export interface Frete {
   peso?: number;
   permitirAgrupamento?: boolean;
   observacoes?: string;
+  historico?: any[];
 }
 

@@ -431,7 +431,7 @@ button {
   color: #991b1b;
 }
 
-.status-chip[data-status="Em análise"] {
+.status-chip[data-status="Em Análise"] {
   background-color: #dbeafe;
   color: #1e40af;
 }
@@ -718,4 +718,80 @@ button {
   .col-3, .col-4, .col-8, .col-2 {
     flex: 0 0 100%;
   }
+}
+
+/* Timer Box from Step 3 */
+.timer-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+}
+
+.timer-value {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--mat-sys-primary);
+}
+
+.timer-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.timer-warning {
+  border-color: #fca5a5;
+  background-color: #fef2f2;
+  color: #dc2626;
+  animation: pulse-red 1s infinite;
+}
+
+.timer-warning .timer-value { color: #dc2626; }
+
+/* ESTILIZAÇÃO DO BOTÃO MOSTRAR/OCULTAR DETALHES */
+.toggle-details-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.toggle-details-btn-bottom {
+  height: 32px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  border-radius: 100px !important;
+  border: 1.5px solid var(--mat-sys-primary) !important;
+  color: var(--mat-sys-primary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 0 16px !important;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.toggle-details-btn-bottom:hover {
+  background-color: rgba(30, 64, 175, 0.05) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.toggle-details-btn-bottom mat-icon {
+  font-size: 1.1rem !important;
+  width: 18px !important;
+  height: 18px !important;
 }

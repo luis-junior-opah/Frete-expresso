@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -80,7 +80,9 @@ export class ObservacaoModal {
           <mat-select [(ngModel)]="selectedVehicle" required 
                       disableOptionCentering
                       panelClass="grouping-select-panel">
-            <mat-option *ngFor="let type of data.vehicleTypes" [value]="type.value">
+            <mat-option *ngFor="let type of data.vehicleTypes" 
+                        [value]="type.value"
+                        [disabled]="type.volumetria < (+data.metrics.volumetria)">
               {{ type.label }}
             </mat-option>
           </mat-select>
@@ -162,8 +164,9 @@ interface ColumnConfig {
   templateUrl: './cotacao-step-view.html',
   styleUrl: './cotacao-step-view.css',
 })
-export class CotacaoStepView implements OnInit {
+export class CotacaoStepView implements OnInit, OnDestroy {
   @Input() frete?: Frete;
+  @Output() requestAdvance = new EventEmitter<void>();
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
@@ -174,7 +177,7 @@ export class CotacaoStepView implements OnInit {
   tipoAprovacao: 'individual' | 'agrupado' | 'simples' | null = null;
   idAprovado: number | null = null;
 
-  private readonly complementarMetadata = { 
+  private readonly complementarMetadata1 = { 
     id: 101,
     localColeta: 'Rua General Osório, 1200 - Centro, Ribeirão Preto - SP, 14010-000',
     dataInicio: '05/12/2023 - 08:00',
@@ -182,47 +185,116 @@ export class CotacaoStepView implements OnInit {
     necessidade: '10/12/2023 - 20:00'
   };
 
+  private readonly complementarMetadata2 = { 
+    id: 102,
+    localColeta: 'Rua Guaicurus, 450, Lapa, São Paulo - SP, 05033-001',
+    dataInicio: '06/12/2023 - 08:00',
+    dataFim: '11/12/2023 - 18:00',
+    necessidade: '11/12/2023 - 20:00'
+  };
+
+  private readonly complementarMetadata3 = { 
+    id: 103,
+    localColeta: 'LTM (BOTUCATU) - AV. PEREIRA BARRETO, 1200, BAETA NEVES, SÃO BERNARDO DO CAMPO - SP, CEP 09751-000',
+    dataInicio: '16/06/2026 - 09:00',
+    dataFim: '16/06/2026 - 13:00',
+    necessidade: '16/06/2026 - 16:00'
+  };
+
   quotations = [
     {
       id: 1,
       status: 'Aprovado',
-      transportadora: 'JM PREMIER',
+      transportadora: 'MIRASSOL',
       observacao: 'Cotação dentro do budget planejado para a rota.',
       temAnexo: true,
       showComplementar: true,
+      slaRestante: 40 * 60,
       individual: { ttColeta: 24, ttEntrega: 48, ttTotal: 72, valor: 8500, valorHistorico: 8000 },
-      complementar: { 
-        ...this.complementarMetadata,
-        ttColeta: 12, ttEntrega: 24, ttTotal: 36, valor: 1200, valorHistorico: 1500 
-      }
+      complementares: [
+        { ...this.complementarMetadata1, ttColeta: 12, ttEntrega: 24, ttTotal: 36, valor: 1200, valorHistorico: 1500 },
+        { ...this.complementarMetadata2, ttColeta: 8, ttEntrega: 16, ttTotal: 24, valor: 800, valorHistorico: 900 },
+        { ...this.complementarMetadata3, ttColeta: 10, ttEntrega: 20, ttTotal: 30, valor: 1000, valorHistorico: 1100 }
+      ]
     },
     {
       id: 2,
-      status: 'Em análise',
-      transportadora: 'RAPIDÃO COMETA',
+      status: 'Pendente',
+      transportadora: 'M3 LOGÍSTICA',
       observacao: 'Necessita validação de capacidade para o veículo solicitado.',
       temAnexo: false,
       showComplementar: true,
+      slaRestante: 40 * 60,
       individual: { ttColeta: 12, ttEntrega: 36, ttTotal: 48, valor: 9200, valorHistorico: 8500 },
-      complementar: { 
-        ...this.complementarMetadata,
-        ttColeta: 8, ttEntrega: 16, ttTotal: 24, valor: 950, valorHistorico: 1000 
-      }
+      complementares: [
+        { ...this.complementarMetadata1, ttColeta: 8, ttEntrega: 16, ttTotal: 24, valor: 950, valorHistorico: 1000 },
+        { ...this.complementarMetadata2, ttColeta: 6, ttEntrega: 12, ttTotal: 18, valor: 750, valorHistorico: 800 },
+        { ...this.complementarMetadata3, ttColeta: 6, ttEntrega: 14, ttTotal: 20, valor: 900, valorHistorico: 950 }
+      ]
     },
     {
       id: 3,
-      status: 'Alerta - Contingência Administrativa',
-      transportadora: 'BRASPRESS',
+      status: 'Em Análise',
+      transportadora: 'GOLDEN CARGO',
       observacao: 'Valor acima da média, porém com menor Transit Time.',
       temAnexo: true,
       showComplementar: true,
+      slaRestante: 40 * 60,
       individual: { ttColeta: 48, ttEntrega: 72, ttTotal: 120, valor: 7800, valorHistorico: 8000 },
-      complementar: { 
-        ...this.complementarMetadata,
-        ttColeta: 24, ttEntrega: 48, ttTotal: 72, valor: 1500, valorHistorico: 1200 
-      }
+      complementares: [
+        { ...this.complementarMetadata1, ttColeta: 24, ttEntrega: 48, ttTotal: 72, valor: 1500, valorHistorico: 1200 },
+        { ...this.complementarMetadata2, ttColeta: 12, ttEntrega: 24, ttTotal: 36, valor: 1100, valorHistorico: 1000 },
+        { ...this.complementarMetadata3, ttColeta: 14, ttEntrega: 28, ttTotal: 42, valor: 1200, valorHistorico: 1100 }
+      ]
     }
   ];
+
+  getFilteredComplementares(q: any): any[] {
+    if (!q || !q.complementares) return [];
+    return q.complementares.filter((c: any) => 
+      this.groupedDemands.some(g => g.id === c.id)
+    );
+  }
+
+  getComplementaresIds(q: any): string {
+    return this.getFilteredComplementares(q).map((c: any) => `#${c.id}`).join(', ');
+  }
+
+  getTotals(q: any): any {
+    let ttColeta = q.individual.ttColeta;
+    let ttEntrega = q.individual.ttEntrega;
+    let ttTotal = q.individual.ttTotal;
+    let valor = q.individual.valor;
+    let valorHistorico = q.individual.valorHistorico;
+
+    this.getFilteredComplementares(q).forEach((c: any) => {
+      ttColeta += c.ttColeta;
+      ttEntrega += c.ttEntrega;
+      ttTotal += c.ttTotal;
+      valor += c.valor;
+      valorHistorico += c.valorHistorico;
+    });
+
+    return { ttColeta, ttEntrega, ttTotal, valor, valorHistorico };
+  }
+
+  getAdicionais(q: any): any {
+    let ttColeta = 0;
+    let ttEntrega = 0;
+    let ttTotal = 0;
+    let valor = 0;
+    let valorHistorico = 0;
+
+    this.getFilteredComplementares(q).forEach((c: any) => {
+      ttColeta += c.ttColeta;
+      ttEntrega += c.ttEntrega;
+      ttTotal += c.ttTotal;
+      valor += c.valor;
+      valorHistorico += c.valorHistorico;
+    });
+
+    return { ttColeta, ttEntrega, ttTotal, valor, valorHistorico };
+  }
 
   columnConfigs: ColumnConfig[] = [
     { key: 'select', label: 'Selecionar', visible: true, permanent: true },
@@ -250,16 +322,16 @@ export class CotacaoStepView implements OnInit {
       aglutinador: 'AGL-105',
       inicioJanela: '16/06/2026 07:00',
       fimJanela: '16/06/2026 11:00',
-      localColeta: 'FORNECEDOR ALFA S.A. - RUA DAS INDÚSTRIAS, 1500, DISTRITO INDUSTRIAL, SÃO PAULO - SP, CEP 04578-000',
+      localColeta: 'BRUNING (PANAMBI) - RUA DAS INDÚSTRIAS, 1500, DISTRITO INDUSTRIAL, SÃO PAULO - SP, CEP 04578-000',
       distancia: '12 km',
       localEntrega: 'CD CENTRAL LOGÍSTICA - AV. PRESIDENTE DUTRA, KM 210, BONSUCESSO, GUARULHOS - SP, CEP 07170-350',
       necessidadeEntrega: '16/06/2026 14:00',
-      transportador: 'EXPRESSO SÃO PAULO',
+      transportador: 'MIRASSOL',
       peso: 1500,
       volumetria: 8.5,
-      fornecedor: 'FORNECEDOR ALFA S.A.',
+      fornecedor: 'BRUNING (PANAMBI)',
       codUnidade: '3Q00',
-      cliente: 'CLIENTE X',
+      cliente: 'JOHN DEERE CAMPINAS (3Q00)',
       modal: 'Rodoviário',
       tipoVeiculo: 'Truck Aberto',
       fluxo: 'Fabrica',
@@ -277,16 +349,16 @@ export class CotacaoStepView implements OnInit {
       aglutinador: '',
       inicioJanela: '16/06/2026 08:30',
       fimJanela: '16/06/2026 12:30',
-      localColeta: 'METALÚRGICA LAPA LTDA - RUA GUAICURUS, 450, LAPA, SÃO PAULO - SP, CEP 05033-001',
+      localColeta: 'FOTOGRAVURA ZEYANA (CAXIAS) - RUA GUAICURUS, 450, LAPA, SÃO PAULO - SP, CEP 05033-001',
       distancia: '18 km',
       localEntrega: 'CD CENTRAL LOGÍSTICA - AV. PRESIDENTE DUTRA, KM 210, BONSUCESSO, GUARULHOS - SP, CEP 07170-350',
       necessidadeEntrega: '16/06/2026 15:30',
-      transportador: 'LOG TRANS',
+      transportador: 'M3 LOGÍSTICA',
       peso: 2200,
       volumetria: 12.0,
-      fornecedor: 'METALÚRGICA LAPA LTDA',
+      fornecedor: 'FOTOGRAVURA ZEYANA (CAXIAS)',
       codUnidade: 'BM00',
-      cliente: 'CLIENTE Y',
+      cliente: 'JOHN DEERE MONTENEGRO (BM00)',
       modal: 'Rodoviário',
       tipoVeiculo: 'Truck Aberto',
       fluxo: 'Fornecedor',
@@ -304,16 +376,16 @@ export class CotacaoStepView implements OnInit {
       aglutinador: 'AGL-202',
       inicioJanela: '16/06/2026 09:00',
       fimJanela: '16/06/2026 13:00',
-      localColeta: 'ESTAMPARIA ABC - AV. PEREIRA BARRETO, 1200, BAETA NEVES, SÃO BERNARDO DO CAMPO - SP, CEP 09751-000',
+      localColeta: 'LTM (BOTUCATU) - AV. PEREIRA BARRETO, 1200, BAETA NEVES, SÃO BERNARDO DO CAMPO - SP, CEP 09751-000',
       distancia: '25 km',
       localEntrega: 'CD CENTRAL LOGÍSTICA - AV. PRESIDENTE DUTRA, KM 210, BONSUCESSO, GUARULHOS - SP, CEP 07170-350',
       necessidadeEntrega: '16/06/2026 16:00',
-      transportador: 'ABC TRANSPORTES',
+      transportador: 'GOLDEN CARGO',
       peso: 850,
       volumetria: 4.2,
-      fornecedor: 'ESTAMPARIA ABC',
+      fornecedor: 'LTM (BOTUCATU)',
       codUnidade: 'BZ00',
-      cliente: 'CLIENTE Z',
+      cliente: 'JOHN DEERE INDAIATUBA (BZ00)',
       modal: 'Rodoviário',
       tipoVeiculo: '3/4 Aberto',
       fluxo: 'Fabrica',
@@ -328,7 +400,8 @@ export class CotacaoStepView implements OnInit {
   ];
 
   dataSource: DemandaAgrupavel[] = [];
-  groupedDemands: DemandaAgrupavel[] = [];
+  @Input() groupedDemands: DemandaAgrupavel[] = [];
+  @Output() groupedDemandsChange = new EventEmitter<DemandaAgrupavel[]>();
   aglutinadosColumns: string[] = [
     'ag_select', 'ag_id', 'ag_pedido', 'ag_fornecedor', 'ag_localColeta', 
     'ag_distancia', 'ag_inicioJanela', 'ag_fimJanela', 
@@ -336,7 +409,8 @@ export class CotacaoStepView implements OnInit {
     'ag_tipoMaterial', 'ag_altura', 'ag_comprimento', 'ag_largura', 'ag_peso', 
     'ag_volumetria', 'ag_solicitante', 'ag_dataCriacao', 'ag_observacoes'
   ];
-  aglutinadosTipoVeiculo = 'Truck Aberto';
+  @Input() aglutinadosTipoVeiculo = 'Truck Aberto';
+  @Output() aglutinadosTipoVeiculoChange = new EventEmitter<string>();
   aglutinadosPeso = 12500;
   aglutinadosVolumetria = 42;
   aglutinadosPesoCubado = 0;
@@ -358,39 +432,67 @@ export class CotacaoStepView implements OnInit {
   }
 
   vehicleTypes = [
-    { value: 'Aéreo', label: 'Aéreo - Capacidade máx: 999999.0 Kgs - 94.5 m³' },
-    { value: 'Truck Aberto', label: 'Truck Aberto - Capacidade máx: 12000.0 Kgs - 50.63 m³' },
-    { value: '3/4 Aberto', label: '3/4 Aberto - Capacidade máx: 3000.0 Kgs - 20.0 m³' },
-    { value: 'Carreta Bau', label: 'Carreta Bau - Capacidade máx: 25000.0 Kgs - 94.5 m³' },
-    { value: 'Carreta Vanderleia', label: 'Carreta Vanderleia - Capacidade máx: 34000.0 Kgs - 94.5 m³' },
-    { value: 'Utilitario', label: 'Utilitario - Capacidade máx: 500.0 Kgs - 2.85 m³' },
-    { value: 'Van', label: 'Van - Capacidade máx: 1500.0 Kgs - 9.03 m³' },
-    { value: '3/4', label: '3/4 - Capacidade máx: 3000.0 Kgs - 20.0 m³' },
-    { value: 'Toco', label: 'Toco - Capacidade máx: 6000.0 Kgs - 46.38 m³' },
-    { value: 'Truck Sider', label: 'Truck Sider - Capacidade máx: 12000.0 Kgs - 50.63 m³' },
-    { value: 'Carreta Sider', label: 'Carreta Sider - Capacidade máx: 25000.0 Kgs - 94.5 m³' },
-    { value: 'Rodotrem Sider', label: 'Rodotrem Sider - Capacidade máx: 45000.0 Kgs - 168.75 m³' },
-    { value: 'Carreta Aberta', label: 'Carreta Aberta - Capacidade máx: 25000.0 Kgs - 94.5 m³' },
-    { value: 'Rodotrem Light', label: 'Rodotrem Light - Capacidade máx: 22000.0 Kgs - 189.0 m³' },
-    { value: 'Truck Van', label: 'Truck Van - Capacidade máx: 25000.0 Kgs - 94.5 m³' },
-    { value: 'Truck Bau', label: 'Truck Bau - Capacidade máx: 12000.0 Kgs - 50.63 m³' },
-    { value: 'Rodotrem Bau', label: 'Rodotrem Bau - Capacidade máx: 22000.0 Kgs - 189.0 m³' }
+    { value: 'Aéreo', label: 'Aéreo - Capacidade máx: 999999.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Truck Aberto', label: 'Truck Aberto - Capacidade máx: 12000.0 Kgs - 50.63 m³', volumetria: 50.63 },
+    { value: '3/4 Aberto', label: '3/4 Aberto - Capacidade máx: 3000.0 Kgs - 20.0 m³', volumetria: 20.0 },
+    { value: 'Carreta Bau', label: 'Carreta Bau - Capacidade máx: 25000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Carreta Vanderleia', label: 'Carreta Vanderleia - Capacidade máx: 34000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Utilitario', label: 'Utilitario - Capacidade máx: 500.0 Kgs - 2.85 m³', volumetria: 2.85 },
+    { value: 'Van', label: 'Van - Capacidade máx: 1500.0 Kgs - 9.03 m³', volumetria: 9.03 },
+    { value: '3/4', label: '3/4 - Capacidade máx: 3000.0 Kgs - 20.0 m³', volumetria: 20.0 },
+    { value: 'Toco', label: 'Toco - Capacidade máx: 6000.0 Kgs - 46.38 m³', volumetria: 46.38 },
+    { value: 'Truck Sider', label: 'Truck Sider - Capacidade máx: 12000.0 Kgs - 50.63 m³', volumetria: 50.63 },
+    { value: 'Carreta Sider', label: 'Carreta Sider - Capacidade máx: 25000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Rodotrem Sider', label: 'Rodotrem Sider - Capacidade máx: 45000.0 Kgs - 168.75 m³', volumetria: 168.75 },
+    { value: 'Carreta Aberta', label: 'Carreta Aberta - Capacidade máx: 25000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Rodotrem Light', label: 'Rodotrem Light - Capacidade máx: 22000.0 Kgs - 189.0 m³', volumetria: 189.0 },
+    { value: 'Truck Van', label: 'Truck Van - Capacidade máx: 25000.0 Kgs - 94.5 m³', volumetria: 94.5 },
+    { value: 'Truck Bau', label: 'Truck Bau - Capacidade máx: 12000.0 Kgs - 50.63 m³', volumetria: 50.63 },
+    { value: 'Rodotrem Bau', label: 'Rodotrem Bau - Capacidade máx: 22000.0 Kgs - 189.0 m³', volumetria: 189.0 }
   ];
   
   selection = new SelectionModel<DemandaAgrupavel>(true, []);
   currentFilters: any = {};
 
+  timerSeconds = 40 * 60;
+  timerInterval: any;
+  rodada = 1;
+  alertaConcorrenciaUnica = '';
+  concorrenciaUnicaLiberada = false;
+
+  get formattedTimer(): string {
+    const minutes = Math.floor(this.timerSeconds / 60);
+    const seconds = this.timerSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  getFormattedTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+
   ngOnInit(): void {
     if (this.frete) {
-      this.aglutinadosTipoVeiculo = this.frete.tipoVeiculo || 'Truck Aberto';
+      if (!this.aglutinadosTipoVeiculo) {
+        this.aglutinadosTipoVeiculo = this.frete.tipoVeiculo || 'Truck Aberto';
+      }
       this.aglutinadosPeso = this.frete.peso || 0;
       this.aglutinadosVolumetria = this.frete.volumetria || 0;
     }
-    this.dataSource = [...this.allDemands].sort((a, b) => {
-      const distA = parseInt(a.distancia);
-      const distB = parseInt(b.distancia);
-      return distA - distB;
-    });
+    this.dataSource = this.allDemands
+      .filter(d => !this.groupedDemands.some(g => g.id === d.id))
+      .sort((a, b) => {
+        const distA = parseInt(a.distancia);
+        const distB = parseInt(b.distancia);
+        return distA - distB;
+      });
+    this.calcularTotaisAglutinados();
+    this.iniciarTimer();
+  }
+
+  ngOnDestroy(): void {
+    if (this.timerInterval) clearInterval(this.timerInterval);
   }
 
   isAllSelected() {
@@ -420,8 +522,8 @@ export class CotacaoStepView implements OnInit {
 
     // Cálculo das métricas para o modal
     const metrics = {
-      peso: selecionados.reduce((sum, item) => sum + (item.peso || 0), 0),
-      volumetria: selecionados.reduce((sum, item) => sum + (item.volumetria || 0), 0),
+      peso: selecionados.reduce((sum, item) => sum + Number(item.peso || 0), 0),
+      volumetria: selecionados.reduce((sum, item) => sum + Number(item.volumetria || 0), 0),
       pesoCubado: selecionados.reduce((sum, item) => {
         const h = item.altura || 0;
         const l = item.largura || 0;
@@ -432,8 +534,8 @@ export class CotacaoStepView implements OnInit {
 
     // Se o frete principal ainda não estiver no grupo, adiciona suas métricas
     if (this.groupedDemands.length === 0 && this.frete) {
-      metrics.peso += (this.frete.peso || 0);
-      metrics.volumetria += (this.frete.volumetria || 0);
+      metrics.peso += Number(this.frete.peso || 0);
+      metrics.volumetria += Number(this.frete.volumetria || 0);
       const h = this.frete.altura || 0;
       const l = this.frete.largura || 0;
       const c = this.frete.comprimento || 0;
@@ -470,6 +572,7 @@ export class CotacaoStepView implements OnInit {
           `${selecionados.length} demandas agrupadas. Veículo definido: ${veiculoSelecionado}`);
         
         this.cdr.detectChanges();
+        this.notifyChanges();
 
         this.snackBar.open('Agrupamento realizado com sucesso!', 'OK', {
           duration: 4000,
@@ -512,8 +615,8 @@ export class CotacaoStepView implements OnInit {
 
   private calcularTotaisAglutinados() {
     if (this.groupedDemands.length > 0) {
-      this.aglutinadosPeso = this.groupedDemands.reduce((sum, item) => sum + (item.peso || 0), 0);
-      this.aglutinadosVolumetria = this.groupedDemands.reduce((sum, item) => sum + (item.volumetria || 0), 0);
+      this.aglutinadosPeso = this.groupedDemands.reduce((sum, item) => sum + Number(item.peso || 0), 0);
+      this.aglutinadosVolumetria = this.groupedDemands.reduce((sum, item) => sum + Number(item.volumetria || 0), 0);
       this.aglutinadosPesoCubado = this.groupedDemands.reduce((sum, item) => {
         const h = item.altura || 0;
         const l = item.largura || 0;
@@ -523,6 +626,11 @@ export class CotacaoStepView implements OnInit {
     } else {
       this.aglutinadosPesoCubado = 0;
     }
+  }
+
+  private notifyChanges() {
+    this.groupedDemandsChange.emit(this.groupedDemands);
+    this.aglutinadosTipoVeiculoChange.emit(this.aglutinadosTipoVeiculo);
   }
 
   desagrupar(row: DemandaAgrupavel) {
@@ -566,6 +674,7 @@ export class CotacaoStepView implements OnInit {
           }
         }
         this.cdr.detectChanges();
+        this.notifyChanges();
       }
     });
   }
@@ -595,6 +704,15 @@ export class CotacaoStepView implements OnInit {
       return;
     }
 
+    const selectedVehicleObj = this.vehicleTypes.find(v => v.value === this.aglutinadosTipoVeiculo);
+    if (selectedVehicleObj && selectedVehicleObj.volumetria < Number(this.aglutinadosVolumetria)) {
+      this.snackBar.open(`O veículo selecionado (${this.aglutinadosTipoVeiculo}) não suporta a volumetria total de ${this.aglutinadosVolumetria} m³ (máx: ${selectedVehicleObj.volumetria} m³).`, 'Fechar', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
     this.registrarLog('Alterações de Agrupamento Salvas', 
       `Veículo: ${this.aglutinadosTipoVeiculo}, Peso: ${this.aglutinadosPeso}kg, Volumetria: ${this.aglutinadosVolumetria}m³`);
     
@@ -602,6 +720,7 @@ export class CotacaoStepView implements OnInit {
       duration: 3000,
       panelClass: ['success-snackbar']
     });
+    this.notifyChanges();
   }
 
   abrirObservacao(obs: string) {
@@ -755,15 +874,34 @@ export class CotacaoStepView implements OnInit {
               observacao: '-',
               temAnexo: false,
               showComplementar: true,
+              slaRestante: 40 * 60,
               individual: { ttColeta: 0, ttEntrega: 0, ttTotal: 0, valor: 0, valorHistorico: 0 },
-              complementar: { 
-                ...this.complementarMetadata,
-                ttColeta: 0, 
-                ttEntrega: 0, 
-                ttTotal: 0, 
-                valor: 0,
-                valorHistorico: 0
-              }
+              complementares: [
+                { 
+                  ...this.complementarMetadata1,
+                  ttColeta: 0, 
+                  ttEntrega: 0, 
+                  ttTotal: 0, 
+                  valor: 0,
+                  valorHistorico: 0
+                },
+                { 
+                  ...this.complementarMetadata2,
+                  ttColeta: 0, 
+                  ttEntrega: 0, 
+                  ttTotal: 0, 
+                  valor: 0,
+                  valorHistorico: 0
+                },
+                { 
+                  ...this.complementarMetadata3,
+                  ttColeta: 0, 
+                  ttEntrega: 0, 
+                  ttTotal: 0, 
+                  valor: 0,
+                  valorHistorico: 0
+                }
+              ]
             };
             
             this.quotations = [...this.quotations, newQuotation];
@@ -784,6 +922,150 @@ export class CotacaoStepView implements OnInit {
       detalhes: detalhes
     };
     this.logsAlteracao = [log, ...this.logsAlteracao];
+  }
+
+  iniciarTimer() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    this.timerInterval = setInterval(() => {
+      // Simulate commercial calendar check (pauses outside 07:00 to 20:00 or weekends)
+      const now = new Date();
+      const hour = now.getHours();
+      const day = now.getDay();
+      const isWeekend = day === 0 || day === 6;
+      const isCommercialHour = hour >= 7 && hour < 20;
+
+      // Habilitar contagem incondicional para demonstração do protótipo (assim como no Step 3)
+      if (true || (!isWeekend && isCommercialHour)) {
+        // Decrement individual SLAs for pending quotations
+        this.quotations.forEach(q => {
+          if (q.status === 'Pendente' && q.slaRestante > 0) {
+            q.slaRestante--;
+          }
+        });
+
+        // Set global timerSeconds to the maximum/largest remaining SLA among pending quotations
+        const pendingQuotations = this.quotations.filter(q => q.status === 'Pendente');
+        if (pendingQuotations.length > 0) {
+          this.timerSeconds = Math.max(...pendingQuotations.map(q => q.slaRestante || 0));
+        } else {
+          this.timerSeconds = 0;
+        }
+
+        if (this.timerSeconds <= 0) {
+          this.lidarComExpiracaoSLA();
+        }
+      }
+      this.cdr.detectChanges();
+    }, 1000);
+  }
+
+  lidarComExpiracaoSLA() {
+    const submetidas = this.quotations.filter(q => q.status !== 'Pendente' && q.status !== 'Declinada' && q.status !== 'Expirada' && q.status !== 'Cancelado').length;
+    
+    if (submetidas >= 2) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+      this.registrarLog('Avanço Automático', 'SLA expirado com 2 ou mais cotações válidas. Avançando automaticamente para aprovação.');
+      this.snackBar.open('Avanço automático para Aprovação (2+ cotações recebidas).', 'OK', { duration: 3000 });
+      this.requestAdvance.emit();
+    } else {
+      if (this.rodada === 1) {
+        this.rodada = 2;
+        this.quotations.forEach(q => {
+          if (q.status === 'Expirada') {
+            q.status = 'Pendente';
+            q.slaRestante = 30 * 60;
+          } else if (q.status === 'Pendente') {
+            q.slaRestante = 30 * 60;
+          }
+        });
+        this.timerSeconds = 30 * 60; // +30 min
+        this.alertaConcorrenciaUnica = 'Prorrogação Automática: Menos de 2 propostas válidas recebidas. Prazo estendido por +30 min úteis e expiradas foram reabertas.';
+        this.registrarLog('Prorrogação Automática', 'SLA expirado com concorrência única/nula. Prorrogado por +30 min úteis.');
+        this.snackBar.open('Prorrogação automática ativada. Cotações expiradas foram reabertas.', 'OK', { duration: 5000 });
+      } else {
+        this.alertaConcorrenciaUnica = 'Atenção: Menos de 2 propostas na segunda rodada. Escolha a ação manual.';
+        this.concorrenciaUnicaLiberada = true;
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+        this.registrarLog('Prorrogação finalizada', 'Segunda rodada encerrada. Governança manual liberada.');
+      }
+    }
+  }
+
+  hasPendente(): boolean {
+    return this.quotations.some(q => q.status === 'Pendente');
+  }
+
+  forcarEnvioAprovacao() {
+    if (this.rodada === 1) {
+      this.snackBar.open('O envio forçado só pode ser feito após a primeira rodada.', 'Fechar', { duration: 3000 });
+      return;
+    }
+    if (this.hasPendente()) {
+      this.snackBar.open('Existem cotações pendentes. Não é possível forçar o envio.', 'Fechar', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '400px',
+      data: {
+        title: 'Forçar Envio para Aprovação',
+        message: 'Deseja forçar o envio das cotações recebidas para a etapa de Aprovação antes do término do tempo?'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirm => {
+      if (confirm) {
+        this.registrarLog('Envio forçado', 'Operador forçou o avanço para aprovação.');
+        this.snackBar.open('Envio forçado para aprovação realizado com sucesso!', 'Fechar', { duration: 3000 });
+        this.alertaConcorrenciaUnica = '';
+        if (this.timerInterval) {
+          clearInterval(this.timerInterval);
+          this.timerInterval = null;
+        }
+        this.requestAdvance.emit();
+      }
+    });
+  }
+
+  prorrogarNovamente() {
+    this.quotations.forEach(q => {
+      if (q.status !== 'Declinada' && q.status !== 'Cancelado' && q.status !== 'Expirada' && q.status !== 'Reprovado') {
+        q.slaRestante = 30 * 60;
+      }
+    });
+    this.timerSeconds = 30 * 60;
+    this.concorrenciaUnicaLiberada = false;
+    this.alertaConcorrenciaUnica = 'Prorrogado novamente por mais 30 minutos úteis.';
+    this.iniciarTimer();
+    this.registrarLog('Prorrogação manual', 'Operador ILC acionou prorrogação manual de +30 min.');
+  }
+
+  reabrirCotacaoExcepcionalmente(id: number) {
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '400px',
+      data: {
+        title: 'Reabrir Cotação',
+        message: 'Você deseja reabrir esta cotação? O status voltará para Pendente e ela terá 30 minutos úteis para editar.'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        const quotation = this.quotations.find(q => q.id === id);
+        const transportador = quotation?.transportadora || '';
+        
+        this.quotations = this.quotations.map(q => 
+          q.id === id ? { ...q, status: 'Pendente', slaRestante: 30 * 60 } : q
+        );
+        if (!this.timerInterval) {
+          this.iniciarTimer();
+        }
+        this.registrarLog('Reabertura Cotação', `Cotação #${id} para ${transportador} reaberta.`);
+        this.snackBar.open(`Cotação reaberta com sucesso!`, 'Fechar', { duration: 3000 });
+      }
+    });
   }
 
   onAglutinadosChange(field: string, value: any) {

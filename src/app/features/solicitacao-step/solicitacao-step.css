@@ -6,7 +6,7 @@
 
 @media (min-width: 960px) {
   .container {
-    padding: 24px 6%; /* Reduzido padding superior */
+    padding: 24px 6%;
   }
 }
 
@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px; /* Reduzido de 24px */
+  margin-bottom: 16px;
 }
 
 @media (min-width: 768px) {
@@ -25,14 +25,15 @@
   }
 }
 
-/* UNIFICAÇÃO DE ESTILO DE BOTÕES (BASEADO NO BOTÃO HISTÓRICO) */
+/* UNIFICAÇÃO DE ESTILO DE BOTÕES */
 button {
   font-weight: 400 !important;
 }
 
-.back-btn, 
-.historico-btn, 
-.stepper-nav-card button,
+.back-btn,
+.historico-btn,
+.cancelar-global-btn,
+.stepper-nav-card button:not(.nav-approval-btn),
 .nav-next-btn,
 .nav-save-btn {
   width: 160px !important;
@@ -55,12 +56,43 @@ button {
   padding: 0 16px !important;
 }
 
-/* Ajuste específico para o botão mat-stroked-button (Voltar) para ignorar a borda padrão */
+.cancelar-global-btn {
+  background-color: #dc2626 !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+.random-btn {
+  width: 170px !important;
+  height: 36px !important;
+  min-width: 170px !important;
+  min-height: 36px !important;
+  font-size: 0.8rem !important;
+  font-weight: 400 !important;
+  background-color: #6366f1 !important;
+  color: white !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border-radius: 100px !important;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2) !important;
+  border: none !important;
+  gap: 8px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+  padding: 0 16px !important;
+}
+
+.random-btn:not(:disabled):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3) !important;
+  filter: brightness(1.1) !important;
+}
+
 .stepper-nav-card button.mat-mdc-outlined-button {
   border: none !important;
 }
 
-/* Estado desabilitado padronizado */
 .stepper-nav-card button:disabled,
 .nav-next-btn:disabled,
 .back-btn:disabled {
@@ -71,24 +103,29 @@ button {
   cursor: not-allowed !important;
 }
 
-/* Efeito Hover padronizado */
-.back-btn:not(:disabled):hover, 
-.historico-btn:not(:disabled):hover, 
+.back-btn:not(:disabled):hover,
+.historico-btn:not(:disabled):hover,
 .stepper-nav-card button:not(:disabled):hover {
   transform: translateY(-2px) !important;
   box-shadow: 0 6px 15px rgba(var(--mat-sys-primary-rgb), 0.3) !important;
   filter: brightness(1.1) !important;
 }
 
-/* --- STEPPER DEFINITIVO - CSS PURO (SEM ANINHAMENTO) --- */
+.cancelar-global-btn:not(:disabled):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: none !important;
+  filter: brightness(1.1) !important;
+}
+
+/* --- STEPPER --- */
 .stepper-container {
   background: white !important;
-  margin-bottom: 20px; /* Reduzido de 24px */
+  margin-bottom: 20px;
   border-radius: 20px !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.03) !important;
   border: 1px solid rgba(0,0,0,0.05) !important;
   overflow: visible !important;
-  min-height: 160px !important; /* Reduzido de 180px */
+  min-height: 160px !important;
   display: block !important;
 }
 
@@ -98,7 +135,6 @@ button {
   display: block !important;
 }
 
-/* DISTRIBUIÇÃO HORIZONTAL COMPLETA */
 ::ng-deep .mat-horizontal-stepper-header-container {
   display: flex !important;
   flex-direction: row !important;
@@ -106,17 +142,16 @@ button {
   width: 100% !important;
   padding: 0 20px !important;
   overflow: visible !important;
-  height: 140px !important; /* Reduzido de 160px */
+  height: 140px !important;
   box-sizing: border-box !important;
 }
 
-/* LINHA QUE ESTICA (DOTTED) */
 ::ng-deep .mat-stepper-horizontal-line {
   flex: 1 1 auto !important;
   border-top: 3px dotted #cbd5e1 !important;
   margin: 0 -20px !important;
   position: relative !important;
-  top: -34px !important; 
+  top: -34px !important;
   z-index: 1 !important;
   display: block !important;
 }
@@ -136,7 +171,6 @@ button {
   height: auto !important;
 }
 
-/* ÍCONE (CÍRCULO) PADRÃO */
 ::ng-deep .mat-step-icon {
   width: 56px !important;
   height: 56px !important;
@@ -155,15 +189,11 @@ button {
   margin-right: 0 !important;
 }
 
-/* ANIMAÇÃO PISCANTE ATIVO */
 @keyframes active-blink-blue {
   0%, 100% { background-color: var(--mat-sys-primary); color: white; transform: scale(1.1); }
   50% { background-color: white; color: var(--mat-sys-primary); transform: scale(1.05); }
 }
 
-/* --- ESTADOS ATIVOS (REESCRITOS SEM ANINHAMENTO) --- */
-
-/* Círculo Ativo Azul e Pulsante */
 ::ng-deep .mat-step-header[aria-selected="true"] .mat-step-icon,
 ::ng-deep .mat-step-header.mat-step-header-active .mat-step-icon {
   background-color: var(--mat-sys-primary) !important;
@@ -173,7 +203,6 @@ button {
   z-index: 3 !important;
 }
 
-/* Texto do Step Selecionado em Azul */
 ::ng-deep .mat-step-header[aria-selected="true"] .mat-step-label,
 ::ng-deep .mat-step-header[aria-selected="true"] .mat-step-text-label,
 ::ng-deep .mat-step-header.mat-step-header-active .mat-step-label,
@@ -183,15 +212,13 @@ button {
   opacity: 1 !important;
 }
 
-/* Passo concluído (Verde) */
 ::ng-deep .mat-step-header.mat-step-header-state-done .mat-step-icon {
   background-color: #10b981 !important;
   color: white !important;
   box-shadow: 0 0 0 1px #10b981 !important;
 }
 
-/* NOMES DOS STEPS - Centralizados */
-::ng-deep .mat-step-header .mat-step-label, 
+::ng-deep .mat-step-header .mat-step-label,
 ::ng-deep .mat-step-header .mat-step-text-label,
 ::ng-deep .mat-step-header .mat-step-label-container {
   display: block !important;
@@ -211,9 +238,9 @@ button {
   white-space: nowrap !important;
 }
 
-/* --- CONTEÚDO PREMIUM --- */
+/* --- CONTEÚDO PRINCIPAL --- */
 .main-card {
-  padding: 24px 40px !important; /* Reduzido padding superior/inferior */
+  padding: 24px 40px !important;
   border-radius: 28px !important;
   border: none !important;
   box-shadow: 0 20px 60px rgba(0,0,0,0.05) !important;
@@ -223,7 +250,7 @@ button {
 .section-title {
   font-weight: 900;
   margin-top: 0;
-  margin-bottom: 24px; /* Reduzido de 40px */
+  margin-bottom: 24px;
   font-size: 1.50rem;
   color: #1e293b;
   letter-spacing: -1px;
@@ -236,16 +263,15 @@ button {
   height: 5px;
   background: var(--mat-sys-primary);
   border-radius: 10px;
-  margin-top: 8px; /* Reduzido de 10px */
+  margin-top: 8px;
 }
 
 .grid-container {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 8px; /* Reduzido de 24px */
+  gap: 8px;
 }
 
-/* Input Styling Glassmorphism */
 ::ng-deep .mat-mdc-text-field-wrapper {
   background-color: #f8fafc !important;
   border-radius: 14px !important;
@@ -263,10 +289,10 @@ button {
   align-items: center;
   justify-content: space-between;
   background: linear-gradient(to right, #f8fafc, white);
-  padding: 12px 24px; /* Reduzido de 24px/32px */
+  padding: 12px 24px;
   border-radius: 18px;
   border: 1px solid #e2e8f0;
-  margin: 8px 0; /* Reduzido de 16px */
+  margin: 8px 0;
 }
 
 .toggle-controls {
@@ -300,7 +326,6 @@ button {
   transform: scale(1.1);
 }
 
-/* Customizando o Slide Toggle */
 ::ng-deep .mat-mdc-slide-toggle.mat-checked .mdc-switch__track {
   background-color: rgba(34, 197, 94, 0.2) !important;
 }
@@ -315,7 +340,7 @@ button {
 
 .action-buttons {
   display: flex;
-  justify-content: flex-end; /* Alinhado à direita */
+  justify-content: flex-end;
   margin-top: 24px;
 }
 
@@ -415,7 +440,6 @@ button {
   justify-content: flex-end;
 }
 
-/* Garante que o container de navegação seja fixo ou bem posicionado no rodapé do card */
 .stepper-nav-card {
   margin-top: 24px;
   border-radius: 20px !important;
@@ -429,25 +453,26 @@ button {
 
 /* Responsividade das colunas */
 .col-2 { grid-column: span 2; }
-.col-2-4 { grid-column: span 2; } 
+.col-2-4 { grid-column: span 2; }
 .col-3 { grid-column: span 3; }
 .col-4 { grid-column: span 4; }
+.col-5 { grid-column: span 5; }
 .col-6 { grid-column: span 6; }
 .col-12 { grid-column: span 12; }
 
-/* Custom 5-column and 6-column row support using flex or different grid span */
+/* Custom 5-column and 6-column row support */
 .row-5-cols {
   grid-column: span 12;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 8px; /* Reduzido de 24px */
+  gap: 8px;
 }
 
 .row-6-cols {
   grid-column: span 12;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 8px; /* Reduzido de 24px */
+  gap: 8px;
 }
 
 @media (max-width: 1200px) {
@@ -458,7 +483,7 @@ button {
 
 @media (max-width: 960px) {
   .grid-container { gap: 8px; }
-  .col-2, .col-3, .col-4, .col-6 { grid-column: span 6; }
+  .col-2, .col-3, .col-4, .col-5, .col-6 { grid-column: span 6; }
   .row-5-cols, .row-6-cols {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
@@ -467,12 +492,12 @@ button {
 
 /* Ajustes para o Select de Veículos */
 ::ng-deep .wide-select-panel {
-  min-width: 500px !important; /* Aumenta a largura da lista */
+  min-width: 500px !important;
   max-width: 90vw !important;
 }
 
 ::ng-deep .wide-select-panel .mat-mdc-option .mdc-list-item__primary-text {
-  white-space: nowrap !important; /* Impede quebra de linha */
+  white-space: nowrap !important;
   font-size: 0.85rem !important;
 }
 
@@ -483,4 +508,148 @@ button {
   .row-5-cols, .row-6-cols {
     grid-template-columns: 1fr;
   }
+}
+
+.nav-approval-btn {
+  width: auto !important;
+  min-width: 220px !important;
+  height: 36px !important;
+  white-space: nowrap !important;
+  padding: 0 20px !important;
+  font-size: 0.8rem !important;
+  font-weight: 400 !important;
+  background-color: var(--mat-sys-primary) !important;
+  color: var(--mat-sys-on-primary) !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border-radius: 100px !important;
+  box-shadow: 0 4px 10px rgba(var(--mat-sys-primary-rgb), 0.2) !important;
+  border: none !important;
+  gap: 8px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+}
+
+.pointer, .pointer input {
+  cursor: pointer !important;
+}
+
+/* --- Date/time validation error styles --- */
+.date-errors-container {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.date-error-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #dc2626;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 4px 0;
+}
+
+.date-error-item mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.date-field-error ::ng-deep .mdc-notched-outline__leading,
+.date-field-error ::ng-deep .mdc-notched-outline__notch,
+.date-field-error ::ng-deep .mdc-notched-outline__trailing {
+  border-color: #dc2626 !important;
+}
+
+/* --- Volumetria section --- */
+
+/* Wrapper: groups the 5-col dimension row + mismatch alert at the same width */
+.vol-section-wrapper {
+  grid-column: span 12;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Volumetria mismatch alert */
+.vol-mismatch-container {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1.5px solid #f59e0b;
+  border-left: 4px solid #d97706;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.vol-mismatch-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #92400e;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.vol-mismatch-header mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #d97706;
+}
+
+.vol-mismatch-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vol-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 0;
+  border-bottom: 1px dashed #fde68a;
+}
+
+.vol-diff-row {
+  border-bottom: none;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 2px solid #f59e0b;
+}
+
+.vol-label {
+  font-size: 0.8rem;
+  color: #78350f;
+}
+
+.vol-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.vol-calculated { color: #059669; }
+.vol-informed   { color: #dc2626; }
+.vol-diff       { color: #b45309; }
+
+.vol-mismatch-tip {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: #92400e;
+  font-style: italic;
+}
+
+.vol-hint-error {
+  color: #dc2626 !important;
+  font-size: 0.75rem;
 }

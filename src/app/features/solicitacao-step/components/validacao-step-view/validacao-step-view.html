@@ -271,7 +271,137 @@
         </ng-container>
       </mat-card-content>
     </mat-card>
-  </div>
+
+  <!-- Ajuste de Janelas Operacionais -->
+  <mat-card class="validation-card mt-4">
+    <mat-card-header>
+      <mat-card-title class="standard-title">Ajuste de Janelas Operacionais</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+        Ajuste as janelas de agendamento caso a aprovação tardia na matriz tenha impactado o cronograma. Os campos financeiros permanecem travados.
+      </p>
+
+      <!-- Datas sugeridas widget -->
+      <div class="sugestao-container" *ngIf="sugestaoJanelas as sug" style="background: #f5f3ff; border: 1px solid #ddd6fe; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+        <div class="sugestao-header" style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <mat-icon style="color: #6366f1; font-size: 20px; width: 20px; height: 20px;">tips_and_updates</mat-icon>
+          <span style="font-weight: 800; color: #4f46e5; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Datas sugeridas</span>
+        </div>
+        <div class="sugestao-body" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px;">
+          <div class="sugestao-item" style="background: white; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; color: #475569;">
+            <div style="font-weight: 700; color: #1e293b; margin-bottom: 2px;">Início da Coleta:</div>
+            <div>{{ formatarDataBr(sug.dataInicio) }}</div>
+          </div>
+          <div class="sugestao-item" style="background: white; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; color: #475569;">
+            <div style="font-weight: 700; color: #1e293b; margin-bottom: 2px;">Fim da Coleta:</div>
+            <div>{{ formatarDataBr(sug.dataFim) }}</div>
+          </div>
+          <div class="sugestao-item" style="background: white; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; color: #475569;">
+            <div style="font-weight: 700; color: #1e293b; margin-bottom: 2px;">Entrega Limite:</div>
+            <div>{{ formatarDataBr(sug.dataEntrega) }}</div>
+          </div>
+        </div>
+        <button mat-flat-button type="button" color="primary" style="font-weight: 700; font-size: 0.75rem; letter-spacing: 0.05em; background-color: #6366f1;" (click)="aplicarSugestao()">
+          APLICAR VALORES SUGERIDOS
+        </button>
+      </div>
+      
+      <!-- Janela de Coleta (Data Início, Hora Início, Data Fim, Hora Fim) -->
+      <div class="info-row" style="margin-bottom: 12px;">
+        <div class="info-group col-3">
+          <label>Data Início da Janela (Coleta) *</label>
+          <mat-form-field appearance="outline" class="editable-field" style="background: white;">
+            <input matInput [matDatepicker]="pickerInicioColeta" [(ngModel)]="dataInicioJanela" placeholder="DD/MM/AAAA">
+            <mat-datepicker-toggle matSuffix [for]="pickerInicioColeta"></mat-datepicker-toggle>
+            <mat-datepicker #pickerInicioColeta></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Hora Início da Janela (Coleta) *</label>
+          <mat-form-field appearance="outline" class="editable-field" style="background: white;">
+            <input matInput type="time" #horaInicioInput [(ngModel)]="horaInicioJanela" (click)="showTimePicker(horaInicioInput)">
+            <mat-icon matSuffix style="color: #64748b; cursor: pointer;" (click)="showTimePicker(horaInicioInput)">access_time</mat-icon>
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Data Fim da Janela (Coleta) *</label>
+          <mat-form-field appearance="outline" class="editable-field" style="background: white;">
+            <input matInput [matDatepicker]="pickerFimColeta" [(ngModel)]="dataFimJanela" placeholder="DD/MM/AAAA">
+            <mat-datepicker-toggle matSuffix [for]="pickerFimColeta"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFimColeta></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="info-group col-3">
+          <label>Hora Fim da Janela (Coleta) *</label>
+          <mat-form-field appearance="outline" class="editable-field" style="background: white;">
+            <input matInput type="time" #horaFimInput [(ngModel)]="horaFimJanela" (click)="showTimePicker(horaFimInput)">
+            <mat-icon matSuffix style="color: #64748b; cursor: pointer;" (click)="showTimePicker(horaFimInput)">access_time</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Janela de Entrega (Data Necessidade, Hora Necessidade) -->
+      <div class="info-row" style="margin-bottom: 12px;">
+        <div class="info-group col-6">
+          <label>Data Necessidade de Entrega *</label>
+          <mat-form-field appearance="outline" class="editable-field" style="background: white;">
+            <input matInput [matDatepicker]="pickerNecessidadeEntrega" [(ngModel)]="dataNecessidadeEntrega" placeholder="DD/MM/AAAA">
+            <mat-datepicker-toggle matSuffix [for]="pickerNecessidadeEntrega"></mat-datepicker-toggle>
+            <mat-datepicker #pickerNecessidadeEntrega></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="info-group col-6">
+          <label>Hora Necessidade de Entrega *</label>
+          <mat-form-field appearance="outline" class="editable-field" style="background: white;">
+            <input matInput type="time" #horaEntregaInput [(ngModel)]="horaNecessidadeEntrega" (click)="showTimePicker(horaEntregaInput)">
+            <mat-icon matSuffix style="color: #64748b; cursor: pointer;" (click)="showTimePicker(horaEntregaInput)">access_time</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Análise de Viabilidade -->
+      <div *ngIf="analiseComparativa as analise" style="margin-top: 16px; padding: 16px; border-radius: 12px; transition: all 0.3s ease;"
+           [style.background-color]="analise.viavel ? '#f0fdf4' : '#fef2f2'"
+           [style.border]="analise.viavel ? '1px solid #bbf7d0' : '1px solid #fecaca'"
+           [style.color]="analise.viavel ? '#166534' : '#991b1b'">
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 8px;">
+          <mat-icon style="font-size: 1.2rem; width: 20px; height: 20px; vertical-align: middle;">{{ analise.viavel ? 'check_circle' : 'warning' }}</mat-icon>
+          <span style="font-size: 0.9rem; font-weight: 800;">Análise de Viabilidade Operacional (Horas Úteis)</span>
+        </div>
+        <p style="margin: 0; font-size: 0.85rem; line-height: 1.6;">
+          • Transit Time útil de Coleta: <strong>{{ analise.ttColeta }}h</strong>. Fim previsto das coletas: <strong [style.color]="analise.viavelColeta ? 'inherit' : '#b91c1c'">{{ analise.previsaoColeta }}</strong>.
+          <br>
+          • Transit Time útil de Entrega: <strong>{{ analise.ttEntrega }}h</strong>. Previsão de chegada no destino: <strong [style.color]="analise.viavelEntrega ? 'inherit' : '#b91c1c'">{{ analise.previsaoEntrega }}</strong>.
+          <br>
+          <span *ngIf="!analise.viavel" style="display: block; margin-top: 6px; font-weight: 700; color: #b91c1c;">
+            Atenção: {{ analise.motivoInviabilidade }}
+          </span>
+          <span style="font-weight: 700; display: inline-block; margin-top: 8px; font-size: 0.9rem;"
+                [style.color]="analise.viavel ? '#15803d' : '#b91c1c'">
+            Status Geral: {{ analise.viavel ? '✓ VIÁVEL - Os prazos atendem às janelas operacionais em horas úteis.' : '✗ INVIÁVEL - Ajuste as janelas para adequar ao posicionamento e trânsito útil.' }}
+          </span>
+        </p>
+
+        <!-- Roteiro da Viagem (Logs) -->
+        <div style="margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 12px;">
+          <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; display: block; margin-bottom: 6px;">Roteiro Físico de Simulação:</span>
+          <div style="font-family: monospace; font-size: 0.8rem; line-height: 1.4; display: flex; flex-direction: column; gap: 4px;">
+            <div *ngFor="let log of analise.logsSimulacao">
+              {{ log }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <!-- Ação Salvar no rodapé do card -->
+    <mat-card-actions style="border-top: 1px solid #f1f5f9; padding: 12px 16px; background-color: #fafafa; display: flex; justify-content: flex-end; align-items: center; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+      <button mat-flat-button (click)="salvarJanelas()" style="border-radius: 100px; background-color: #2563eb; color: white;">
+        <mat-icon>save</mat-icon> Salvar Janelas
+      </button>
+    </mat-card-actions>
+  </mat-card>
 
   <!-- Ações de Validação -->
   <mat-card class="validation-card actions-card mt-4">
@@ -281,26 +411,16 @@
     <mat-card-content>
       <div class="actions-grid-container mt-4">
         <mat-form-field appearance="outline" class="justificativa-field bg-white">
-          <mat-label>Justificativa</mat-label>
+          <mat-label>Justificativa Operational *</mat-label>
           <textarea matInput rows="4" [(ngModel)]="justificativa" placeholder="Digite a justificativa da validação..."></textarea>
+          <mat-hint align="end">{{ justificativa?.length || 0 }} / 15 caracteres mínimos</mat-hint>
         </mat-form-field>
       </div>
 
-      <div class="actions-footer mt-4">
-        <div class="left-actions">
-          <button mat-flat-button color="accent" (click)="adicionarAnexo()">
-            <mat-icon>attach_file</mat-icon> Adicionar anexo
-          </button>
-        </div>
-        
-        <div class="right-actions">
-          <button mat-flat-button color="warn" class="cancel-btn mr-2" (click)="cancelarFrete()">
-            <mat-icon>cancel</mat-icon> Cancelar Frete Expresso
-          </button>
-          <button mat-flat-button color="primary" class="approve-btn" (click)="aprovarFrete()">
-            <mat-icon>check_circle</mat-icon> Aprovar Frete Expresso
-          </button>
-        </div>
+      <div class="actions-footer mt-4" style="display: flex; justify-content: flex-end;">
+        <button mat-flat-button color="primary" class="approve-btn" (click)="aprovarFrete()">
+          <mat-icon>check_circle</mat-icon> Validado
+        </button>
       </div>
     </mat-card-content>
   </mat-card>

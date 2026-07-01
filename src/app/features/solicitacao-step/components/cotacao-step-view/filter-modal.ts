@@ -131,29 +131,19 @@ export class FilterModal {
   filterForm: FormGroup;
   
   locais = [
-    'FORNECEDOR ALFA S.A.',
-    'METALÚRGICA LAPA LTDA',
-    'ESTAMPARIA ABC',
-    'PEÇAS SANTO ANDRÉ EIRELI',
-    'LOGÍSTICA BARUERI S.A.',
-    'INDÚSTRIA MOGI S.A.',
-    'DISTRIBUIDORA JUNDIAÍ',
-    'TERMINAL PORTUÁRIO SANTOS',
-    'USINAGEM CAMPINAS LTDA',
-    'CENTRO DISTRIBUIÇÃO SOROCABA'
+    'BRUNING (PANAMBI)',
+    'FOTOGRAVURA ZEYANA (CAXIAS)',
+    'LTM (BOTUCATU)',
+    'BELLOTA (INDAIAL)',
+    'HENNINGS (SOROCABA)'
   ];
 
   transportadoras = [
-    'EXPRESSO SÃO PAULO',
-    'LOG TRANS',
-    'ABC TRANSPORTES',
-    'RAPIDÃO ABC',
-    'ALPHAVILLE LOG',
-    'MOGI CARGO',
-    'JUNDIAÍ EXPRESS',
-    'PORTO LOG',
-    'INTERIOR TRANS',
-    'SOROCABA CARGAS'
+    'MIRASSOL',
+    'M3 LOGÍSTICA',
+    'GOLDEN CARGO',
+    'VF (IVOTI)',
+    'ARMANI (CAMPINAS)'
   ];
 
   constructor(

@@ -1,20 +1,42 @@
 /* Global Styles for Frete Expresso - Material Design 3 */
 :root {
-  /* Semantic Status Colors mapped to M3 principles */
-  --sys-color-success: #146c2e;
-  --sys-color-on-success: #ffffff;
-  --sys-color-success-container: #c8f0cd;
-  --sys-color-on-success-container: #002107;
+  /* Material 3 Color Overrides following ILC Design System V.0.0.2 */
+  --mat-sys-primary: #004f59;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #d0f4fc;
+  --mat-sys-on-primary-container: #001f24;
 
-  --sys-color-warning: #7D5260; /* M3 Tertiary fallback for warning/in-progress */
-  --sys-color-on-warning: #ffffff;
-  --sys-color-warning-container: #FFD8E4;
-  --sys-color-on-warning-container: #31111D;
+  --mat-sys-secondary: #ecc22c;
+  --mat-sys-on-secondary: #000000;
+  --mat-sys-secondary-container: #fef08a;
+  --mat-sys-on-secondary-container: #451a03;
+
+  --mat-sys-tertiary: #16a34a;
+  --mat-sys-on-tertiary: #ffffff;
+  --mat-sys-tertiary-container: #dcfce7;
+  --mat-sys-on-tertiary-container: #14532d;
   
-  --sys-color-info: #0061a4;
+  --mat-sys-surface: #ffffff;
+  --mat-sys-on-surface: #1e293b;
+  --mat-sys-surface-container: #f1f5f9;
+  --mat-sys-surface-container-low: #f8fafc;
+  --mat-sys-surface-container-lowest: #ffffff;
+
+  /* Semantic Status Colors mapped to M3 principles */
+  --sys-color-success: #16a34a;
+  --sys-color-on-success: #ffffff;
+  --sys-color-success-container: #dcfce7;
+  --sys-color-on-success-container: #14532d;
+
+  --sys-color-warning: #ecc22c;
+  --sys-color-on-warning: #000000;
+  --sys-color-warning-container: #fef08a;
+  --sys-color-on-warning-container: #451a03;
+  
+  --sys-color-info: #004f59;
   --sys-color-on-info: #ffffff;
-  --sys-color-info-container: #d1e4ff;
-  --sys-color-on-info-container: #001d36;
+  --sys-color-info-container: #d0f4fc;
+  --sys-color-on-info-container: #001f24;
 
   /* Legacy variable mappings to M3 */
   --primary-color: var(--mat-sys-primary);

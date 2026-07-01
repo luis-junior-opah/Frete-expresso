@@ -80,16 +80,16 @@ export class HistoricoView implements OnInit {
       aglutinador: 'AGL-105',
       inicioJanela: '16/06/2026 07:00',
       fimJanela: '16/06/2026 11:00',
-      localColeta: 'FORNECEDOR ALFA S.A. - RUA DAS INDÚSTRIAS, 1500, DISTRITO INDUSTRIAL, SÃO PAULO - SP, CEP 04578-000',
+      localColeta: 'BRUNING (PANAMBI) - RUA DAS INDÚSTRIAS, 1500, DISTRITO INDUSTRIAL, SÃO PAULO - SP, CEP 04578-000',
       distancia: '12 km',
       localEntrega: 'CD CENTRAL LOGÍSTICA - AV. PRESIDENTE DUTRA, KM 210, BONSUCESSO, GUARULHOS - SP, CEP 07170-350',
       necessidadeEntrega: '16/06/2026 14:00',
-      transportador: 'EXPRESSO SÃO PAULO',
+      transportador: 'MIRASSOL',
       peso: 1500,
       volumetria: 8.5,
-      fornecedor: 'FORNECEDOR ALFA S.A.',
+      fornecedor: 'BRUNING (PANAMBI)',
       codUnidade: '3Q00',
-      cliente: 'CLIENTE X',
+      cliente: 'JOHN DEERE CAMPINAS (3Q00)',
       modal: 'Rodoviário',
       tipoVeiculo: 'Truck Aberto',
       fluxo: 'Fabrica',
@@ -112,7 +112,7 @@ export class HistoricoView implements OnInit {
   ];
 
   approvedQuotation = {
-    transportadora: 'JM PREMIER',
+    transportadora: 'MIRASSOL',
     status: 'Aprovado',
     observacao: 'Cotação dentro do budget planejado para a rota. Veículo com rastreamento ativo e disponibilidade imediata para o fluxo solicitado.',
     temAnexo: true,
@@ -132,13 +132,50 @@ export class HistoricoView implements OnInit {
   numeroColetaGerado = 'COL-776655';
   justificativaValidacao = 'Dossiê validado. Aprovação realizada conforme alinhamento estratégico com a gerência de suprimentos para garantir o atendimento de pedido crítico sem comprometer o SLA de entrega do cliente final.';
 
+  cobrancaExtra = {
+    tipoOcorrencia: 'Diária Excedente - Diária de motorista',
+    justificativa: 'Fila de espera de mais de 8 horas para descarregamento no CD do cliente.',
+    valor: 450.00,
+    arquivos: ['evidencia_espera.pdf'],
+    status: 'Aprovado'
+  };
+
   logsConsolidados: any[] = [
-    { data: '16/06/2026', hora: '15:30', usuario: 'usuario.logado@empresa.com', acao: 'Geração de Coleta', detalhes: 'Coleta COL-776655 gerada para JM PREMIER', status: 'success' },
-    { data: '16/06/2026', hora: '15:28', usuario: 'usuario.logado@empresa.com', acao: 'Geração de Pedido', detalhes: 'Pedido 4500889922 gerado para JM PREMIER', status: 'success' },
-    { data: '16/06/2026', hora: '14:45', usuario: 'juliana.mendes@empresa.com', acao: 'Aprovação realizada', detalhes: 'Cotação aprovada por Juliana Mendes como agrupado.', status: 'approved' },
-    { data: '16/06/2026', hora: '11:15', usuario: 'usuario.logado@empresa.com', acao: 'Agrupamento realizado', detalhes: 'Demanda #101 agrupada com o frete principal.', status: 'info' },
-    { data: '16/06/2026', hora: '09:00', usuario: 'usuario.logado@empresa.com', acao: 'Geração de Solicitação', detalhes: 'Protocolo de frete expresso registrado.', status: 'start' }
+    { timestamp: '2026-06-17T11:20:00.000Z', usuario: 'juliana.mendes@empresa.com', acao: 'Aprovação de Cobrança Extra', detalhes: 'Cobrança extra no valor de R$ 450.00 aprovada.', status: 'approved' },
+    { timestamp: '2026-06-17T09:15:00.000Z', usuario: 'usuario@transportadora.com', acao: 'Cobrança Extra Submetida', detalhes: 'Cobrança extra submetida (Diária Excedente - Diária de motorista: R$ 450.00).', status: 'info' },
+    { timestamp: '2026-06-16T18:30:00.123Z', usuario: 'usuario.logado@empresa.com', acao: 'Geração de Coleta', detalhes: 'Coleta COL-776655 gerada para MIRASSOL', status: 'success' },
+    { timestamp: '2026-06-16T18:28:15.456Z', usuario: 'usuario.logado@empresa.com', acao: 'Geração de Pedido', detalhes: 'Pedido 4500889922 gerado para MIRASSOL', status: 'success' },
+    { timestamp: '2026-06-16T17:45:30.789Z', usuario: 'juliana.mendes@empresa.com', acao: 'Aprovação realizada', detalhes: 'Cotação aprovada por Juliana Mendes como agrupado.', status: 'approved' },
+    { timestamp: '2026-06-16T14:15:10.012Z', usuario: 'usuario.logado@empresa.com', acao: 'Agrupamento realizado', detalhes: 'Demanda #101 agrupada com o frete principal.', status: 'info' },
+    { timestamp: '2026-06-16T12:00:05.999Z', usuario: 'usuario.logado@empresa.com', acao: 'Geração de Solicitação', detalhes: 'Protocolo de frete expresso registrado.', status: 'start' }
   ];
+
+  formatarDataLog(timestampIso: string): string {
+    const date = new Date(timestampIso);
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    };
+    const formatter = new Intl.DateTimeFormat('pt-BR', options);
+    const parts = formatter.formatToParts(date);
+    const getValue = (type: string) => parts.find(p => p.type === type)?.value || '';
+    
+    const day = getValue('day');
+    const month = getValue('month');
+    const year = getValue('year');
+    const hour = getValue('hour');
+    const minute = getValue('minute');
+    const second = getValue('second');
+    const ms = String(date.getMilliseconds()).padStart(3, '0');
+    
+    return `${day}/${month}/${year} às ${hour}:${minute}:${second}:${ms}`;
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

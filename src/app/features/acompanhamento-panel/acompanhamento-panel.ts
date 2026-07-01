@@ -1,4 +1,4 @@
-﻿import { Component, inject, OnInit, ViewChild, signal, computed, effect } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +17,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { FreteService } from '../../core/services/frete.service';
-import { Frete } from '../../core/models/frete.model';
+import { Frete, FreteStatus } from '../../core/models/frete.model';
 import { SearchModal } from './components/search-modal/search-modal';
 
 @Component({
@@ -55,7 +55,7 @@ export class AcompanhamentoPanel implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   
-  displayedColumns: string[] = ['id', 'cliente', 'fornecedor', 'transportador', 'dataInicioJanela', 'dataFimJanela', 'fluxo', 'dataNecessidadeEntrega', 'codigoNox', 'numeroPedido', 'codigoColeta', 'solicitante', 'etapa', 'status', 'acoes'];
+  displayedColumns: string[] = ['id', 'aglutinadorId', 'numeroPedido', 'codigoColeta', 'cliente', 'fornecedor', 'transportador', 'dataInicioJanela', 'dataFimJanela', 'dataNecessidadeEntrega', 'fluxo', 'solicitante', 'etapa', 'status', 'acoes'];
 
   titulo = 'Gestão Fretes Expressos';
   showFilters = signal(true);
@@ -91,6 +91,23 @@ export class AcompanhamentoPanel implements OnInit {
     // Manual subscription to signal for data source
     this.dataSource.data = this.fretes();
     this.aplicarFiltro();
+
+    // Mock: Simular expiração de SLA da matriz de alçadas (Contingência Adm)
+    setInterval(() => {
+      let changed = false;
+      const currentFretes = this.freteService.fretes();
+      const updatedFretes = currentFretes.map(f => {
+        if (f.id === '21987' && f.status === 'Em Aprovação' && Math.random() > 0.8) {
+          changed = true;
+          return { ...f, status: 'Alerta - Contingência Administrativa' as FreteStatus };
+        }
+        return f;
+      });
+      if (changed) {
+        this.freteService.fretes.set(updatedFretes);
+        this.aplicarFiltro();
+      }
+    }, 15000);
   }
 
   ngAfterViewInit() {
@@ -184,17 +201,16 @@ export class AcompanhamentoPanel implements OnInit {
     });
   }
 
-  getStatusColor(status: string): string {
+  getBadgeClass(status: string): string {
     switch (status) {
-      case 'Em andamento': return '#2196f3';
-      case 'Em aprovação': return '#ff9800';
-      case 'Aprovado': return '#4caf50';
-      case 'Aprovado edição': return '#8bc34a';
-      case 'Cancelado': return '#616161';
-      case 'Finalizado': return '#1976d2';
-      case 'Expirado': return '#f44336';
-      case 'Contigência Adm': return '#9c27b0';
-      default: return '#90a4ae';
+      case 'Em Andamento': return 'badge-em-andamento';
+      case 'Em Aprovação': return 'badge-em-aprovacao';
+      case 'Aprovado': return 'badge-aprovado';
+      case 'Aprovado Edição': return 'badge-aprovado-edicao';
+      case 'Alerta - Contingência Administrativa': return 'badge-contingencia';
+      case 'Cancelado': return 'badge-cancelado';
+      case 'Finalizado': return 'badge-finalizado';
+      default: return 'badge-default';
     }
   }
 

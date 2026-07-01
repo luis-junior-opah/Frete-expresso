@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FreteService } from '../../core/services/frete.service';
 import { Frete } from '../../core/models/frete.model';
 
@@ -28,7 +29,8 @@ import { Frete } from '../../core/models/frete.model';
     MatIconModule,
     MatDividerModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatTooltipModule
   ],
   templateUrl: './edicao-frete-view.html',
   styleUrls: ['./edicao-frete-view.css']
@@ -43,35 +45,8 @@ export class EdicaoFreteView implements OnInit {
 
   frete: Frete | undefined;
   
-  // Dados simulados para a segunda demanda em caso de agrupamento
-  segundaDemanda: any = {
-    id: '101',
-    fornecedor: 'FORNECEDOR ALFA S.A.',
-    enderecoColeta: 'RUA DAS INDÚSTRIAS, 1500, SÃO PAULO - SP',
-    cliente: 'CLIENTE LOGÍSTICA X',
-    enderecoEntrega: 'CD CENTRAL - ESTRADA DO CAMINHO, 500, GUARULHOS - SP',
-    dataInicioJanela: '16/06/2026 07:00',
-    dataFimJanela: '16/06/2026 11:00',
-    dataNecessidadeEntrega: '17/06/2026 14:00',
-    modal: 'Rodoviário',
-    tipoVeiculo: 'Truck Aberto',
-    fluxo: 'Fabrica',
-    tipoMaterial: 'Direto',
-    justificativa: 'Agrupamento para otimização de custo e TT.',
-    observacoes: 'Urgente',
-    altura: 1.2,
-    comprimento: 1.5,
-    largura: 1.0,
-    volumetria: 1.8,
-    peso: 450
-  };
-
-  // Valores fixos do "outro frete" para exibição em modalidade agrupada
-  valoresOutroFrete = {
-    ttColeta: 24,
-    ttEntrega: 48,
-    valor: 8500
-  };
+  // Lista dinâmica para todas as demandas adicionais do grupo
+  demandasAgrupadas: Frete[] = [];
 
   cotacaoForm: FormGroup = this.fb.group({
     transportadora: ['', Validators.required],
@@ -92,6 +67,10 @@ export class EdicaoFreteView implements OnInit {
     descricaoMotivo: ['']
   });
 
+  cobrancaArquivoAnexado: string | null = null;
+  propostaArquivoAnexado: string | null = null;
+  historicoAlteracoes: any[] = [];
+
   isAgrupado = false;
   infoAuditoria: { usuario: string; dataHora: string; acao: string } | null = null;
   camposDesabilitados = false;
@@ -107,8 +86,25 @@ export class EdicaoFreteView implements OnInit {
       this.frete = this.freteService.getFreteById(id);
       
       this.isAgrupado = this.frete?.id === '21978' || !!this.frete?.aglutinadorId;
+      this.historicoAlteracoes = this.frete?.historico || [];
+      this.camposDesabilitados = this.frete?.etapa !== 'Cotações' || this.frete?.status === 'Em Aprovação';
 
-      if (this.isAgrupado) {
+      if (this.isAgrupado && this.frete) {
+        // Mock: Se for o frete de teste principal (21978), garante o vínculo dinâmico com outro frete
+        const aglutinadorId = this.frete.aglutinadorId || 'AG-MOCK-21978';
+        if (!this.frete.aglutinadorId) {
+          this.frete.aglutinadorId = aglutinadorId;
+          const outro = this.freteService.fretes().find(f => f.id === '22001');
+          if (outro) {
+            outro.aglutinadorId = aglutinadorId;
+          }
+        }
+
+        // Carrega todas as outras demandas agrupadas no mesmo lote
+        this.demandasAgrupadas = this.freteService.fretes().filter(
+          f => f.aglutinadorId === this.frete?.aglutinadorId && f.id !== this.frete?.id
+        );
+
         this.cotacaoForm.get('ttColetaComplementar')?.setValidators([Validators.required]);
         this.cotacaoForm.get('ttEntregaComplementar')?.setValidators([Validators.required]);
         this.cotacaoForm.get('valorComplementar')?.setValidators([Validators.required]);
@@ -120,29 +116,122 @@ export class EdicaoFreteView implements OnInit {
           valorIndividual: this.frete.cotacao.cotacaoIndividual,
           ttColetaIndividual: this.frete.cotacao.transitTimeColeta,
           ttEntregaIndividual: this.frete.cotacao.transitTimeEntrega,
-          valorComplementar: 1200, 
-          ttColetaComplementar: 12,
-          ttEntregaComplementar: 24
+          valorComplementar: this.frete.cotacao.cotacaoComplementar || 1200, 
+          ttColetaComplementar: this.frete.cotacao.transitTimeColeta || 12,
+          ttEntregaComplementar: this.frete.cotacao.transitTimeEntrega || 24
         });
       } else if (this.frete) {
         this.cotacaoForm.patchValue({
-          transportadora: this.frete.transportador
+          transportadora: this.frete.transportador,
+          // Prefill com valores padrão se for agrupado para que o formulário fique válido e o envio funcione
+          valorComplementar: this.isAgrupado ? 1200 : '',
+          ttColetaComplementar: this.isAgrupado ? 12 : '',
+          ttEntregaComplementar: this.isAgrupado ? 24 : ''
         });
+      }
+
+      if (this.camposDesabilitados) {
+        this.cotacaoForm.disable();
       }
     }
   }
 
+  // Métodos auxiliares para parse e comparação de datas de mock
+  private parseMockDateTime(dateTimeStr?: string): Date | null {
+    if (!dateTimeStr) return null;
+    
+    if (dateTimeStr.includes(' - ')) {
+      const parts = dateTimeStr.split(' - ');
+      const dParts = parts[0].split('-');
+      const tParts = (parts[1] || '00:00').split(':');
+      return new Date(+dParts[0], +dParts[1] - 1, +dParts[2], +tParts[0], +tParts[1]);
+    }
+    
+    if (dateTimeStr.includes('/')) {
+      const parts = dateTimeStr.split(' ');
+      const dParts = parts[0].split('/');
+      const tParts = (parts[1] || '00:00').split(':');
+      return new Date(+dParts[2], +dParts[1] - 1, +dParts[0], +tParts[0], +tParts[1]);
+    }
+
+    const d = new Date(dateTimeStr);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  private formatarDataMock(date: Date): string {
+    const pad = (num: number) => num.toString().padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} - ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  get todasDemandas(): Frete[] {
+    if (!this.frete) return [];
+    return [this.frete, ...this.demandasAgrupadas];
+  }
+
+  get valoresOutroFrete() {
+    if (this.demandasAgrupadas.length > 0) {
+      const outra = this.demandasAgrupadas[0];
+      return {
+        ttColeta: outra.cotacao?.transitTimeColeta || 24,
+        ttEntrega: outra.cotacao?.transitTimeEntrega || 48,
+        valor: outra.cotacao?.cotacaoIndividual || 8500
+      };
+    }
+    return {
+      ttColeta: 24,
+      ttEntrega: 48,
+      valor: 8500
+    };
+  }
+
+  // Getters para consolidação dinâmica de janelas do grupo
+  get dataInicioJanelaConsolidada(): string {
+    const datas = this.todasDemandas
+      .map(d => this.parseMockDateTime(d.dataInicioJanela))
+      .filter((d): d is Date => d !== null);
+    
+    if (datas.length === 0) return this.frete?.dataInicioJanela || '';
+    const minDate = new Date(Math.min(...datas.map(d => d.getTime())));
+    return this.formatarDataMock(minDate);
+  }
+
+  get dataFimJanelaConsolidada(): string {
+    const datas = this.todasDemandas
+      .map(d => this.parseMockDateTime(d.dataFimJanela))
+      .filter((d): d is Date => d !== null);
+    
+    if (datas.length === 0) return this.frete?.dataFimJanela || '';
+    const maxDate = new Date(Math.max(...datas.map(d => d.getTime())));
+    return this.formatarDataMock(maxDate);
+  }
+
+  get dataNecessidadeEntregaConsolidada(): string {
+    const datas = this.todasDemandas
+      .map(d => this.parseMockDateTime(d.dataNecessidadeEntrega))
+      .filter((d): d is Date => d !== null);
+    
+    if (datas.length === 0) return this.frete?.dataNecessidadeEntrega || '';
+    const minDate = new Date(Math.min(...datas.map(d => d.getTime())));
+    return this.formatarDataMock(minDate);
+  }
+
   // Getters para cálculos automáticos de totais
   get totalTTColeta(): number {
-    return this.valoresOutroFrete.ttColeta + (Number(this.cotacaoForm.get('ttColetaComplementar')?.value) || 0);
+    const ttColetaInd = Number(this.cotacaoForm.get('ttColetaIndividual')?.value) || 0;
+    const ttColetaComp = Number(this.cotacaoForm.get('ttColetaComplementar')?.value) || 0;
+    return ttColetaInd + ttColetaComp;
   }
 
   get totalTTEntrega(): number {
-    return this.valoresOutroFrete.ttEntrega + (Number(this.cotacaoForm.get('ttEntregaComplementar')?.value) || 0);
+    const ttEntregaInd = Number(this.cotacaoForm.get('ttEntregaIndividual')?.value) || 0;
+    const ttEntregaComp = Number(this.cotacaoForm.get('ttEntregaComplementar')?.value) || 0;
+    return ttEntregaInd + ttEntregaComp;
   }
 
   get totalValor(): number {
-    return this.valoresOutroFrete.valor + (Number(this.cotacaoForm.get('valorComplementar')?.value) || 0);
+    const valorInd = Number(this.cotacaoForm.get('valorIndividual')?.value) || 0;
+    const valorComp = Number(this.cotacaoForm.get('valorComplementar')?.value) || 0;
+    return valorInd + valorComp;
   }
 
   get pesoCubado(): number {
@@ -154,27 +243,20 @@ export class EdicaoFreteView implements OnInit {
   }
 
   get totalVolumetria(): number {
-    const vol1 = this.frete?.volumetria || 0;
-    const vol2 = this.isAgrupado ? (this.segundaDemanda.volumetria || 0) : 0;
-    return vol1 + vol2;
+    return this.todasDemandas.reduce((sum, d) => sum + (d.volumetria || 0), 0);
   }
 
   get totalPeso(): number {
-    const peso1 = this.frete?.peso || 0;
-    const peso2 = this.isAgrupado ? (this.segundaDemanda.peso || 0) : 0;
-    return peso1 + peso2;
+    return this.todasDemandas.reduce((sum, d) => sum + (d.peso || 0), 0);
   }
 
   get totalPesoCubado(): number {
-    const p1 = this.pesoCubado;
-    let p2 = 0;
-    if (this.isAgrupado) {
-      const h = this.segundaDemanda.altura || 0;
-      const c = this.segundaDemanda.comprimento || 0;
-      const l = this.segundaDemanda.largura || 0;
-      p2 = (h * c * l) * 300;
-    }
-    return p1 + p2;
+    return this.todasDemandas.reduce((sum, d) => {
+      const h = d.altura || 0;
+      const c = d.comprimento || 0;
+      const l = d.largura || 0;
+      return sum + ((h * c * l) * 300);
+    }, 0);
   }
 
   voltar() {
@@ -192,12 +274,15 @@ export class EdicaoFreteView implements OnInit {
       
       this.freteService.submeterCotacao(this.frete.id, {
         cotacaoIndividual: parseFloat(val.valorIndividual) || 0,
+        cotacaoComplementar: parseFloat(val.valorComplementar) || 0,
         transitTimeColeta: parseInt(val.ttColetaIndividual) || 0,
         transitTimeEntrega: parseInt(val.ttEntregaIndividual) || 0,
         transportadoraId: val.transportadora,
         dataSubmissao: dataHora,
         usuarioSubmissao: 'usuario@transportadora.com'
       });
+
+      this.adicionarHistorico(`Cotação enviada (Individual R$ ${val.valorIndividual}${val.valorComplementar ? ' | Complementar R$ ' + val.valorComplementar : ''})`);
 
       this.infoAuditoria = {
         usuario: 'usuario@transportadora.com',
@@ -221,6 +306,7 @@ export class EdicaoFreteView implements OnInit {
     if (this.frete) {
       const dataHora = new Date().toLocaleString('pt-BR');
       this.freteService.updateFrete(this.frete.id, { status: 'Cancelado', etapa: 'Cotações' });
+      this.adicionarHistorico('Cotação declinada');
       
       this.infoAuditoria = {
         usuario: 'usuario@transportadora.com',
@@ -243,6 +329,8 @@ export class EdicaoFreteView implements OnInit {
   confirmarCorrecao() {
     if (this.frete) {
       const dataHora = new Date().toLocaleString('pt-BR');
+      this.adicionarHistorico('Correção solicitada');
+
       this.infoAuditoria = {
         usuario: 'usuario@transportadora.com',
         dataHora: dataHora,
@@ -254,7 +342,30 @@ export class EdicaoFreteView implements OnInit {
   }
 
   handleCobrarAdicional() {
+    this.cobrancaExtraForm.reset({
+      motivo: '',
+      valor: '',
+      descricaoMotivo: ''
+    });
+    this.cobrancaArquivoAnexado = null;
     this.dialog.open(this.cobrarAdicionalDialog);
+  }
+
+  onCobrancaFileSelected(event: any) {
+    const files = event.target.files;
+    if (files.length > 0) {
+      this.cobrancaArquivoAnexado = files[0].name;
+      this.snackBar.open(`Arquivo ${files[0].name} anexado com sucesso!`, 'Fechar', { duration: 3000 });
+    }
+  }
+
+  onPropostaFileSelected(event: any) {
+    const files = event.target.files;
+    if (files.length > 0) {
+      this.propostaArquivoAnexado = files[0].name;
+      this.adicionarHistorico(`Proposta comercial anexada: ${files[0].name}`);
+      this.snackBar.open(`Proposta comercial ${files[0].name} anexada com sucesso!`, 'Fechar', { duration: 3000 });
+    }
   }
 
   confirmarCobrancaExtra() {
@@ -262,14 +373,34 @@ export class EdicaoFreteView implements OnInit {
       const val = this.cobrancaExtraForm.value;
       const dataHora = new Date().toLocaleString('pt-BR');
       
+      const fileText = this.cobrancaArquivoAnexado ? ` | Arquivo: ${this.cobrancaArquivoAnexado}` : '';
+      this.adicionarHistorico(`Cobrança extra submetida (${val.motivo}: R$ ${val.valor}${fileText})`);
+
       this.infoAuditoria = {
         usuario: 'usuario@transportadora.com',
         dataHora: dataHora,
-        acao: `Cobrança extra submetida (${val.motivo}: R$ ${val.valor})`
+        acao: `Cobrança extra submetida (${val.motivo}: R$ ${val.valor}${fileText})`
       };
 
       this.dialog.closeAll();
       this.snackBar.open('Cobrança extra submetida com sucesso!', 'Fechar', { duration: 3000, panelClass: ['success-snackbar'] });
+    }
+  }
+
+  adicionarHistorico(acao: string) {
+    const dataHora = new Date().toLocaleString('pt-BR');
+    const item = {
+      usuario: 'usuario@transportadora.com',
+      dataHora: dataHora,
+      acao: acao
+    };
+    
+    if (this.frete) {
+      const currentHist = this.frete.historico || [];
+      const updatedHist = [...currentHist, item];
+      this.frete.historico = updatedHist;
+      this.freteService.updateFrete(this.frete.id, { historico: updatedHist });
+      this.historicoAlteracoes = updatedHist;
     }
   }
 

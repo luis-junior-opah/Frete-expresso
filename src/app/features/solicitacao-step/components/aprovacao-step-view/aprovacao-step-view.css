@@ -623,7 +623,7 @@ button {
   color: #991b1b;
 }
 
-.status-chip[data-status="Em análise"] {
+.status-chip[data-status="Em Análise"] {
   background-color: #dbeafe;
   color: #1e40af;
 }
@@ -913,4 +913,40 @@ button {
   .col-3, .col-4, .col-8, .col-2 {
     flex: 0 0 100%;
   }
+}
+
+.quotations-section {
+  position: relative;
+}
+
+.quotations-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: #f8fafd;
+  border-bottom: 1px solid #cbd5e1;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+}
+
+/* Cabeçalho de seção sem sticky — usado pelo card Cobrança Extra */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: #f8fafd;
+  border-bottom: 1px solid #cbd5e1;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
 }

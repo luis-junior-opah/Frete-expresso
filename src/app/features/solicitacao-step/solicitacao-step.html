@@ -3,12 +3,20 @@
     <button mat-button (click)="voltar()" class="back-btn">
       <mat-icon>arrow_back</mat-icon> Voltar ao Painel
     </button>
-    <button mat-flat-button class="historico-btn" (click)="historico()">
-      Histórico
-    </button>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <button mat-flat-button class="random-btn" (click)="preencherAleatoriamente()" *ngIf="activeStep === 0 && !freteEdicaoId">
+        <mat-icon>shuffle</mat-icon> Preencher Aleatório
+      </button>
+      <button mat-flat-button class="cancelar-global-btn" (click)="cancelarFreteExpresso()">
+        <mat-icon>cancel</mat-icon> Cancelar
+      </button>
+      <button mat-flat-button class="historico-btn" (click)="historico()">
+        Histórico
+      </button>
+    </div>
   </div>
 
-  <mat-stepper [linear]="false" #stepper class="stepper-container" (selectionChange)="activeStep = $event.selectedIndex">
+  <mat-stepper [linear]="false" #stepper class="stepper-container" (selectionChange)="onStepChange($event)">
     <!-- Customizar ícones para mostrar sempre números (1-7) -->
     <ng-template matStepperIcon="number" let-index="index">{{index + 1}}</ng-template>
     <ng-template matStepperIcon="edit" let-index="index">{{index + 1}}</ng-template>
@@ -26,63 +34,84 @@
 
       <form [formGroup]="solicitacaoForm" class="grid-container">
         <!-- Linha 1: 3 campos -->
-        <mat-form-field appearance="outline" class="col-4 bg-white pointer">
+        <mat-form-field appearance="outline" class="col-5 bg-white pointer">
           <mat-label>Fornecedor *</mat-label>
           <input matInput formControlName="fornecedor" readonly (click)="openSearchModal('fornecedor')" placeholder="Selecione o fornecedor">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="col-4 bg-white">
+        <mat-form-field appearance="outline" class="col-2 bg-white">
           <mat-label>Cód. Unidade *</mat-label>
-          <mat-select formControlName="codUnidade" placeholder="Selecione a unidade">
-            <mat-option value="3Q00">3Q00</mat-option>
-            <mat-option value="BM00">BM00</mat-option>
-            <mat-option value="BZ00">BZ00</mat-option>
-            <mat-option value="CQ00">CQ00</mat-option>
-            <mat-option value="NW00">NW00</mat-option>
-          </mat-select>
+          <input matInput formControlName="codUnidade" readonly placeholder="Preenchido automaticamente">
         </mat-form-field>
-        <mat-form-field appearance="outline" class="col-4 bg-white pointer">
+        <mat-form-field appearance="outline" class="col-5 bg-white pointer">
           <mat-label>Cliente *</mat-label>
           <input matInput formControlName="cliente" readonly (click)="openSearchModal('cliente')" placeholder="Selecione o cliente">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
 
         <!-- Linha 2: 2 campos -->
-        <mat-form-field appearance="outline" class="col-6 bg-white">
+        <mat-form-field appearance="outline" class="col-6 bg-white pointer">
           <mat-label>Endereço de coleta</mat-label>
-          <input matInput formControlName="enderecoColeta" placeholder="Rua, número, bairro, cidade - UF">
+          <input matInput formControlName="enderecoColeta" readonly (click)="openAddressModal('coleta')" placeholder="Clique para preencher o endereço">
+          <mat-icon matSuffix>place</mat-icon>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="col-6 bg-white">
+        <mat-form-field appearance="outline" class="col-6 bg-white pointer">
           <mat-label>Endereço de entrega</mat-label>
-          <input matInput formControlName="enderecoEntrega" placeholder="Rua, número, bairro, cidade - UF">
+          <input matInput formControlName="enderecoEntrega" readonly (click)="openAddressModal('entrega')" placeholder="Clique para preencher o endereço">
+          <mat-icon matSuffix>place</mat-icon>
         </mat-form-field>
 
         <!-- Linha 3: 6 campos -->
         <div class="row-6-cols">
-          <mat-form-field appearance="outline" class="bg-white pointer" (click)="d1.showPicker()">
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="d1.showPicker()"
+            [class.date-field-error]="solicitacaoForm.hasError('inicioMinHoraAgora') || solicitacaoForm.hasError('inicioFimMinDiferenca')">
             <mat-label>Início janela *</mat-label>
             <input #d1 matInput type="date" formControlName="dataInicioJanela" placeholder="DD/MM/AAAA">
+            <mat-error *ngIf="solicitacaoForm.get('dataInicioJanela')?.hasError('required')">Obrigatório</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="bg-white pointer" (click)="t1.showPicker()">
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="t1.showPicker()"
+            [class.date-field-error]="solicitacaoForm.hasError('inicioMinHoraAgora') || solicitacaoForm.hasError('inicioFimMinDiferenca')">
             <mat-label>Hora início *</mat-label>
             <input #t1 matInput type="time" formControlName="horaInicioJanela" placeholder="00:00">
+            <mat-error *ngIf="solicitacaoForm.get('horaInicioJanela')?.hasError('required')">Obrigatório</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="bg-white pointer" (click)="d2.showPicker()">
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="d2.showPicker()"
+            [class.date-field-error]="solicitacaoForm.hasError('inicioFimMinDiferenca') || solicitacaoForm.hasError('fimNecMinDiferenca')">
             <mat-label>Fim janela *</mat-label>
             <input #d2 matInput type="date" formControlName="dataFimJanela" placeholder="DD/MM/AAAA">
+            <mat-error *ngIf="solicitacaoForm.get('dataFimJanela')?.hasError('required')">Obrigatório</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="bg-white pointer" (click)="t2.showPicker()">
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="t2.showPicker()"
+            [class.date-field-error]="solicitacaoForm.hasError('inicioFimMinDiferenca') || solicitacaoForm.hasError('fimNecMinDiferenca')">
             <mat-label>Hora fim *</mat-label>
             <input #t2 matInput type="time" formControlName="horaFimJanela" placeholder="00:00">
+            <mat-error *ngIf="solicitacaoForm.get('horaFimJanela')?.hasError('required')">Obrigatório</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="bg-white pointer" (click)="d3.showPicker()">
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="d3.showPicker()"
+            [class.date-field-error]="solicitacaoForm.hasError('fimNecMinDiferenca')">
             <mat-label>Necessidade *</mat-label>
             <input #d3 matInput type="date" formControlName="dataNecessidadeEntrega" placeholder="DD/MM/AAAA">
+            <mat-error *ngIf="solicitacaoForm.get('dataNecessidadeEntrega')?.hasError('required')">Obrigatório</mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="bg-white pointer" (click)="t3.showPicker()">
+          <mat-form-field appearance="outline" class="bg-white pointer" (click)="t3.showPicker()"
+            [class.date-field-error]="solicitacaoForm.hasError('fimNecMinDiferenca')">
             <mat-label>Hora necessidade *</mat-label>
             <input #t3 matInput type="time" formControlName="horaNecessidadeEntrega" placeholder="00:00">
+            <mat-error *ngIf="solicitacaoForm.get('horaNecessidadeEntrega')?.hasError('required')">Obrigatório</mat-error>
           </mat-form-field>
+        </div>
+
+        <!-- Mensagens de erro de janela de datas (grupo) -->
+        <div class="col-12 date-errors-container" *ngIf="solicitacaoForm.hasError('inicioMinHoraAgora') || solicitacaoForm.hasError('inicioFimMinDiferenca') || solicitacaoForm.hasError('fimNecMinDiferenca')">
+          <div class="date-error-item" *ngIf="solicitacaoForm.hasError('inicioMinHoraAgora')">
+            <mat-icon>schedule</mat-icon> Início da janela deve ser no mínimo 1h30min após o horário atual.
+          </div>
+          <div class="date-error-item" *ngIf="solicitacaoForm.hasError('inicioFimMinDiferenca')">
+            <mat-icon>schedule</mat-icon> Fim da janela deve ser no mínimo 1 hora após o início.
+          </div>
+          <div class="date-error-item" *ngIf="solicitacaoForm.hasError('fimNecMinDiferenca')">
+            <mat-icon>schedule</mat-icon> Necessidade de entrega deve ser no mínimo 1 hora após o fim da janela.
+          </div>
         </div>
 
         <!-- Linha 4: 5 campos -->
@@ -98,23 +127,9 @@
           <mat-form-field appearance="outline" class="bg-white">
             <mat-label>Tipo de veículo *</mat-label>
             <mat-select formControlName="tipoVeiculo" placeholder="Selecione o veículo" panelClass="wide-select-panel">
-              <mat-option value="Aéreo">Aéreo - Capacidade máx: 999999.0 Kgs - 94.5 m³</mat-option>
-              <mat-option value="Truck Aberto">Truck Aberto - Capacidade máx: 12000.0 Kgs - 50.63 m³</mat-option>
-              <mat-option value="3/4 Aberto">3/4 Aberto - Capacidade máx: 3000.0 Kgs - 20.0 m³</mat-option>
-              <mat-option value="Carreta Bau">Carreta Bau - Capacidade máx: 25000.0 Kgs - 94.5 m³</mat-option>
-              <mat-option value="Carreta Vanderleia">Carreta Vanderleia - Capacidade máx: 34000.0 Kgs - 94.5 m³</mat-option>
-              <mat-option value="Utilitario">Utilitario - Capacidade máx: 500.0 Kgs - 2.85 m³</mat-option>
-              <mat-option value="Van">Van - Capacidade máx: 1500.0 Kgs - 9.03 m³</mat-option>
-              <mat-option value="3/4">3/4 - Capacidade máx: 3000.0 Kgs - 20.0 m³</mat-option>
-              <mat-option value="Toco">Toco - Capacidade máx: 6000.0 Kgs - 46.38 m³</mat-option>
-              <mat-option value="Truck Sider">Truck Sider - Capacidade máx: 12000.0 Kgs - 50.63 m³</mat-option>
-              <mat-option value="Carreta Sider">Carreta Sider - Capacidade máx: 25000.0 Kgs - 94.5 m³</mat-option>
-              <mat-option value="Rodotrem Sider">Rodotrem Sider - Capacidade máx: 45000.0 Kgs - 168.75 m³</mat-option>
-              <mat-option value="Carreta Aberta">Carreta Aberta - Capacidade máx: 25000.0 Kgs - 94.5 m³</mat-option>
-              <mat-option value="Rodotrem Light">Rodotrem Light - Capacidade máx: 22000.0 Kgs - 189.0 m³</mat-option>
-              <mat-option value="Truck Van">Truck Van - Capacidade máx: 25000.0 Kgs - 94.5 m³</mat-option>
-              <mat-option value="Truck Bau">Truck Bau - Capacidade máx: 12000.0 Kgs - 50.63 m³</mat-option>
-              <mat-option value="Rodotrem Bau">Rodotrem Bau - Capacidade máx: 22000.0 Kgs - 189.0 m³</mat-option>
+              <mat-option *ngFor="let v of filteredVeiculos" [value]="v.value">
+                {{ v.label }}
+              </mat-option>
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline" class="bg-white">
@@ -160,28 +175,59 @@
           </mat-form-field>
         </div>
 
-        <!-- Linha 5: 5 campos -->
-        <div class="row-5-cols">
-          <mat-form-field appearance="outline" class="bg-white">
-            <mat-label>Altura (m)</mat-label>
-            <input matInput type="number" formControlName="altura" placeholder="0.00">
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="bg-white">
-            <mat-label>Comprimento (m)</mat-label>
-            <input matInput type="number" formControlName="comprimento" placeholder="0.00">
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="bg-white">
-            <mat-label>Largura (m)</mat-label>
-            <input matInput type="number" formControlName="largura" placeholder="0.00">
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="bg-white">
-            <mat-label>Volumetria (m³)</mat-label>
-            <input matInput type="number" formControlName="volumetria" placeholder="0.00">
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="bg-white">
-            <mat-label>Peso (kg) *</mat-label>
-            <input matInput type="number" formControlName="peso" placeholder="0.00">
-          </mat-form-field>
+        <!-- Linha 5: 5 campos + alerta de volumetria -->
+        <div class="vol-section-wrapper">
+          <div class="row-5-cols">
+            <mat-form-field appearance="outline" class="bg-white">
+              <mat-label>Altura (m)</mat-label>
+              <input matInput type="number" formControlName="altura" placeholder="0.00">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="bg-white">
+              <mat-label>Comprimento (m)</mat-label>
+              <input matInput type="number" formControlName="comprimento" placeholder="0.00">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="bg-white">
+              <mat-label>Largura (m)</mat-label>
+              <input matInput type="number" formControlName="largura" placeholder="0.00">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="bg-white"
+              [class.date-field-error]="solicitacaoForm.hasError('volumetriaMismatch')">
+              <mat-label>Volumetria (m³)</mat-label>
+              <input matInput type="number" formControlName="volumetria" placeholder="0.00">
+              <mat-hint *ngIf="solicitacaoForm.hasError('volumetriaMismatch')" class="vol-hint-error">
+                Divergência detectada
+              </mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="bg-white">
+              <mat-label>Peso (kg) *</mat-label>
+              <input matInput type="number" formControlName="peso" placeholder="0.00">
+            </mat-form-field>
+          </div>
+
+          <!-- Alerta de divergência de volumetria — mesma largura da linha acima -->
+          <div class="vol-mismatch-container" *ngIf="solicitacaoForm.hasError('volumetriaMismatch')">
+            <div class="vol-mismatch-header">
+              <mat-icon>calculate</mat-icon>
+              <strong>Divergência na Volumetria</strong>
+            </div>
+            <div class="vol-mismatch-body">
+              <span class="vol-row">
+                <span class="vol-label">Calculado (A × L × C):</span>
+                <span class="vol-value vol-calculated">{{ solicitacaoForm.errors?.['volumetriaMismatch']?.calculated | number:'1.3-3' }} m³</span>
+              </span>
+              <span class="vol-row">
+                <span class="vol-label">Informado no campo:</span>
+                <span class="vol-value vol-informed">{{ solicitacaoForm.errors?.['volumetriaMismatch']?.informed | number:'1.3-3' }} m³</span>
+              </span>
+              <span class="vol-row vol-diff-row">
+                <span class="vol-label">Diferença:</span>
+                <span class="vol-value vol-diff">{{ solicitacaoForm.errors?.['volumetriaMismatch']?.diff | number:'1.3-3' }} m³</span>
+              </span>
+            </div>
+            <div class="vol-mismatch-tip">
+              Corrija o campo <strong>Volumetria</strong> ou revise as dimensões informadas.
+            </div>
+          </div>
         </div>
 
         <!-- Linha 6: 1 campo -->
@@ -219,7 +265,12 @@
     </mat-card>
 
     <!-- Step 1: Cotação -->
-    <app-cotacao-step-view *ngSwitchCase="1" [frete]="getCurrentFrete()"></app-cotacao-step-view>
+    <app-cotacao-step-view *ngSwitchCase="1" 
+      [frete]="getCurrentFrete()"
+      [(groupedDemands)]="sharedGroupedDemands"
+      [(aglutinadosTipoVeiculo)]="sharedVehicle"
+      (requestAdvance)="enviarParaAprovacao()">
+    </app-cotacao-step-view>
 
     <!-- Step 2: Aprovação -->
     <app-aprovacao-step-view *ngSwitchCase="2" 
@@ -268,15 +319,15 @@
       
       <div class="nav-center">
         <button mat-flat-button color="primary" class="nav-save-btn" (click)="onSubmit()" *ngIf="activeStep === 0">
-          <mat-icon>save</mat-icon> Salvar
-        </button>
-        <button mat-flat-button color="primary" class="nav-approval-btn" (click)="enviarParaAprovacao()" *ngIf="activeStep === 1">
-          <mat-icon>send</mat-icon> Enviar para aprovação
+          <mat-icon>{{ solicitacaoGerada ? 'save' : 'send' }}</mat-icon> {{ solicitacaoGerada ? 'Salvar' : 'Enviar' }}
         </button>
       </div>
 
       <div class="nav-right">
-        <button mat-flat-button color="primary" class="nav-next-btn" (click)="avancar()" [disabled]="activeStep === steps.length - 1" *ngIf="activeStep !== 1">
+        <button mat-flat-button color="primary" class="nav-next-btn" (click)="avancar()" [disabled]="(activeStep === steps.length - 1) || (activeStep === 0 && !solicitacaoGerada)" *ngIf="activeStep !== 1">
+          Avançar <mat-icon>arrow_forward</mat-icon>
+        </button>
+        <button mat-flat-button color="primary" class="nav-next-btn" (click)="enviarParaAprovacao()" *ngIf="activeStep === 1">
           Avançar <mat-icon>arrow_forward</mat-icon>
         </button>
       </div>

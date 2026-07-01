@@ -12,8 +12,13 @@
 }
 
 .toolbar-title {
-  margin-left: 16px;
+  margin-left: 12px;
   font-weight: 500;
+}
+
+.toolbar-logo {
+  height: 52px;
+  margin-left: 12px;
 }
 
 .spacer {

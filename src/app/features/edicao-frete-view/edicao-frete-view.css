@@ -263,33 +263,29 @@
 
 /* --- ACTIONS --- */
 .action-footer {
-  padding: 32px 48px !important;
+  padding: 32px 20px !important; /* Reduzido padding lateral de 48px para 20px para aumentar largura útil */
   background: #f8fafc !important;
   border-top: 1px solid #e2e8f0 !important;
-  display: flex;
-  justify-content: space-between; /* Mantém o Declinar na esquerda e os outros na direita */
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 12px !important; /* Reduzido gap de 16px para 12px */
   align-items: center;
   border-radius: 0 0 24px 24px !important;
 }
 
-.right-actions {
-  display: flex;
-  gap: 24px; /* Aumentado o espaço entre os botões da direita */
-  align-items: center;
-}
-
 .action-btn {
-  height: 56px !important;
-  padding: 0 40px !important;
+  height: 48px !important;
+  padding: 0 16px !important; /* Reduzido padding de 24px para 16px para liberar espaço */
   border-radius: 100px !important;
-  font-weight: 900 !important;
+  font-weight: 500 !important;
   letter-spacing: 0.5px !important;
-  text-transform: uppercase;
+  text-transform: none !important;
   font-size: 0.85rem !important;
   display: flex;
   align-items: center;
-  justify-content: center; /* Centraliza o conteúdo interno do botão */
-  gap: 12px;
+  justify-content: center;
+  gap: 6px; /* Reduzido gap do ícone de 8px para 6px */
+  white-space: nowrap !important; /* Garante que nunca haverá quebra de linha no texto */
 }
 
 .declinar-btn {
@@ -376,7 +372,11 @@
   .form-grid { grid-template-columns: 1fr; }
   .attachment-row { flex-direction: column; text-align: center; gap: 16px; }
   .hint { margin-left: 0; }
-  .action-footer { flex-direction: column; gap: 20px; padding: 32px 24px !important; }
-  .right-actions { flex-direction: column; width: 100%; gap: 16px; }
+  .action-footer { 
+    display: flex !important; 
+    flex-direction: column !important; 
+    gap: 16px !important; 
+    padding: 32px 24px !important; 
+  }
   .action-btn { width: 100% !important; justify-content: center; }
 }

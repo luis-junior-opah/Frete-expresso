@@ -58,52 +58,52 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- 2. DETALHES DA SEGUNDA DEMANDA (CASO AGRUPADO) -->
-    <mat-card class="info-card premium-shadow second-demand" *ngIf="isAgrupado">
+    <!-- 2. DETALHES DAS DEMANDAS AGRUPADAS ADICIONAIS -->
+    <mat-card class="info-card premium-shadow second-demand" *ngFor="let dem of demandasAgrupadas">
       <mat-card-header>
         <div class="card-title-row">
           <mat-icon color="accent">dynamic_feed</mat-icon>
-          <h3>Detalhes da Demanda Agrupada #{{ segundaDemanda.id }}</h3>
+          <h3>Detalhes da Demanda Agrupada #{{ dem.id }}</h3>
         </div>
       </mat-card-header>
       <mat-card-content>
         <div class="info-grid">
           <!-- Linha 1 -->
-          <div class="info-item col-span-4"><label>FORNECEDOR</label><span class="value">{{ segundaDemanda.fornecedor }}</span></div>
-          <div class="info-item col-span-8"><label>LOCAL DE COLETA</label><span class="value address">{{ segundaDemanda.enderecoColeta }}</span></div>
+          <div class="info-item col-span-4"><label>FORNECEDOR</label><span class="value">{{ dem.fornecedor }}</span></div>
+          <div class="info-item col-span-8"><label>LOCAL DE COLETA</label><span class="value address">{{ dem.enderecoColeta }}</span></div>
           
           <!-- Linha 2 -->
-          <div class="info-item col-span-4"><label>CLIENTE</label><span class="value">{{ segundaDemanda.cliente }}</span></div>
-          <div class="info-item col-span-8"><label>LOCAL DE ENTREGA</label><span class="value address">{{ segundaDemanda.enderecoEntrega }}</span></div>
+          <div class="info-item col-span-4"><label>CLIENTE</label><span class="value">{{ dem.cliente }}</span></div>
+          <div class="info-item col-span-8"><label>LOCAL DE ENTREGA</label><span class="value address">{{ dem.enderecoEntrega }}</span></div>
           
           <!-- Linha 3 -->
-          <div class="info-item col-span-4"><label>INÍCIO JANELA</label><span class="value">{{ segundaDemanda.dataInicioJanela }}</span></div>
-          <div class="info-item col-span-4"><label>FIM JANELA</label><span class="value">{{ segundaDemanda.dataFimJanela }}</span></div>
-          <div class="info-item col-span-4"><label>NECESSIDADE DE ENTREGA</label><span class="value highlight">{{ segundaDemanda.dataNecessidadeEntrega }}</span></div>
+          <div class="info-item col-span-4"><label>INÍCIO JANELA</label><span class="value">{{ dem.dataInicioJanela }}</span></div>
+          <div class="info-item col-span-4"><label>FIM JANELA</label><span class="value">{{ dem.dataFimJanela }}</span></div>
+          <div class="info-item col-span-4"><label>NECESSIDADE DE ENTREGA</label><span class="value highlight">{{ dem.dataNecessidadeEntrega }}</span></div>
           
           <!-- Linha 4 -->
-          <div class="info-item col-span-3"><label>MODAL</label><span class="value">{{ segundaDemanda.modal }}</span></div>
-          <div class="info-item col-span-3"><label>TIPO VEÍCULO</label><span class="value">{{ segundaDemanda.tipoVeiculo }}</span></div>
-          <div class="info-item col-span-3"><label>FLUXO</label><span class="value">{{ segundaDemanda.fluxo }}</span></div>
-          <div class="info-item col-span-3"><label>TIPO MATERIAL</label><span class="value">{{ segundaDemanda.tipoMaterial }}</span></div>
+          <div class="info-item col-span-3"><label>MODAL</label><span class="value">{{ dem.modal || '-' }}</span></div>
+          <div class="info-item col-span-3"><label>TIPO VEÍCULO</label><span class="value">{{ dem.tipoVeiculo || '-' }}</span></div>
+          <div class="info-item col-span-3"><label>FLUXO</label><span class="value">{{ dem.fluxo }}</span></div>
+          <div class="info-item col-span-3"><label>TIPO MATERIAL</label><span class="value">{{ dem.tipoMaterial || '-' }}</span></div>
           
           <!-- Linha 5 -->
-          <div class="info-item col-span-6"><label>JUSTIFICATIVA</label><span class="value">{{ segundaDemanda.justificativa || '-' }}</span></div>
-          <div class="info-item col-span-6"><label>OBSERVAÇÕES</label><span class="value">{{ segundaDemanda.observacoes || '-' }}</span></div>
-
+          <div class="info-item col-span-6"><label>JUSTIFICATIVA</label><span class="value">{{ dem.justificativa || '-' }}</span></div>
+          <div class="info-item col-span-6"><label>OBSERVAÇÕES</label><span class="value">{{ dem.observacoes || '-' }}</span></div>
+ 
           <!-- Linha 6 -->
-          <div class="info-item col-span-2"><label>ALTURA</label><span class="value">{{ segundaDemanda.altura }} m</span></div>
-          <div class="info-item col-span-2"><label>COMPRIMENTO</label><span class="value">{{ segundaDemanda.comprimento }} m</span></div>
-          <div class="info-item col-span-2"><label>LARGURA</label><span class="value">{{ segundaDemanda.largura }} m</span></div>
-          <div class="info-item col-span-2"><label>VOLUMETRIA</label><span class="value">{{ segundaDemanda.volumetria }} m³</span></div>
-          <div class="info-item col-span-2"><label>PESO</label><span class="value">{{ segundaDemanda.peso }} kg</span></div>
-          <div class="info-item col-span-2"><label>PESO CUBADO</label><span class="value">{{ ((segundaDemanda.altura * segundaDemanda.comprimento * segundaDemanda.largura) * 300) | number:'1.2-2' }} kg</span></div>
+          <div class="info-item col-span-2"><label>ALTURA</label><span class="value">{{ dem.altura || 0 }} m</span></div>
+          <div class="info-item col-span-2"><label>COMPRIMENTO</label><span class="value">{{ dem.comprimento || 0 }} m</span></div>
+          <div class="info-item col-span-2"><label>LARGURA</label><span class="value">{{ dem.largura || 0 }} m</span></div>
+          <div class="info-item col-span-2"><label>VOLUMETRIA</label><span class="value">{{ dem.volumetria || 0 }} m³</span></div>
+          <div class="info-item col-span-2"><label>PESO</label><span class="value">{{ dem.peso || 0 }} kg</span></div>
+          <div class="info-item col-span-2"><label>PESO CUBADO</label><span class="value">{{ (((dem.altura || 0) * (dem.comprimento || 0) * (dem.largura || 0)) * 300) | number:'1.2-2' }} kg</span></div>
         </div>
       </mat-card-content>
     </mat-card>
-
+ 
     <!-- 3. RESUMO CONSOLIDADO (CASO AGRUPADO) -->
-    <mat-card class="info-card premium-shadow consolidated-demand" *ngIf="isAgrupado">
+    <mat-card class="info-card premium-shadow consolidated-demand" *ngIf="isAgrupado && frete">
       <mat-card-header>
         <div class="card-title-row">
           <mat-icon style="color: #8b5cf6;">merge_type</mat-icon>
@@ -115,45 +115,47 @@
           <!-- Linha 1 -->
           <div class="info-item col-span-12">
             <label>IDs DAS DEMANDAS AGLUTINADAS</label>
-            <span class="value highlight">#{{ frete.id }} e #{{ segundaDemanda.id }}</span>
+            <span class="value highlight">
+              #{{ frete.id }} <span *ngFor="let dem of demandasAgrupadas"> e #{{ dem.id }}</span>
+            </span>
           </div>
-
+ 
           <!-- Linha 2 -->
           <div class="info-item col-span-12">
             <label>LOCAL DE COLETA (#{{ frete.id }})</label>
             <span class="value address">{{ frete.enderecoColeta }}</span>
           </div>
-
+ 
           <!-- Linha 3 -->
-          <div class="info-item col-span-12">
-            <label>LOCAL DE COLETA (#{{ segundaDemanda.id }})</label>
-            <span class="value address">{{ segundaDemanda.enderecoColeta }}</span>
+          <div class="info-item col-span-12" *ngFor="let dem of demandasAgrupadas">
+            <label>LOCAL DE COLETA (#{{ dem.id }})</label>
+            <span class="value address">{{ dem.enderecoColeta }}</span>
           </div>
-
+ 
           <!-- Linha 3.5: LOCAL DE ENTREGA -->
           <div class="info-item col-span-12">
             <label>LOCAL DE ENTREGA (#{{ frete.id }})</label>
             <span class="value address">{{ frete.enderecoEntrega }}</span>
           </div>
-          <div class="info-item col-span-12">
-            <label>LOCAL DE ENTREGA (#{{ segundaDemanda.id }})</label>
-            <span class="value address">{{ segundaDemanda.enderecoEntrega }}</span>
+          <div class="info-item col-span-12" *ngFor="let dem of demandasAgrupadas">
+            <label>LOCAL DE ENTREGA (#{{ dem.id }})</label>
+            <span class="value address">{{ dem.enderecoEntrega }}</span>
           </div>
-
+ 
           <!-- Linha 4 -->
           <div class="info-item col-span-4">
             <label>INÍCIO JANELA (CONSOLIDADO)</label>
-            <span class="value">{{ frete.dataInicioJanela }}</span>
+            <span class="value">{{ dataInicioJanelaConsolidada }}</span>
           </div>
           <div class="info-item col-span-4">
             <label>FIM JANELA (CONSOLIDADO)</label>
-            <span class="value">{{ frete.dataFimJanela }}</span>
+            <span class="value">{{ dataFimJanelaConsolidada }}</span>
           </div>
           <div class="info-item col-span-4">
             <label>NECESSIDADE DE ENTREGA (CONSOLIDADA)</label>
-            <span class="value highlight">{{ frete.dataNecessidadeEntrega }}</span>
+            <span class="value highlight">{{ dataNecessidadeEntregaConsolidada }}</span>
           </div>
-
+ 
           <!-- Linha 5 -->
           <div class="info-item col-span-12">
             <label>TIPO DE VEÍCULO DEFINIDO</label>
@@ -271,9 +273,12 @@
             <div class="attachment-row">
               <div class="attachment-info">
                 <mat-icon>attach_file</mat-icon>
-                <span>Proposta Comercial (PDF)</span>
+                <span [matTooltip]="propostaArquivoAnexado || ''">
+                  {{ propostaArquivoAnexado || 'Proposta Comercial (PDF)' }}
+                </span>
               </div>
-              <button mat-stroked-button type="button" class="attach-btn">
+              <input type="file" #propostaFileInput style="display: none;" (change)="onPropostaFileSelected($event)" [disabled]="camposDesabilitados">
+              <button mat-stroked-button type="button" class="attach-btn" (click)="propostaFileInput.click()" [disabled]="camposDesabilitados">
                 SELECIONAR ARQUIVO
               </button>
               <span class="hint">Máximo 10MB</span>
@@ -283,34 +288,48 @@
       </mat-card-content>
       
       <mat-card-actions class="action-footer">
-        <button mat-flat-button color="warn" class="action-btn declinar-btn" (click)="handleDeclinarClick()" [disabled]="camposDesabilitados">
-          <mat-icon>block</mat-icon> DECLINAR SOLICITAÇÃO
+        <button mat-flat-button color="warn" class="action-btn declinar-btn" (click)="handleDeclinarClick()" 
+                [disabled]="frete?.status === 'Cancelado' || frete?.status === 'Finalizado'">
+          <mat-icon>block</mat-icon> Declinar
         </button>
         
-        <div class="right-actions">
-          <button mat-stroked-button class="action-btn cobranca-btn" (click)="handleCobrarAdicional()" [disabled]="camposDesabilitados">
-            <mat-icon>request_quote</mat-icon> COBRAR VALOR ADICIONAL
-          </button>
+        <button mat-stroked-button class="action-btn cobranca-btn" (click)="handleCobrarAdicional()" 
+                [disabled]="frete?.status === 'Cancelado' || frete?.status === 'Finalizado'">
+          <mat-icon>request_quote</mat-icon> Cobrança Extra
+        </button>
 
-          <button mat-button class="action-btn correcao-btn" (click)="handleSolicitarCorrecao()" [disabled]="camposDesabilitados">
-            <mat-icon>edit_note</mat-icon> SOLICITAR CORREÇÃO
-          </button>
-          
-          <button mat-flat-button color="primary" class="action-btn success-btn" (click)="handleEnviarCotacao()" 
-                  [disabled]="cotacaoForm.invalid || camposDesabilitados">
-            <mat-icon>send</mat-icon> ENVIAR COTAÇÃO FINAL
-          </button>
-        </div>
+        <button mat-button class="action-btn correcao-btn" (click)="handleSolicitarCorrecao()" 
+                [disabled]="frete?.status === 'Cancelado' || frete?.status === 'Finalizado'">
+          <mat-icon>edit_note</mat-icon> Solicitar Correção
+        </button>
+        
+        <button mat-flat-button color="primary" class="action-btn success-btn" (click)="handleEnviarCotacao()" 
+                [disabled]="cotacaoForm.invalid || camposDesabilitados">
+          <mat-icon>send</mat-icon> Enviar Cotação
+        </button>
       </mat-card-actions>
     </mat-card>
 
-    <!-- INFO AUDITORIA -->
-    <div class="audit-banner" *ngIf="infoAuditoria">
-      <mat-icon>check_circle</mat-icon>
-      <div class="audit-text">
-        <strong>{{ infoAuditoria.acao }}</strong> realizada com sucesso por {{ infoAuditoria.usuario }} em {{ infoAuditoria.dataHora }}
-      </div>
-    </div>
+    <!-- HISTÓRICO DE ALTERAÇÕES -->
+    <mat-card class="section-card premium-shadow" *ngIf="historicoAlteracoes && historicoAlteracoes.length > 0" style="margin-top: 32px; border-radius: 24px;">
+      <mat-card-header style="padding: 24px 32px 0 32px !important;">
+        <div class="card-title-row" style="display: flex; align-items: center; gap: 16px; width: 100%;">
+          <mat-icon style="color: #6366f1;">history</mat-icon>
+          <h3 style="font-size: 1.25rem; font-weight: 900; margin: 0; color: #1e293b;">Histórico de Alterações</h3>
+        </div>
+      </mat-card-header>
+      <mat-card-content style="padding: 24px 32px !important;">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div *ngFor="let item of historicoAlteracoes" class="audit-banner" style="display: flex; align-items: center; gap: 16px; background: #f8fafc; color: #334155; padding: 16px 24px; border-radius: 16px; border: 1px solid #e2e8f0; width: 100%; box-sizing: border-box;">
+            <mat-icon style="color: #6366f1;">check_circle</mat-icon>
+            <div class="audit-text" style="font-size: 0.9rem; font-weight: 500;">
+              <strong>{{ item.acao }}</strong> realizada por <strong>{{ item.usuario }}</strong> em {{ item.dataHora }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
   </div>
 </div>
 
@@ -374,10 +393,24 @@
         <mat-icon matPrefix>attach_money</mat-icon>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="w-full" *ngIf="cobrancaExtraForm.get('motivo')?.value === 'Outros'">
+      <mat-form-field appearance="outline" class="w-full mb-4" *ngIf="cobrancaExtraForm.get('motivo')?.value === 'Outros'">
         <mat-label>Descreva o Motivo</mat-label>
         <textarea matInput rows="2" formControlName="descricaoMotivo"></textarea>
       </mat-form-field>
+
+      <!-- Área de Anexo de Arquivo -->
+      <div class="attachment-row-cobranca" style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; background-color: #f8fafc; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+          <mat-icon style="color: #64748b; flex-shrink: 0;">attachment</mat-icon>
+          <span style="font-size: 0.85rem; color: #475569; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" [matTooltip]="cobrancaArquivoAnexado || ''">
+            {{ cobrancaArquivoAnexado || 'Nenhum arquivo anexado' }}
+          </span>
+        </div>
+        <input type="file" #cobrancaFileInput style="display: none;" (change)="onCobrancaFileSelected($event)">
+        <button type="button" mat-stroked-button style="border-radius: 100px; color: #6366f1; border-color: #6366f1; flex-shrink: 0;" (click)="cobrancaFileInput.click()">
+          <mat-icon>cloud_upload</mat-icon> Anexar Arquivo
+        </button>
+      </div>
     </form>
 
     <div class="dialog-actions" style="margin-top: 24px;">

@@ -70,3 +70,24 @@
     grid-column: span 12;
   }
 }
+
+.section-theme-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.section-theme-title mat-icon {
+  font-size: 1.2rem;
+  width: 20px;
+  height: 20px;
+  color: var(--mat-sys-primary);
+}
+
+.mb-3 { margin-bottom: 12px; }
+.mb-6 { margin-bottom: 24px; }

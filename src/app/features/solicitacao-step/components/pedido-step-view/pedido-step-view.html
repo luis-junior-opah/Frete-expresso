@@ -1,6 +1,12 @@
 <div class="step-view">
   <app-solicitacao-card [frete]="frete"></app-solicitacao-card>
 
+  <!-- Warning banner: integration data null/empty -->
+  <div *ngIf="!numeroPedidoGerado || !numeroColetaGerado" class="warning-banner">
+    <mat-icon>warning</mat-icon>
+    <span>Aguardando geração do pedido no sistema legado</span>
+  </div>
+
   <!-- Card Fretes Aglutinados (Paridade Step 3/4/5) - Condicional -->
   <mat-card class="grouping-card mt-4" *ngIf="groupedDemands.length > 0">
     <mat-card-header class="flex-column align-items-start">
@@ -166,7 +172,7 @@
     </mat-card-header>
     <mat-card-content>
       <div class="generation-container">
-        <p class="generation-text">Gerar pedido para <strong>{{ approvedQuotation?.transportadora || 'JM PREMIER' }}</strong></p>
+        <p class="generation-text">Gerar pedido para <strong>{{ approvedQuotation?.transportadora || 'MIRASSOL' }}</strong></p>
         
         <div class="generation-actions">
           <button mat-flat-button color="primary" (click)="gerarPedido()" [disabled]="pedidoGerado">
@@ -189,7 +195,7 @@
     </mat-card-header>
     <mat-card-content>
       <div class="generation-container">
-        <p class="generation-text">Gerar coleta para <strong>{{ approvedQuotation?.transportadora || 'JM PREMIER' }}</strong></p>
+        <p class="generation-text">Gerar coleta para <strong>{{ approvedQuotation?.transportadora || 'MIRASSOL' }}</strong></p>
         
         <div class="generation-actions">
           <button mat-flat-button color="primary" (click)="gerarColeta()" [disabled]="coletaGerada">
@@ -205,37 +211,6 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Ações de Validação -->
-  <mat-card class="validation-card actions-card mt-4">
-    <mat-card-header>
-      <mat-card-title class="standard-title">Ações de Validação</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="actions-grid-container mt-4">
-        <mat-form-field appearance="outline" class="justificativa-field bg-white">
-          <mat-label>Justificativa</mat-label>
-          <textarea matInput rows="4" [(ngModel)]="justificativaValidacao"></textarea>
-        </mat-form-field>
-      </div>
-
-      <div class="actions-footer mt-4">
-        <div class="left-actions">
-          <button mat-flat-button color="accent" (click)="adicionarAnexo()">
-            <mat-icon>attach_file</mat-icon> Adicionar anexo
-          </button>
-        </div>
-        
-        <div class="right-actions">
-          <button mat-flat-button color="warn" class="cancel-btn mr-2" (click)="cancelarFrete()">
-            <mat-icon>cancel</mat-icon> Cancelar Frete Expresso
-          </button>
-          <button mat-flat-button color="primary" class="approve-btn" (click)="aprovarFrete()">
-            <mat-icon>check_circle</mat-icon> Aprovar Frete Expresso
-          </button>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
 
   <!-- Histórico de Alterações da Etapa -->
   <div class="logs-wrapper" *ngIf="logsAlteracao.length > 0">

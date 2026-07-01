@@ -204,10 +204,27 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Lista de Cotações -->
-  <div class="quotations-header">
-    <h2 class="quotations-title">Aprovações</h2>
-  </div>
+
+
+  <!-- Lista de Cotações: container com position:relative para isolar o sticky do cabeçalho -->
+  <div class="quotations-section">
+    <div class="quotations-header">
+      <h2 class="quotations-title" style="margin: 0; font-weight: 800; color: #1e293b;">Aprovações</h2>
+      <div style="display: flex; gap: 12px;">
+        <button mat-flat-button 
+                [disabled]="aprovacaoRealizada || !isAprovadorHabilitado() || getSelectionCount() === 0" 
+                (click)="reprovarSelecionadas()" 
+                style="border-radius: 100px; background-color: #ef4444; color: white;">
+          <mat-icon>cancel</mat-icon> Reprovar cotação
+        </button>
+        <button mat-flat-button 
+                [disabled]="aprovacaoRealizada || !isAprovadorHabilitado() || getSelectionCount() !== 1" 
+                (click)="aprovarSelecionada()" 
+                style="border-radius: 100px; background-color: #2563eb; color: white;">
+          <mat-icon>check_circle</mat-icon> Aprovar cotação
+        </button>
+      </div>
+    </div>
 
   <!-- Matriz de Alçadas e SLA -->
   <div class="approval-flow-container">
@@ -227,7 +244,6 @@
         <div class="approver-info">
           <span class="approver-name">{{ a.nome }}</span>
           <span class="approver-email">{{ a.email }}</span>
-        </div>
         <div class="approver-status">
           <span class="status-tag" 
                 [class.tag-pending]="last && !aprovacaoRealizada" 
@@ -240,224 +256,330 @@
     </div>
   </div>
 
-  <div class="quotations-list">
+    <div class="quotations-list" style="display: grid; grid-template-columns: 1fr; gap: 20px; padding-bottom: 8px;">
     <mat-card class="carrier-card" *ngFor="let q of quotations"
-              [class.approved-card]="aprovacaoRealizada && q.id === idAprovado"
-              [class.reproved-card]="aprovacaoRealizada && q.id !== idAprovado">
-      <mat-card-header class="carrier-header">
-        <div class="header-main">
-          <mat-card-title>{{ q.transportadora }}</mat-card-title>
-          <div class="header-chips">
-            <span class="status-chip" [attr.data-status]="q.status">{{ q.status }}</span>
-          </div>
+              [class.approved-card]="q.status === 'Aprovado'"
+              [class.reproved-card]="q.status === 'Reprovado'"
+              style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; background: white;">
+      
+      <!-- Linha 01: Nome do transportador, Status -->
+      <mat-card-header class="carrier-header" style="border-bottom: 1px solid #f1f5f9; padding: 16px; display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+        <div class="header-main" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <mat-card-title style="font-weight: 800; font-size: 1.1rem; color: #1e293b; margin: 0;">{{ q.transportadora }}</mat-card-title>
+          <span class="status-chip" [attr.data-status]="q.status">{{ q.status }}</span>
         </div>
-        <div class="header-actions">
-          <!-- Botões de Aprovação (Exclusivos Step 3) -->
-          <ng-container *ngIf="groupedDemands.length > 0; else btnSimples">
-            <button mat-flat-button color="primary" class="approve-btn mr-2" (click)="aprovar(q, 'individual')" [disabled]="aprovacaoRealizada">
-              Aprovar Individual
-            </button>
-            <button mat-flat-button color="primary" class="approve-btn mr-2" (click)="aprovar(q, 'agrupado')" [disabled]="aprovacaoRealizada">
-              Aprovar Agrupado
-            </button>
-          </ng-container>
-          <ng-template #btnSimples>
-            <button mat-flat-button color="primary" class="approve-btn mr-2" (click)="aprovar(q, 'simples')" [disabled]="aprovacaoRealizada">
-              Aprovar
-            </button>
-          </ng-template>
+        
+        <!-- Linha 02: Analise da cotação (Tags de Inteligência Financeira e Alertas) -->
+        <div class="intelligence-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;">
+          <!-- Tag de Análise Dinâmica -->
+          <span *ngIf="getAnaliseTag(q) as tag" 
+                [style.background-color]="tag.bg" 
+                [style.color]="tag.color" 
+                [style.border]="tag.border"
+                style="font-weight: 700; padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+            <mat-icon [style.color]="tag.color" style="font-size: 0.95rem; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center;">{{ tag.icon }}</mat-icon> 
+            {{ tag.label }}
+          </span>
 
-          <button mat-icon-button color="primary" [disabled]="!q.temAnexo" matTooltip="Download Anexos">
-            <mat-icon>download</mat-icon>
-          </button>
-          <button mat-icon-button [matMenuTriggerFor]="cardMenu" [disabled]="aprovacaoRealizada">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #cardMenu="matMenu">
-            <button mat-menu-item (click)="reabrirCotacao(q.id)">
-              <mat-icon>refresh</mat-icon>
-              <span>Reabrir cotação</span>
-            </button>
-            <button mat-menu-item (click)="cancelarCotacao(q.id)">
-              <mat-icon>cancel</mat-icon>
-              <span>Cancelar</span>
-            </button>
-          </mat-menu>
+          <!-- Tag de Economia (se agrupado) -->
+          <span *ngIf="groupedDemands.length > 0 && q.complementar" 
+                style="background-color: #ecfdf5; border: 1px solid #10b981; color: #047857; font-weight: 700; padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+            <mat-icon style="font-size: 0.95rem; width: 16px; height: 16px; color: #047857; display: inline-flex; align-items: center; justify-content: center;">savings</mat-icon> 
+            Opção agrupado gera uma economia de {{ getEconomia(q) | currency:'BRL' }} no valor do frete
+          </span>
+
+          <!-- Banner de Alerta do Duplo-Check -->
+          <span *ngIf="getDuploCheck(groupedDemands.length > 0 ? (q.individual.valor + (q.complementar?.valor || 0)) : q.individual.valor, groupedDemands.length > 0 ? (q.individual.valorHistorico + (q.complementar?.valorHistorico || 0)) : q.individual.valorHistorico).status === 'danger'"
+                style="background-color: #fef2f2; border: 1px solid #fca5a5; padding: 4px 10px; border-radius: 100px; color: #dc2626; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px; font-weight: 700;">
+            <mat-icon style="color: #dc2626; font-size: 0.95rem; width: 16px; height: 16px;">warning</mat-icon> Variação acima de 10% sobre histórico!
+          </span>
         </div>
       </mat-card-header>
 
-      <mat-card-content class="carrier-content">
-        <!-- Linha 1: Observação -->
-        <div class="info-row">
+      <mat-card-content class="carrier-content" style="padding: 16px; flex-grow: 1;">
+        
+        <!-- Linha 03: Check box, Transit Time total indivual, Valor total individual -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px;"
+             [class.duplo-check-danger]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger'"
+             [class.duplo-check-info]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info'"
+             [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'agrupado'">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <mat-checkbox [checked]="isSelected(q.id, groupedDemands.length > 0 ? 'individual' : 'simples')" 
+                          (change)="toggleSelection(q.id, groupedDemands.length > 0 ? 'individual' : 'simples')"
+                          [disabled]="aprovacaoRealizada || !isAprovadorHabilitado()">
+            </mat-checkbox>
+            <span style="font-size: 0.9rem; font-weight: 700; color: #334155; display: inline-flex; align-items: center; gap: 6px;">
+              Cotação Individual
+              <mat-icon class="duplo-check-icon"
+                        *ngIf="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status !== 'none'"
+                        (click)="showCheckMessage(getDuploCheck(q.individual.valor, q.individual.valorHistorico).message)"
+                        [style.color]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger' ? '#dc2626' : (getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info' ? '#2563eb' : '#0f172a')"
+                        style="cursor: pointer; font-size: 1.1rem; width: 18px; height: 18px; line-height: 18px; display: inline-flex; justify-content: center; align-items: center;">
+                {{ getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger' ? 'warning' : (getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info' ? 'check_circle' : 'info') }}
+              </mat-icon>
+            </span>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <span style="font-size: 0.95rem; color: #64748b;">
+              TT Total: <strong>{{ q.individual.ttTotal }}h</strong>
+            </span>
+            <span style="font-size: 1.1rem; font-weight: 800; color: #0f766e;">
+              {{ q.individual.valor | currency:'BRL' }}
+            </span>
+            <div style="display: flex; gap: 6px; margin-left: 12px;" *ngIf="!aprovacaoRealizada && isAprovadorHabilitado()">
+              <button mat-icon-button color="warn" (click)="reprovarDiretamente(q.id, groupedDemands.length > 0 ? 'individual' : 'simples')" matTooltip="Reprovar esta cotação" style="width: 32px; height: 32px; min-width: 32px; line-height: 32px;">
+                <mat-icon style="font-size: 1.20rem; width: 20px; height: 20px; margin: 0; color: #ef4444;">cancel</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" (click)="aprovarDiretamente(q.id, groupedDemands.length > 0 ? 'individual' : 'simples')" matTooltip="Aprovar esta cotação" style="width: 32px; height: 32px; min-width: 32px; line-height: 32px;">
+                <mat-icon style="font-size: 1.20rem; width: 20px; height: 20px; margin: 0; color: #2563eb;">check_circle</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Linha 04: Check box, transit time total agrupado, valor total agrupado -->
+        <div *ngIf="groupedDemands.length > 0" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px;"
+             [class.duplo-check-danger]="getDuploCheck(q.individual.valor + (q.complementar?.valor || 0), q.individual.valorHistorico + (q.complementar?.valorHistorico || 0)).status === 'danger'"
+             [class.duplo-check-info]="getDuploCheck(q.individual.valor + (q.complementar?.valor || 0), q.individual.valorHistorico + (q.complementar?.valorHistorico || 0)).status === 'info'"
+             [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && (tipoAprovacao === 'individual' || tipoAprovacao === 'simples')">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <mat-checkbox [checked]="isSelected(q.id, 'agrupado')" 
+                          (change)="toggleSelection(q.id, 'agrupado')"
+                          [disabled]="aprovacaoRealizada || !isAprovadorHabilitado()">
+            </mat-checkbox>
+            <span style="font-size: 0.9rem; font-weight: 700; color: #334155; display: inline-flex; align-items: center; gap: 6px;">
+              Cotação Agrupada
+              <mat-icon class="duplo-check-icon"
+                        *ngIf="getDuploCheck(q.individual.valor + (q.complementar?.valor || 0), q.individual.valorHistorico + (q.complementar?.valorHistorico || 0)).status !== 'none'"
+                        (click)="showCheckMessage(getDuploCheck(q.individual.valor + (q.complementar?.valor || 0), q.individual.valorHistorico + (q.complementar?.valorHistorico || 0)).message)"
+                        [style.color]="getDuploCheck(q.individual.valor + (q.complementar?.valor || 0), q.individual.valorHistorico + (q.complementar?.valorHistorico || 0)).status === 'danger' ? '#dc2626' : (getDuploCheck(q.individual.valor + (q.complementar?.valor || 0), q.individual.valorHistorico + (q.complementar?.valorHistorico || 0)).status === 'info' ? '#2563eb' : '#0f172a')"
+                        style="cursor: pointer; font-size: 1.1rem; width: 18px; height: 18px; line-height: 18px; display: inline-flex; justify-content: center; align-items: center;">
+                {{ getDuploCheck(q.individual.valor + (q.complementar?.valor || 0), q.individual.valorHistorico + (q.complementar?.valorHistorico || 0)).status === 'danger' ? 'warning' : (getDuploCheck(q.individual.valor + (q.complementar?.valor || 0), q.individual.valorHistorico + (q.complementar?.valorHistorico || 0)).status === 'info' ? 'check_circle' : 'info') }}
+              </mat-icon>
+            </span>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <span style="font-size: 0.95rem; color: #64748b;">
+              TT Total: <strong>{{ q.individual.ttTotal + (q.complementar?.ttTotal || 0) }}h</strong>
+            </span>
+            <span style="font-size: 1.1rem; font-weight: 800; color: #0f766e;">
+              {{ (q.individual.valor + (q.complementar?.valor || 0)) | currency:'BRL' }}
+            </span>
+            <div style="display: flex; gap: 6px; margin-left: 12px;" *ngIf="!aprovacaoRealizada && isAprovadorHabilitado()">
+              <button mat-icon-button color="warn" (click)="reprovarDiretamente(q.id, 'agrupado')" matTooltip="Reprovar esta cotação" style="width: 32px; height: 32px; min-width: 32px; line-height: 32px;">
+                <mat-icon style="font-size: 1.20rem; width: 20px; height: 20px; margin: 0; color: #ef4444;">cancel</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" (click)="aprovarDiretamente(q.id, 'agrupado')" matTooltip="Aprovar esta cotação" style="width: 32px; height: 32px; min-width: 32px; line-height: 32px;">
+                <mat-icon style="font-size: 1.20rem; width: 20px; height: 20px; margin: 0; color: #2563eb;">check_circle</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Linha 05: Observação -->
+        <div class="info-row" style="margin-bottom: 12px;">
           <div class="info-group col-12">
             <label>Observação</label>
-            <div class="disabled-field">{{ q.observacao }}</div>
+            <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px;">{{ q.observacao }}</div>
           </div>
         </div>
 
-        <!-- Linha 2: Endereços e Datas -->
-        <div class="info-row" *ngIf="frete">
-          <div class="info-group col-3">
-            <label>Local de Coleta</label>
-            <div class="disabled-field truncate-text" [matTooltip]="frete.enderecoColeta || ''">{{ frete.enderecoColeta }}</div>
-          </div>
-          <div class="info-group col-3">
-            <label>Início Janela</label>
-            <div class="disabled-field">{{ frete.dataInicioJanela }}</div>
-          </div>
-          <div class="info-group col-3">
-            <label>Fim Janela</label>
-            <div class="disabled-field">{{ frete.dataFimJanela }}</div>
-          </div>
-          <div class="info-group col-3">
-            <label>Necessidade</label>
-            <div class="disabled-field">{{ frete.dataNecessidadeEntrega }}</div>
-          </div>
-        </div>
-
-        <!-- Linha 3: Individual -->
-        <div class="info-row highlight-row choice-row" 
-             [class.approved-choice]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'"
-             [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'agrupado'">
+        <!-- Parte que pode ser ocultada ou exibida (Mais detalhes) -->
+        <div *ngIf="q.showDetails" style="border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px; display: flex; flex-direction: column; gap: 12px;">
           
-          <!-- Badge de Decisão -->
-          <span class="approval-badge badge-success" *ngIf="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">Selecionado</span>
-          <span class="approval-badge badge-muted" *ngIf="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'agrupado'">Não Utilizado</span>
-
-          <div class="info-group col-3">
-            <label>TT Coleta (Individual)</label>
-            <div class="disabled-field">{{ q.individual.ttColeta }}h</div>
-          </div>
-          <div class="info-group col-3">
-            <label>TT Entrega (Individual)</label>
-            <div class="disabled-field">{{ q.individual.ttEntrega }}h</div>
-          </div>
-          <div class="info-group col-3">
-            <label>TT Total (Individual)</label>
-            <div class="disabled-field font-bold">{{ q.individual.ttTotal }}h</div>
-          </div>
-          <div class="info-group col-3">
-            <label>Valor (Individual)</label>
-            <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info'">
-              <span>{{ q.individual.valor | currency:'BRL' }}</span>
-              <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor, q.individual.valorHistorico).message)">{{ getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
-            </div>
-          </div>
-        </div>
-
-        <!-- Seção de Agrupamento (Só visível se houver demandas agrupadas) -->
-        <ng-container *ngIf="groupedDemands.length > 0">
-          <!-- Cabeçalho e Dados Complementares -->
-          <div class="complementary-header" [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
-            <span class="complementary-title">Valores complementares a cotação #{{ q.complementar.id }}</span>
-            <button mat-button class="toggle-comp-btn" (click)="q.showComplementar = !q.showComplementar" [disabled]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
-              {{ q.showComplementar ? 'Ocultar detalhes' : 'Reexibir detalhes' }}
-              <mat-icon>{{ q.showComplementar ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </button>
-          </div>
-
-          <ng-container *ngIf="q.showComplementar">
-            <div class="info-row" [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
-              <div class="info-group col-3">
-                <label>Local de Coleta</label>
-                <div class="disabled-field truncate-text" [matTooltip]="q.complementar.localColeta || ''">{{ q.complementar.localColeta }}</div>
-              </div>
-              <div class="info-group col-3">
-                <label>Início Janela</label>
-                <div class="disabled-field">{{ q.complementar.dataInicio }}</div>
-              </div>
-              <div class="info-group col-3">
-                <label>Fim Janela</label>
-                <div class="disabled-field">{{ q.complementar.dataFim }}</div>
-              </div>
-              <div class="info-group col-3">
-                <label>Necessidade</label>
-                <div class="disabled-field">{{ q.complementar.necessidade }}</div>
+          <!-- Linha 06: Ponto de Origem (Coleta #ID da cotação atual) -->
+          <div class="info-row" style="margin-bottom: 8px;">
+            <div class="info-group col-12">
+              <label>Ponto de Origem (Coleta #{{ frete?.id }})</label>
+              <div class="disabled-field" style="padding: 6px 12px; font-size: 0.85rem; height: auto; white-space: normal;">
+                {{ frete?.enderecoColeta }}
               </div>
             </div>
+          </div>
 
-            <!-- Linha 4: ID (Frete Principal agrupado) -->
-            <div class="info-row highlight-row" *ngIf="frete" [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
-              <div class="info-group col-3">
-                <label>TT Coleta Frete #{{ q.complementar.id }}</label>
-                <div class="disabled-field">{{ q.individual.ttColeta }}h</div>
-              </div>
-              <div class="info-group col-3">
-                <label>TT Entrega Frete #{{ q.complementar.id }}</label>
-                <div class="disabled-field">{{ q.individual.ttEntrega }}h</div>
-              </div>
-              <div class="info-group col-3">
-                <label>TT Total Frete #{{ q.complementar.id }}</label>
-                <div class="disabled-field font-bold">{{ q.individual.ttTotal }}h</div>
-              </div>
-              <div class="info-group col-3">
-                <label>Valor Frete #{{ q.complementar.id }}</label>
-                <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'info'">
-                  <span>{{ q.individual.valor | currency:'BRL' }}</span>
-                  <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor, q.individual.valorHistorico).message)">{{ getDuploCheck(q.individual.valor, q.individual.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
-                </div>
-              </div>
-            </div>
-
-            <!-- Linha 5: Complementar -->
-            <div class="info-row" [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
-              <div class="info-group col-3">
-                <label>TT Coleta (Complementar)</label>
-                <div class="disabled-field">{{ q.complementar.ttColeta }}h</div>
-              </div>
-              <div class="info-group col-3">
-                <label>TT Entrega (Complementar)</label>
-                <div class="disabled-field">{{ q.complementar.ttEntrega }}h</div>
-              </div>
-              <div class="info-group col-3">
-                <label>TT Total (Complementar)</label>
-                <div class="disabled-field font-bold">{{ q.complementar.ttTotal }}h</div>
-              </div>
-              <div class="info-group col-3">
-                <label>Valor (Complementar)</label>
-                <div class="disabled-field font-bold price" [class.duplo-check-danger]="getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'danger'" [class.duplo-check-info]="getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'info'">
-                  <span>{{ q.complementar.valor | currency:'BRL' }}</span>
-                  <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).message)">{{ getDuploCheck(q.complementar.valor, q.complementar.valorHistorico).status === 'danger' ? 'warning' : 'info' }}</mat-icon>
+          <!-- Linha 07: Ponto de Origem (Coleta #ID da cotação vinculada) -->
+          <ng-container *ngIf="groupedDemands.length > 0">
+            <div class="info-row" *ngFor="let item of groupedDemands" style="margin-bottom: 8px;">
+              <div class="info-group col-12" *ngIf="isLinkedColetaVisible(item.id)">
+                <label>Ponto de Origem (Coleta Vinculada #{{ item.id }})</label>
+                <div class="disabled-field" style="padding: 6px 12px; font-size: 0.85rem; height: auto; white-space: normal;">
+                  {{ item.localColeta }}
                 </div>
               </div>
             </div>
           </ng-container>
 
-          <!-- Linha 6: Totais -->
-          <div class="info-row total-row choice-row" 
-               [class.approved-choice]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'agrupado'"
-               [class.strikethrough]="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">
-            
-            <!-- Badge de Decisão -->
-            <span class="approval-badge badge-success" *ngIf="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'agrupado'">Aprovado</span>
-            <span class="approval-badge badge-muted" *ngIf="aprovacaoRealizada && q.id === idAprovado && tipoAprovacao === 'individual'">Não Selecionado</span>
-
-            <div class="info-group col-3">
-              <label>TT Coleta (Total)</label>
-              <div class="disabled-field">{{ q.individual.ttColeta + q.complementar.ttColeta }}h</div>
-            </div>
-            <div class="info-group col-3">
-              <label>TT Entrega (Total)</label>
-              <div class="disabled-field">{{ q.individual.ttEntrega + q.complementar.ttEntrega }}h</div>
-            </div>
-            <div class="info-group col-3">
-              <label>TT (Total)</label>
-              <div class="disabled-field font-black">{{ q.individual.ttTotal + q.complementar.ttTotal }}h</div>
-            </div>
-            <div class="info-group col-3">
-              <label>Valor (Total)</label>
-              <div class="disabled-field font-black price-total" 
-                   [class.duplo-check-danger]="getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'danger'" 
-                   [class.duplo-check-info]="getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'info'">
-                <span>{{ (q.individual.valor + q.complementar.valor) | currency:'BRL' }}</span>
-                <mat-icon class="duplo-check-icon" (click)="showCheckMessage(getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).message)">
-                  {{ getDuploCheck(q.individual.valor + q.complementar.valor, q.individual.valorHistorico + q.complementar.valorHistorico).status === 'danger' ? 'warning' : 'info' }}
-                </mat-icon>
+          <!-- Linha 08: Destino (Entrega) -->
+          <div class="info-row" style="margin-bottom: 8px;">
+            <div class="info-group col-12">
+              <label>Destino (Entrega)</label>
+              <div class="disabled-field" style="padding: 6px 12px; font-size: 0.85rem; height: auto; white-space: normal;">
+                {{ frete?.enderecoEntrega || (groupedDemands.length > 0 ? groupedDemands[0].localEntrega : '') }}
               </div>
             </div>
           </div>
-        </ng-container>
+
+          <!-- Linha 09: Início / Fim Janela (individual), Necessidade de Entrega (individual) -->
+          <div class="info-row" style="margin-bottom: 8px;" *ngIf="frete">
+            <div class="info-group col-6">
+              <label>Início / Fim Janela (Individual)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px;">{{ frete.dataInicioJanela }} a {{ frete.dataFimJanela }}</div>
+            </div>
+            <div class="info-group col-6">
+              <label>Necessidade de Entrega (Individual)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px;">{{ frete.dataNecessidadeEntrega }}</div>
+            </div>
+          </div>
+
+          <!-- Linha 10: Início / Fim Janela (agrupado), Necessidade de Entrega (agrupado) -->
+          <div class="info-row" style="margin-bottom: 8px;" *ngIf="groupedDemands.length > 0 && q.complementar">
+            <div class="info-group col-6">
+              <label>Início / Fim Janela (Agrupado)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px;">{{ dataInicioJanelaConsolidada }} a {{ dataFimJanelaConsolidada }}</div>
+            </div>
+            <div class="info-group col-6">
+              <label>Necessidade de Entrega (Agrupado)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px;">{{ dataNecessidadeEntregaConsolidada }}</div>
+            </div>
+          </div>
+
+          <!-- Linha 11: TT Coleta (Individual), TT Entrega (Individual), TT Total (Individual) -->
+          <div class="info-row" style="margin-bottom: 8px;">
+            <div class="info-group col-4">
+              <label>TT Coleta (Individual)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px;">{{ q.individual.ttColeta }}h</div>
+            </div>
+            <div class="info-group col-4">
+              <label>TT Entrega (Individual)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px;">{{ q.individual.ttEntrega }}h</div>
+            </div>
+            <div class="info-group col-4">
+              <label>TT Total (Individual)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px; font-weight: 700; color: #1e293b;">{{ q.individual.ttTotal }}h</div>
+            </div>
+          </div>
+
+          <!-- Linha 11: TT Coleta (Agrupado), TT Entrega (Agrupado), TT Total (Agrupado) -->
+          <div *ngIf="groupedDemands.length > 0 && q.complementar" class="info-row" style="margin-bottom: 8px;">
+            <div class="info-group col-4">
+              <label>TT Coleta (Agrupado)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px;">{{ q.individual.ttColeta + q.complementar.ttColeta }}h</div>
+            </div>
+            <div class="info-group col-4">
+              <label>TT Entrega (Agrupado)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px;">{{ q.individual.ttEntrega + q.complementar.ttEntrega }}h</div>
+            </div>
+            <div class="info-group col-4">
+              <label>TT Total (Agrupado)</label>
+              <div class="disabled-field" style="font-size: 0.85rem; padding: 8px 12px; font-weight: 700; color: #1e293b;">{{ q.individual.ttTotal + q.complementar.ttTotal }}h</div>
+            </div>
+          </div>
+        </div>
       </mat-card-content>
+
+      <!-- Linha 12: Botão mais detalhes -->
+      <mat-card-actions style="border-top: 1px solid #f1f5f9; padding: 12px 16px; background-color: #fafafa; display: flex; justify-content: flex-end; align-items: center; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+        <button mat-button color="primary" (click)="q.showDetails = !q.showDetails" style="font-size: 0.8rem; font-weight: 600;">
+          {{ q.showDetails ? 'Menos detalhes' : 'Mais detalhes' }}
+          <mat-icon style="font-size: 1rem; width: 16px; height: 16px; vertical-align: middle;">{{ q.showDetails ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Card Esforço de Mercado (Histórico de Leilão) -->
+  <mat-card class="main-card mt-4" style="border-radius: 16px; border: 1px solid #cbd5e1;">
+    <mat-card-header>
+      <mat-card-title style="font-weight: 800; font-size: 1rem; color: #475569; display: flex; align-items: center; gap: 8px;">
+        <mat-icon style="color: #64748b;">bar_chart</mat-icon> Esforço de Mercado (Histórico de Concorrência)
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content style="padding-top: 12px;">
+      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">Transportadoras convidadas para o leilão que não submeteram lances ativos:</p>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div *ngFor="let item of esforcoMercado" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <span style="font-weight: 700; color: #334155; font-size: 0.9rem;">{{ item.transportadora }}</span>
+          <span style="font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;"
+                [style.background-color]="item.status === 'Declinada' ? '#fee2e2' : '#f1f5f9'"
+                [style.color]="item.status === 'Declinada' ? '#b91c1c' : '#475569'">
+            {{ item.status }}
+          </span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+
+
+  <div class="cobranca-extra-container" style="margin-bottom: 20px; margin-top: 32px;">
+    <mat-card class="carrier-card"
+              [class.approved-card]="cobrancaStatus === 'Aprovado'"
+              [class.reproved-card]="cobrancaStatus === 'Reprovado'"
+              style="display: flex; flex-direction: column; justify-content: space-between; border-radius: 16px; box-shadow: 0 6px 20px rgba(217, 119, 6, 0.15); border: 2px solid #f59e0b; background: #fffbeb;">
+      <mat-card-header class="carrier-header" style="border-bottom: 2px solid #fde68a; padding: 16px; display: flex; flex-direction: column; align-items: stretch; gap: 8px; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius: 14px 14px 0 0;">
+        <div class="header-main" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <mat-icon style="color: #d97706; font-size: 1.3rem; width: 22px; height: 22px;">receipt_long</mat-icon>
+            <mat-card-title style="font-weight: 800; font-size: 1.1rem; color: #92400e; margin: 0;">Solicitação de Custo Extra</mat-card-title>
+          </div>
+          <span class="status-chip" [attr.data-status]="cobrancaStatus">{{ cobrancaStatus }}</span>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content class="carrier-content" style="padding: 16px; flex-grow: 1;">
+        <div class="info-row" style="margin-bottom: 12px;">
+          <div class="info-group col-4">
+            <label>Tipo de Ocorrência</label>
+            <div class="disabled-field">{{ cobrancaExtra.tipoOcorrencia }}</div>
+          </div>
+          <div class="info-group col-4">
+            <label>Valor Solicitado</label>
+            <div class="disabled-field price font-bold" style="color: #b91c1c;">{{ cobrancaExtra.valor | currency:'BRL' }}</div>
+          </div>
+          <div class="info-group col-4">
+            <label>Evidência Anexada</label>
+            <div class="disabled-field flex-align-center" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; height: 38px;">
+              <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <mat-icon style="font-size: 1.1rem; width: 20px; height: 20px; color: #64748b; margin-top: 4px;">attachment</mat-icon>
+                <span class="file-link" style="color: #475569; font-size: 0.85rem;">{{ cobrancaExtra.arquivos?.[0] || 'Nenhum arquivo' }}</span>
+              </span>
+              <button mat-icon-button color="primary" 
+                      [disabled]="!cobrancaExtra.arquivos || cobrancaExtra.arquivos.length === 0" 
+                      (click)="downloadArquivos()" 
+                      style="width: 32px; height: 32px; line-height: 32px;"
+                      matTooltip="Download Evidência">
+                <mat-icon style="font-size: 1.2rem; width: 20px; height: 20px;">download</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-row" style="margin-bottom: 12px;">
+          <div class="info-group col-12">
+            <label>Justificativa do Transportador</label>
+            <div class="disabled-field textarea-field" style="height: auto; min-height: 38px; white-space: pre-wrap; font-size: 0.85rem; padding: 8px 12px;">{{ cobrancaExtra.justificativa }}</div>
+          </div>
+        </div>
+
+        <!-- Motivo da Reprovação se status for Reprovado -->
+        <div *ngIf="cobrancaStatus === 'Reprovado'" class="info-row" style="margin-top: 12px;">
+          <div class="info-group col-12">
+            <label style="color: #b91c1c; font-weight: 700;">Motivo da Reprovação</label>
+            <div class="disabled-field" style="border-color: #fca5a5; background-color: #fff5f5; color: #b91c1c; font-size: 0.85rem; padding: 8px 12px;">
+              {{ cobrancaMotivoReprovacao }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions *ngIf="cobrancaStatus !== 'Aprovado'" style="border-top: 1px solid #f1f5f9; padding: 12px 16px; background-color: #fafafa; display: flex; justify-content: flex-end; gap: 12px; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+        <button *ngIf="cobrancaStatus === 'Pendente'" mat-flat-button (click)="reprovarCobranca()" style="border-radius: 100px; background-color: #ef4444; color: white;">
+          <mat-icon>cancel</mat-icon> Reprovar extra
+        </button>
+        <button mat-flat-button (click)="aprovarCobranca()" style="border-radius: 100px; background-color: #2563eb; color: white;">
+          <mat-icon>check_circle</mat-icon> Aprovar extra
+        </button>
+      </mat-card-actions>
     </mat-card>
   </div>
 
@@ -475,5 +597,6 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 </div>

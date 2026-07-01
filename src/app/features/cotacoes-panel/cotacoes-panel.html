@@ -104,14 +104,13 @@
           <mat-label>Status</mat-label>
           <mat-select [(ngModel)]="statusSelecionados" multiple placeholder="Selecione o status">
             <mat-option value="Todos">Todos</mat-option>
+            <mat-option value="Pendente">Pendente</mat-option>
+            <mat-option value="Declinada">Declinada</mat-option>
+            <mat-option value="Expirada">Expirada</mat-option>
+            <mat-option value="Em Análise">Em Análise</mat-option>
             <mat-option value="Aprovado">Aprovado</mat-option>
-            <mat-option value="Aprovado edição">Aprovado edição</mat-option>
+            <mat-option value="Reprovado">Reprovado</mat-option>
             <mat-option value="Cancelado">Cancelado</mat-option>
-            <mat-option value="Em andamento">Em andamento</mat-option>
-            <mat-option value="Em aprovação">Em aprovação</mat-option>
-            <mat-option value="Finalizado">Finalizado</mat-option>
-            <mat-option value="Expirado">Expirado</mat-option>
-            <mat-option value="Contigência Adm">Contigência Adm</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -127,6 +126,16 @@
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef matTooltip="ID"> ID </th>
           <td mat-cell *matCellDef="let element" [matTooltip]="element.id"> {{element.id}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="freteId">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Frete (ID)"> Frete (ID) </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.freteId"> {{element.freteId}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="aglutinadorId">
+          <th mat-header-cell *matHeaderCellDef matTooltip="Aglutinador"> Aglutinador </th>
+          <td mat-cell *matCellDef="let element" [matTooltip]="element.aglutinadorId || ''"> {{element.aglutinadorId || '-'}} </td>
         </ng-container>
 
         <ng-container matColumnDef="cliente">
@@ -192,7 +201,7 @@
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef matTooltip="Status"> Status </th>
           <td mat-cell *matCellDef="let element" [matTooltip]="element.status">
-            <span [style.color]="getStatusColor(element.status)" style="font-weight: 600;">{{element.status}}</span>
+            <span class="status-badge" [ngClass]="getBadgeClass(element.status)">{{element.status}}</span>
           </td>
         </ng-container>
 
@@ -207,7 +216,7 @@
                 <mat-icon>visibility</mat-icon>
                 <span>Visualizar</span>
               </button>
-              <button mat-menu-item (click)="editarFrete(element.id)">
+              <button mat-menu-item (click)="editarFrete(element.freteId)">
                 <mat-icon>edit</mat-icon>
                 <span>Editar</span>
               </button>

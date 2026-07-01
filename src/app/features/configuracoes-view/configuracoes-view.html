@@ -13,60 +13,92 @@
         <!-- TAB 1: Parametrizações -->
         <mat-tab label="Parametrizações de Negócio">
           <div class="tab-content">
-            <h3 class="section-subtitle">Regras e Expediente - Configurações Gerais</h3>
-            <mat-divider class="mb-4"></mat-divider>
-
-            <div class="grid-container">
+            <!-- Temática 1: Aglutinação e Lotes (Step 1) -->
+            <h4 class="section-theme-title"><mat-icon>merge_type</mat-icon> Loteamento e Aglutinação de Demandas (Passo 1)</h4>
+            <mat-divider class="mb-3"></mat-divider>
+            <div class="grid-container mb-6">
               <mat-form-field appearance="outline" class="col-4">
                 <mat-label>Raio Máximo de Aglutinação (KM)</mat-label>
                 <input matInput type="number" [(ngModel)]="raioMaxAglutinacao">
                 <mat-hint>Default: 10 KM</mat-hint>
               </mat-form-field>
-
+            </div>
+ 
+            <!-- Temática 2: Cotação e Negociação (Step 2 & Portal) -->
+            <h4 class="section-theme-title"><mat-icon>local_offer</mat-icon> Negociação e Cotação de Lances (Passo 2)</h4>
+            <mat-divider class="mb-3"></mat-divider>
+            <div class="grid-container mb-6">
               <mat-form-field appearance="outline" class="col-4">
                 <mat-label>SLA de Expiração da Cotação (Min. Úteis)</mat-label>
                 <input matInput type="number" [(ngModel)]="slaExpiracaoCotacao">
                 <mat-hint>Default: 40 Minutos Úteis</mat-hint>
               </mat-form-field>
-
+ 
               <mat-form-field appearance="outline" class="col-4">
                 <mat-label>SLA de Prorrogação (Min. Úteis)</mat-label>
                 <input matInput type="number" [(ngModel)]="slaProrrogacao">
                 <mat-hint>Default: 30 Minutos Úteis</mat-hint>
               </mat-form-field>
-
-              <mat-form-field appearance="outline" class="col-4">
-                <mat-label>SLA de Escalonamento (Min. Úteis)</mat-label>
-                <input matInput type="number" [(ngModel)]="slaEscalonamento">
-                <mat-hint>Default: 30 Minutos Úteis</mat-hint>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="col-4">
-                <mat-label>Margem de Tolerância (%)</mat-label>
-                <input matInput type="number" [(ngModel)]="margemTolerancia">
-                <mat-hint>Default: 10%</mat-hint>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="col-4">
-                <mat-label>Período de Histórico (Dias)</mat-label>
-                <input matInput type="number" [(ngModel)]="periodoHistorico">
-                <mat-hint>Default: 180 Dias</mat-hint>
-              </mat-form-field>
-
+ 
               <mat-form-field appearance="outline" class="col-4">
                 <mat-label>Limite Tamanho Arquivo (MB)</mat-label>
                 <input matInput type="number" [(ngModel)]="limiteArquivo">
                 <mat-hint>Default: 25 MB</mat-hint>
               </mat-form-field>
-
+            </div>
+ 
+            <!-- Temática 3: Hierarquia e Aprovadores (Step 3) -->
+            <h4 class="section-theme-title"><mat-icon>gavel</mat-icon> Aprovadores e Alçadas (Passo 3)</h4>
+            <mat-divider class="mb-3"></mat-divider>
+            <div class="grid-container mb-6">
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>SLA de Escalonamento (Min. Úteis)</mat-label>
+                <input matInput type="number" [(ngModel)]="slaEscalonamento">
+                <mat-hint>Default: 30 Minutos Úteis</mat-hint>
+              </mat-form-field>
+            </div>
+ 
+            <!-- Temática 4: Expediente e Viabilidade Operacional (Step 5) -->
+            <h4 class="section-theme-title"><mat-icon>schedule</mat-icon> Expediente e Viabilidade Operacional (Passo 5 - Validação)</h4>
+            <mat-divider class="mb-3"></mat-divider>
+            <div class="grid-container mb-6">
               <mat-form-field appearance="outline" class="col-4">
                 <mat-label>Início Expediente</mat-label>
                 <input matInput type="time" [(ngModel)]="horarioInicio">
               </mat-form-field>
-
+ 
               <mat-form-field appearance="outline" class="col-4">
                 <mat-label>Fim Expediente</mat-label>
                 <input matInput type="time" [(ngModel)]="horarioFim">
+              </mat-form-field>
+ 
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Tempo de Carregamento por Parada (h)</mat-label>
+                <input matInput type="number" [(ngModel)]="tempoCarregamentoColeta">
+                <mat-hint>Default: 2h úteis</mat-hint>
+              </mat-form-field>
+ 
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Tempo de Trânsito entre Coletas (h)</mat-label>
+                <input matInput type="number" [(ngModel)]="tempoDeslocamentoColetas">
+                <mat-hint>Default: 4h úteis</mat-hint>
+              </mat-form-field>
+            </div>
+ 
+            <!-- Temática 5: Parâmetros Gerais e Auditoria -->
+            <h4 class="section-theme-title"><mat-icon>settings</mat-icon> Parâmetros Gerais e Auditoria</h4>
+            <mat-divider class="mb-3"></mat-divider>
+            <div class="grid-container mb-6">
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Margem de Tolerância (%)</mat-label>
+                <input matInput type="number" [(ngModel)]="margemTolerancia">
+                <mat-hint>Default: 10%</mat-hint>
+              </mat-form-field>
+ 
+              <mat-form-field appearance="outline" class="col-4">
+                <mat-label>Período de Histórico (Dias)</mat-label>
+                <input matInput type="number" [(ngModel)]="periodoHistorico">
+                <mat-hint>Default: 180 Dias</mat-hint>
               </mat-form-field>
             </div>
 
@@ -146,42 +178,328 @@
         <!-- TAB 4: Alçadas -->
         <mat-tab label="Matriz de Alçadas">
           <div class="tab-content">
-            <div class="flex-between mb-4">
-              <h3 class="section-subtitle no-margin">Matriz de Alçadas - Hierarquia</h3>
-              <div class="flex-gap-2">
-                <button mat-stroked-button><mat-icon>history</mat-icon> Histórico</button>
-                <button mat-flat-button color="primary"><mat-icon>add</mat-icon> Adicionar Alçada</button>
+            
+            <!-- FLUXO MESTRE: Lista de Unidades -->
+            <ng-container *ngIf="!unidadeSelecionada()">
+              <div class="flex-between mb-4">
+                <h3 class="section-subtitle no-margin">Matriz de Alçadas - Unidades Organizacionais</h3>
+                <button mat-flat-button color="primary" (click)="addAlcada()">
+                  <mat-icon>add</mat-icon> Criar Nova Matriz
+                </button>
               </div>
+              <p style="font-size: 0.85rem; color: #64748b; margin-top: -8px; margin-bottom: 24px;">
+                Selecione abaixo uma unidade organizacional (CD) cadastrada no cadastro de clientes para gerenciar as respectivas alçadas de aprovação ou criar novos limiares operacionais.
+              </p>
+
+              <div class="grid-container" style="gap: 24px;">
+                <div *ngFor="let unit of unidadesLista()" class="col-4" style="background-color: var(--mat-sys-surface-container-low); border: 1px solid var(--mat-sys-outline-variant); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); position: relative; overflow: hidden;">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div style="background-color: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center;">
+                        <mat-icon style="font-size: 1.6rem; width: 26px; height: 26px;">business</mat-icon>
+                      </div>
+                      <div>
+                        <h4 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--mat-sys-on-surface);">{{ unit }}</h4>
+                        <span style="font-size: 0.8rem; color: #64748b;">{{ countAprovadores(unit) }} Aprovador(es)</span>
+                      </div>
+                    </div>
+
+                    <!-- Badges de Gargalos baseados em Cobertura Física -->
+                    <span *ngIf="temGargalo(unit)" style="background-color: #fee2e2; color: #b91c1c; font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 9999px; display: flex; align-items: center; gap: 4px;">
+                      <mat-icon style="font-size: 0.9rem; width: 14px; height: 14px;">warning</mat-icon> Gargalo
+                    </span>
+                    <span *ngIf="!temGargalo(unit)" style="background-color: #dcfce7; color: #15803d; font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 9999px; display: flex; align-items: center; gap: 4px;">
+                      <mat-icon style="font-size: 0.9rem; width: 14px; height: 14px;">check_circle</mat-icon> OK
+                    </span>
+                  </div>
+
+                  <button mat-flat-button color="primary" style="width: 100%; border-radius: 8px; font-weight: 600;" (click)="selecionarUnidade(unit)">
+                    <mat-icon>visibility</mat-icon> Gerenciar Matriz
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- FLUXO DETALHE: Matriz da Unidade Selecionada -->
+            <ng-container *ngIf="unidadeSelecionada() as unitSelected">
+              <div class="flex-between mb-4">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <button mat-icon-button (click)="voltarUnidades()" matTooltip="Voltar para Unidades">
+                    <mat-icon>arrow_back</mat-icon>
+                  </button>
+                  <h3 class="section-subtitle no-margin" style="font-weight: 700;">Matriz de Alçadas — Unidade {{ unitSelected }}</h3>
+                </div>
+                <div class="flex-gap-2">
+                  <button mat-stroked-button><mat-icon>history</mat-icon> Histórico</button>
+                  <button mat-flat-button color="primary" (click)="addAlcada()"><mat-icon>add</mat-icon> Adicionar Alçada</button>
+                </div>
+              </div>
+
+              <!-- Alerta de Gargalo de Valores da Unidade Selecionada -->
+              <div *ngIf="gargalosAlertas.length > 0" style="margin-bottom: 20px; padding: 16px; border-radius: 12px; background-color: #fffbeb; border: 1px solid #fde68a; color: #b45309; display: flex; flex-direction: column; gap: 8px; transition: all 0.3s ease;">
+                <div style="display: flex; align-items: center; gap: 8px; font-weight: 700;">
+                  <mat-icon style="color: #d97706;">warning</mat-icon>
+                  <span>Atenção: Gargalos / Lacunas de Alçadas Detectados</span>
+                </div>
+                <ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; line-height: 1.6;">
+                  <li *ngFor="let alerta of gargalosAlertas">{{ alerta }}</li>
+                </ul>
+              </div>
+
+              <table mat-table [dataSource]="alcadasFiltradas()" class="w-full">
+                <!-- Column: unit_cd -->
+                <ng-container matColumnDef="unit_cd">
+                  <th mat-header-cell *matHeaderCellDef> unit_cd </th>
+                  <td mat-cell *matCellDef="let a"> {{ a.unitCD }} </td>
+                </ng-container>
+   
+                <!-- Column: lower_limit -->
+                <ng-container matColumnDef="lower_limit">
+                  <th mat-header-cell *matHeaderCellDef> lower_limit </th>
+                  <td mat-cell *matCellDef="let a"> 
+                    {{ a.limiteInferior === 0 ? 'R$ -' : (a.limiteInferior | currency:'BRL':'symbol':'1.0-0') }}
+                  </td>
+                </ng-container>
+   
+                <!-- Column: upper_limit -->
+                <ng-container matColumnDef="upper_limit">
+                  <th mat-header-cell *matHeaderCellDef> upper_limit </th>
+                  <td mat-cell *matCellDef="let a"> 
+                    {{ a.limiteSuperior | currency:'BRL':'symbol':'1.0-0' }}
+                  </td>
+                </ng-container>
+   
+                <!-- Column: userid -->
+                <ng-container matColumnDef="userid">
+                  <th mat-header-cell *matHeaderCellDef> userid </th>
+                  <td mat-cell *matCellDef="let a" style="font-weight: 500; color: #475569;"> {{ a.userid }} </td>
+                </ng-container>
+   
+                <!-- Column: up_case_frst_nm -->
+                <ng-container matColumnDef="up_case_frst_nm">
+                  <th mat-header-cell *matHeaderCellDef> up_case_frst_nm </th>
+                  <td mat-cell *matCellDef="let a"> {{ a.primeiroNome }} </td>
+                </ng-container>
+   
+                <!-- Column: up_case_last_nm -->
+                <ng-container matColumnDef="up_case_last_nm">
+                  <th mat-header-cell *matHeaderCellDef> up_case_last_nm </th>
+                  <td mat-cell *matCellDef="let a"> {{ a.ultimoNome }} </td>
+                </ng-container>
+   
+                <!-- Column: Sequência -->
+                <ng-container matColumnDef="Sequência">
+                  <th mat-header-cell *matHeaderCellDef> Sequência </th>
+                  <td mat-cell *matCellDef="let a" style="text-align: center;"> {{ a.sequencia }} </td>
+                </ng-container>
+   
+                <!-- Column: status -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef> Status Operacional </th>
+                  <td mat-cell *matCellDef="let a"> 
+                    <span *ngIf="a.status === 'Ativo'" class="badge badge-success" style="background-color: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Ativo</span>
+                    <span *ngIf="a.status === 'Desabilitado'" class="badge badge-error" style="background-color: #fee2e2; color: #b91c1c; padding: 4px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Desabilitado</span>
+                    <span *ngIf="a.status === 'Ausente Temporário'" class="badge badge-warning" style="background-color: #fef9c3; color: #a16207; padding: 4px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;" [matTooltip]="'Ausência configurada: ' + a.ausenciaPeriodo">Ausente</span>
+                  </td>
+                </ng-container>
+   
+                <!-- Column: acoes -->
+                <ng-container matColumnDef="acoes">
+                  <th mat-header-cell *matHeaderCellDef align="right"> Ações </th>
+                  <td mat-cell *matCellDef="let a" align="right">
+                    <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Ações da Alçada">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item (click)="editarAlcada(a)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Editar</span>
+                      </button>
+                      <button mat-menu-item (click)="toggleAlcadaStatus(a)">
+                        <mat-icon>{{ a.status === 'Desabilitado' ? 'check_circle' : 'block' }}</mat-icon>
+                        <span>{{ a.status === 'Desabilitado' ? 'Habilitar' : 'Desabilitar' }}</span>
+                      </button>
+                    </mat-menu>
+                  </td>
+                </ng-container>
+   
+                <tr mat-header-row *matHeaderRowDef="['unit_cd', 'lower_limit', 'upper_limit', 'userid', 'up_case_frst_nm', 'up_case_last_nm', 'Sequência', 'status', 'acoes']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['unit_cd', 'lower_limit', 'upper_limit', 'userid', 'up_case_frst_nm', 'up_case_last_nm', 'Sequência', 'status', 'acoes'];" [style.opacity]="row.status === 'Desabilitado' ? '0.5' : '1'"></tr>
+              </table>
+            </ng-container>
+          </div>
+        </mat-tab>
+ 
+        <!-- ABA 5: Configurações de Usuários e Empresas -->
+        <mat-tab label="Usuários do Sistema">
+          <div class="tab-container" style="padding: 24px 0; display: flex; flex-direction: column; gap: 24px;">
+            
+            <!-- SEÇÃO DE EMPRESAS -->
+            <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; background-color: #ffffff;">
+              <div class="flex-between mb-4">
+                <div>
+                  <h3 class="section-title no-margin" style="font-weight: 700; font-size: 1.1rem; color: #1e293b;">Empresas Cadastradas</h3>
+                  <p class="section-description" style="margin-top: 4px; font-size: 0.8rem; color: #64748b;">Gerencie os Clientes, Fornecedores, Transportadores e ILC parceiros.</p>
+                </div>
+                <button mat-flat-button color="primary" (click)="addEmpresa()">
+                  <mat-icon>add</mat-icon> Nova Empresa
+                </button>
+              </div>
+ 
+              <table mat-table [dataSource]="empresas()" class="w-full">
+                <!-- Column: Tipo -->
+                <ng-container matColumnDef="tipo">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Tipo </th>
+                  <td mat-cell *matCellDef="let e">
+                    <span *ngIf="e.tipo === 'Cliente'" style="background-color: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">Cliente</span>
+                    <span *ngIf="e.tipo === 'Fornecedor'" style="background-color: #f3f4f6; color: #374151; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">Fornecedor</span>
+                    <span *ngIf="e.tipo === 'Transportador'" style="background-color: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">Transportador</span>
+                    <span *ngIf="e.tipo === 'ILC'" style="background-color: #ecfdf5; color: #065f46; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">ILC</span>
+                  </td>
+                </ng-container>
+ 
+                <!-- Column: Sigla -->
+                <ng-container matColumnDef="sigla">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Sigla </th>
+                  <td mat-cell *matCellDef="let e" style="font-weight: 700; color: #0f172a;">{{ e.sigla }}</td>
+                </ng-container>
+ 
+                <!-- Column: Nome -->
+                <ng-container matColumnDef="nome">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Nome da Empresa </th>
+                  <td mat-cell *matCellDef="let e">{{ e.nome }}</td>
+                </ng-container>
+ 
+                <!-- Column: Endereco -->
+                <ng-container matColumnDef="endereco">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Endereço </th>
+                  <td mat-cell *matCellDef="let e" style="color: #64748b; font-size: 0.8rem;">{{ e.endereco }}</td>
+                </ng-container>
+ 
+                <!-- Column: Ações -->
+                <ng-container matColumnDef="acoes">
+                  <th mat-header-cell *matHeaderCellDef align="right" style="font-weight: 700;"> Ações </th>
+                  <td mat-cell *matCellDef="let e" align="right" (click)="$event.stopPropagation()">
+                    <button mat-icon-button (click)="selecionarEmpresaUsr(e)" matTooltip="Ver Usuários" [color]="empresaSelecionadaUsr()?.id === e.id ? 'primary' : ''">
+                      <mat-icon>{{ empresaSelecionadaUsr()?.id === e.id ? 'people' : 'people_outline' }}</mat-icon>
+                    </button>
+                    <button mat-icon-button [matMenuTriggerFor]="empMenu" matTooltip="Mais Opções">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #empMenu="matMenu">
+                      <button mat-menu-item (click)="editarEmpresa(e)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Editar Empresa</span>
+                      </button>
+                    </mat-menu>
+                  </td>
+                </ng-container>
+ 
+                <tr mat-header-row *matHeaderRowDef="['tipo', 'sigla', 'nome', 'endereco', 'acoes']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['tipo', 'sigla', 'nome', 'endereco', 'acoes'];" 
+                    [style.background-color]="empresaSelecionadaUsr()?.id === row.id ? '#f1f5f9' : 'inherit'"
+                    (click)="selecionarEmpresaUsr(row)"
+                    style="cursor: pointer; transition: background-color 0.2s ease;"></tr>
+              </table>
             </div>
-
-            <table mat-table [dataSource]="alcadas()" class="w-full">
-              <ng-container matColumnDef="unit">
-                <th mat-header-cell *matHeaderCellDef> Unit CD </th>
-                <td mat-cell *matCellDef="let a"> {{ a.unitCD }} </td>
-              </ng-container>
-              <ng-container matColumnDef="seq">
-                <th mat-header-cell *matHeaderCellDef> Seq. </th>
-                <td mat-cell *matCellDef="let a"> {{ a.sequencia }} </td>
-              </ng-container>
-              <ng-container matColumnDef="limite">
-                <th mat-header-cell *matHeaderCellDef> Faixa (R$) </th>
-                <td mat-cell *matCellDef="let a"> {{ a.limiteInferior | number:'1.2-2' }} - {{ a.limiteSuperior | number:'1.2-2' }} </td>
-              </ng-container>
-              <ng-container matColumnDef="aprovador">
-                <th mat-header-cell *matHeaderCellDef> Aprovador </th>
-                <td mat-cell *matCellDef="let a"> {{ a.aprovador }} </td>
-              </ng-container>
-              <ng-container matColumnDef="acoes">
-                <th mat-header-cell *matHeaderCellDef align="right"> Ações </th>
-                <td mat-cell *matCellDef="let a" align="right">
-                  <button mat-icon-button><mat-icon>edit</mat-icon></button>
-                  <button mat-icon-button color="warn" (click)="deleteAlcada(a.id)"><mat-icon>delete</mat-icon></button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="['unit', 'seq', 'limite', 'aprovador', 'acoes']"></tr>
-              <tr mat-row *matRowDef="let row; columns: ['unit', 'seq', 'limite', 'aprovador', 'acoes'];"></tr>
-            </table>
+ 
+            <!-- SEÇÃO DE USUÁRIOS VINCULADOS A UMA EMPRESA -->
+            <div *ngIf="empresaSelecionadaUsr() as emp" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; background-color: #ffffff; animation: fadeIn 0.3s ease-in-out;">
+              <div class="flex-between mb-4">
+                <div>
+                  <h3 class="section-title no-margin" style="font-weight: 700; font-size: 1.1rem; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                    <mat-icon style="color: #64748b;">people</mat-icon>
+                    Usuários Vinculados a: {{ emp.nome }} ({{ emp.sigla }})
+                  </h3>
+                  <p class="section-description" style="margin-top: 4px; font-size: 0.8rem; color: #64748b;">Lista de colaboradores vinculados a esta empresa.</p>
+                </div>
+                <button mat-flat-button color="primary" (click)="addUsuario()">
+                  <mat-icon>person_add</mat-icon> Novo Usuário
+                </button>
+              </div>
+ 
+              <div *ngIf="usuariosFiltradosPorEmpresa(emp.id).length === 0" style="padding: 32px; text-align: center; color: #64748b; background-color: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                Nenhum usuário cadastrado para esta empresa. Clique em "Novo Usuário" para cadastrar o primeiro.
+              </div>
+ 
+              <table mat-table [dataSource]="usuariosFiltradosPorEmpresa(emp.id)" class="w-full" *ngIf="usuariosFiltradosPorEmpresa(emp.id).length > 0">
+                <!-- Column: User ID -->
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> User ID </th>
+                  <td mat-cell *matCellDef="let u" style="font-weight: 700; color: #334155;">{{ u.id }}</td>
+                </ng-container>
+ 
+                <!-- Column: Nome Completo -->
+                <ng-container matColumnDef="nomeCompleto">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Nome Completo </th>
+                  <td mat-cell *matCellDef="let u">{{ u.primeiroNome }} {{ u.ultimoNome }}</td>
+                </ng-container>
+ 
+                <!-- Column: E-mail -->
+                <ng-container matColumnDef="email">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> E-mail </th>
+                  <td mat-cell *matCellDef="let u" style="color: #64748b;">{{ u.email }}</td>
+                </ng-container>
+ 
+                <!-- Column: Telefone -->
+                <ng-container matColumnDef="telefone">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Telefone </th>
+                  <td mat-cell *matCellDef="let u" style="color: #64748b;">{{ u.telefone }}</td>
+                </ng-container>
+ 
+                <!-- Column: Funcao -->
+                <ng-container matColumnDef="funcao">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Função </th>
+                  <td mat-cell *matCellDef="let u">
+                    <span *ngIf="u.funcao === 'Aprovador'" style="background-color: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">Aprovador</span>
+                    <span *ngIf="u.funcao === 'Planejador'" style="background-color: #fae8ff; color: #86198f; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">Planejador</span>
+                    <span *ngIf="u.funcao === 'Operador'" style="background-color: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">Operador</span>
+                    <span *ngIf="u.funcao === 'Administrador'" style="background-color: #fecaca; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">Administrador</span>
+                  </td>
+                </ng-container>
+ 
+                <!-- Column: Perfil -->
+                <ng-container matColumnDef="perfil">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Perfil de Acesso </th>
+                  <td mat-cell *matCellDef="let u">
+                    <span [style.color]="u.perfil === 'Administrador' ? '#b91c1c' : '#475569'" style="font-weight: 600;">{{ u.perfil }}</span>
+                  </td>
+                </ng-container>
+ 
+                <!-- Column: Status -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Status </th>
+                  <td mat-cell *matCellDef="let u">
+                    <span *ngIf="u.status === 'Ativo'" style="background-color: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Ativo</span>
+                    <span *ngIf="u.status === 'Desabilitado'" style="background-color: #fee2e2; color: #b91c1c; padding: 4px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Desabilitado</span>
+                    <span *ngIf="u.status === 'Ausente Temporário'" style="background-color: #fef9c3; color: #a16207; padding: 4px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;" [matTooltip]="'Período: ' + u.ausenciaPeriodo">Ausente</span>
+                  </td>
+                </ng-container>
+ 
+                <!-- Column: Ações -->
+                <ng-container matColumnDef="acoes">
+                  <th mat-header-cell *matHeaderCellDef align="right" style="font-weight: 700;"> Ações </th>
+                  <td mat-cell *matCellDef="let u" align="right">
+                    <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="Ações de Usuário">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #userMenu="matMenu">
+                      <button mat-menu-item (click)="editarUsuario(u)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Editar Usuário</span>
+                      </button>
+                      <button mat-menu-item (click)="toggleUsuarioStatus(u)">
+                        <mat-icon>{{ u.status === 'Desabilitado' ? 'check_circle' : 'block' }}</mat-icon>
+                        <span>{{ u.status === 'Desabilitado' ? 'Habilitar' : 'Desabilitar' }}</span>
+                      </button>
+                    </mat-menu>
+                  </td>
+                </ng-container>
+ 
+                <tr mat-header-row *matHeaderRowDef="['id', 'nomeCompleto', 'email', 'telefone', 'funcao', 'perfil', 'status', 'acoes']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['id', 'nomeCompleto', 'email', 'telefone', 'funcao', 'perfil', 'status', 'acoes'];" [style.opacity]="row.status === 'Desabilitado' ? '0.5' : '1'"></tr>
+              </table>
+            </div>
           </div>
         </mat-tab>
       </mat-tab-group>

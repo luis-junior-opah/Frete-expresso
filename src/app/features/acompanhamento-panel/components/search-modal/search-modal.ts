@@ -37,16 +37,25 @@ export class SearchModal implements AfterViewInit {
   
   private allData: any = {
     cliente: [
-      { cnpj: '01.234.567/0001-01', nome: 'JOHN DEERE BRASIL LTDA', nomeReduzido: 'JOHN DEERE CAT', codErp: '1001', municipio: 'Catalão', uf: 'GO' },
-      { cnpj: '01.234.567/0002-02', nome: 'JOHN DEERE MONTENEGRO', nomeReduzido: 'JOHN DEERE MON', codErp: '1002', municipio: 'Montenegro', uf: 'RS' },
+      { cnpj: '01.234.567/0001-01', nome: 'JOHN DEERE CAMPINAS (3Q00)', nomeReduzido: 'JOHN DEERE CAMPINAS (3Q00)', codErp: '1001', municipio: 'Campinas', uf: 'SP' },
+      { cnpj: '01.234.567/0002-02', nome: 'JOHN DEERE MONTENEGRO (BM00)', nomeReduzido: 'JOHN DEERE MONTENEGRO (BM00)', codErp: '1002', municipio: 'Montenegro', uf: 'RS' },
+      { cnpj: '01.234.567/0003-03', nome: 'JOHN DEERE INDAIATUBA (BZ00)', nomeReduzido: 'JOHN DEERE INDAIATUBA (BZ00)', codErp: '1003', municipio: 'Indaiatuba', uf: 'SP' },
+      { cnpj: '01.234.567/0004-04', nome: 'JOHN DEERE HORIZONTINA (CQ00)', nomeReduzido: 'JOHN DEERE HORIZONTINA (CQ00)', codErp: '1004', municipio: 'Horizontina', uf: 'RS' },
+      { cnpj: '01.234.567/0005-05', nome: 'JOHN DEERE CATALAO (NW00)', nomeReduzido: 'JOHN DEERE CATALAO (NW00)', codErp: '1005', municipio: 'Catalão', uf: 'GO' },
     ],
     fornecedor: [
-      { cnpj: '10.200.300/0001-11', nome: 'FORNECEDOR MIRASSOL', nomeReduzido: 'MIRASSOL SP', codErp: 'F001', municipio: 'Mirassol', uf: 'SP' },
+      { cnpj: '10.200.300/0001-11', nome: 'BRUNING (PANAMBI)', nomeReduzido: 'BRUNING (PANAMBI)', codErp: 'F001', municipio: 'Panambi', uf: 'RS' },
+      { cnpj: '10.200.300/0002-22', nome: 'FOTOGRAVURA ZEYANA (CAXIAS)', nomeReduzido: 'FOTOGRAVURA ZEYANA (CAXIAS)', codErp: 'F002', municipio: 'Caxias do Sul', uf: 'RS' },
+      { cnpj: '10.200.300/0003-33', nome: 'LTM (BOTUCATU)', nomeReduzido: 'LTM (BOTUCATU)', codErp: 'F003', municipio: 'Botucatu', uf: 'SP' },
+      { cnpj: '10.200.300/0004-44', nome: 'BELLOTA (INDAIAL)', nomeReduzido: 'BELLOTA (INDAIAL)', codErp: 'F004', municipio: 'Indaial', uf: 'SC' },
+      { cnpj: '10.200.300/0005-05', nome: 'HENNINGS (SOROCABA)', nomeReduzido: 'HENNINGS (SOROCABA)', codErp: 'F005', municipio: 'Sorocaba', uf: 'SP' },
     ],
     transportador: [
-      { cnpj: '90.100.200/0001-99', nome: 'JM PREMIER TRANSPORTES', nomeReduzido: 'JM PREMIER', codErp: 'T001', municipio: 'São Paulo', uf: 'SP' },
-      { cnpj: '91.200.300/0001-88', nome: 'RAPIDÃO COMETA LTDA', nomeReduzido: 'COMETA', codErp: 'T002', municipio: 'Campinas', uf: 'SP' },
-      { cnpj: '92.300.400/0001-77', nome: 'BRASPRESS TRANSPORTES', nomeReduzido: 'BRASPRESS', codErp: 'T003', municipio: 'Guarulhos', uf: 'SP' },
+      { cnpj: '90.100.200/0001-99', nome: 'MIRASSOL', nomeReduzido: 'MIRASSOL', codErp: 'T001', municipio: 'Mirassol', uf: 'SP' },
+      { cnpj: '91.200.300/0001-88', nome: 'M3 LOGÍSTICA', nomeReduzido: 'M3 LOGÍSTICA', codErp: 'T002', municipio: 'Campinas', uf: 'SP' },
+      { cnpj: '92.300.400/0001-77', nome: 'GOLDEN CARGO', nomeReduzido: 'GOLDEN CARGO', codErp: 'T003', municipio: 'Guarulhos', uf: 'SP' },
+      { cnpj: '93.400.500/0001-66', nome: 'VF (IVOTI)', nomeReduzido: 'VF (IVOTI)', codErp: 'T004', municipio: 'Ivoti', uf: 'RS' },
+      { cnpj: '94.500.600/0001-55', nome: 'ARMANI (CAMPINAS)', nomeReduzido: 'ARMANI (CAMPINAS)', codErp: 'T005', municipio: 'Campinas', uf: 'SP' },
     ]
   };
 

@@ -307,7 +307,46 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- 5. DOCUMENTAÇÃO FINAL -->
+    <!-- 5. COBRANÇAS EXTRAS -->
+    <mat-card class="section-card premium-shadow" *ngIf="cobrancaExtra">
+      <mat-card-header>
+        <mat-card-title class="standard-title">Cobranças Extras</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="cobranca-extra-badge-header mb-4" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <mat-icon style="color: #d97706;">receipt_long</mat-icon>
+            <span style="font-weight: 700; color: #1e293b;">Solicitação de Custo Extra</span>
+          </div>
+          <span class="status-chip" [attr.data-status]="cobrancaExtra.status">{{ cobrancaExtra.status }}</span>
+        </div>
+        <div class="info-row">
+          <div class="info-group col-4">
+            <label>Tipo de Ocorrência</label>
+            <div class="data-value">{{ cobrancaExtra.tipoOcorrencia }}</div>
+          </div>
+          <div class="info-group col-4">
+            <label>Valor Solicitado</label>
+            <div class="data-value highlight price" style="color: #b91c1c; font-weight: 700;">{{ cobrancaExtra.valor | currency:'BRL' }}</div>
+          </div>
+          <div class="info-group col-4">
+            <label>Evidência Anexada</label>
+            <div class="data-value flex-align-center" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #475569;">
+              <mat-icon style="font-size: 1.1rem; width: 20px; height: 20px; color: #64748b; margin-top: 4px;">attachment</mat-icon>
+              <span>{{ cobrancaExtra.arquivos?.[0] || 'Nenhum arquivo' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-row mt-4">
+          <div class="info-group col-12">
+            <label>Justificativa do Transportador</label>
+            <div class="data-value" style="white-space: pre-wrap; font-size: 0.85rem; line-height: 1.5; color: #334155; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px;">{{ cobrancaExtra.justificativa }}</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- 6. DOCUMENTAÇÃO FINAL -->
     <div class="documents-row">
       <div class="doc-card-premium">
         <div class="doc-type">
@@ -332,7 +371,7 @@
       </div>
     </div>
 
-    <!-- 6. TIMELINE DE EVENTOS -->
+    <!-- 7. TIMELINE DE EVENTOS -->
     <div class="timeline-container premium-shadow">
       <div class="standard-title" style="margin-bottom: 40px;">
         <div style="display: flex; align-items: center; gap: 16px;">
@@ -344,8 +383,8 @@
       <div class="timeline">
         <div class="timeline-entry" *ngFor="let log of logsConsolidados">
           <div class="timeline-side">
-            <span class="date">{{ log.data }}</span>
-            <span class="time">{{ log.hora }}</span>
+            <span class="date">{{ formatarDataLog(log.timestamp).split(' às ')[0] }}</span>
+            <span class="time">{{ formatarDataLog(log.timestamp).split(' às ')[1] }}</span>
           </div>
           <div class="timeline-marker"></div>
           <div class="timeline-card">

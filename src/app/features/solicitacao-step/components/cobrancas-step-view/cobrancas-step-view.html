@@ -1,0 +1,157 @@
+<div class="step-view">
+  <app-solicitacao-card [frete]="frete"></app-solicitacao-card>
+
+  <!-- Resumo da Cotação Vencedora -->
+  <mat-card class="main-card mt-4" *ngIf="approvedQuotation">
+    <mat-card-header>
+      <mat-card-title>Cotação Ganhadora Homologada</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-row">
+        <div class="info-group col-4">
+          <label>Transportadora</label>
+          <div class="disabled-field font-bold">{{ approvedQuotation.transportadora }}</div>
+        </div>
+        <div class="info-group col-4">
+          <label>Valor Principal (Base)</label>
+          <div class="disabled-field price font-bold">{{ approvedQuotation.individual.valor | currency:'BRL' }}</div>
+        </div>
+        <div class="info-group col-4" *ngIf="approvedQuotation.complementar?.valor">
+          <label>Valor Adicional (Aglutinação)</label>
+          <div class="disabled-field price">{{ approvedQuotation.complementar.valor | currency:'BRL' }}</div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Lançamento de Cobrança (Estado Inicial) -->
+  <mat-card class="main-card mt-4" *ngIf="!cobrancaSubmetida()">
+    <mat-card-header>
+      <mat-card-title>Solicitar Cobrança Complementar (Ocorrência em Rota)</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="grid-form mt-4">
+        <!-- Tipo de Ocorrência -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="col-6 bg-white">
+            <mat-label>Tipo de Ocorrência *</mat-label>
+            <mat-select [(ngModel)]="tipoOcorrencia" placeholder="Selecione o tipo de custo extra">
+              <mat-option *ngFor="let item of ocorrenciasList" [value]="item.value">
+                {{ item.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Valor do Custo Extra -->
+          <mat-form-field appearance="outline" class="col-6 bg-white">
+            <mat-label>Valor do Complemento (R$) *</mat-label>
+            <input matInput type="number" [(ngModel)]="valorComplemento" placeholder="0.00" min="0.01">
+            <span matTextPrefix>R$&nbsp;</span>
+          </mat-form-field>
+        </div>
+
+        <!-- Justificativa -->
+        <mat-form-field appearance="outline" class="col-12 bg-white">
+          <mat-label>Justificativa Operacional (mínimo 15 caracteres) *</mat-label>
+          <textarea matInput rows="4" [(ngModel)]="justificativa" placeholder="Descreva detalhadamente o ocorrido em rota..."></textarea>
+          <mat-hint align="end">{{ justificativa?.length || 0 }} / 15 caracteres mínimos</mat-hint>
+        </mat-form-field>
+
+        <!-- Anexo de Comprovante (25MB limit) -->
+        <div class="col-12 upload-container">
+          <label class="upload-label">Anexar Comprovantes / Evidências (Opcional, máx 25MB)</label>
+          <div class="drag-drop-zone" [class.file-loaded]="nomeArquivoEvidencia">
+            <mat-icon class="upload-icon">{{ nomeArquivoEvidencia ? 'check_circle' : 'cloud_upload' }}</mat-icon>
+            <span class="upload-text" *ngIf="!nomeArquivoEvidencia">Arraste comprovantes ou clique para procurar</span>
+            <span class="upload-text file-name" *ngIf="nomeArquivoEvidencia">{{ nomeArquivoEvidencia }}</span>
+            <input type="file" (change)="onFileSelected($event)" class="file-input" accept=".pdf,.xls,.xlsx,.txt,.docx,.jpg,.png">
+          </div>
+        </div>
+
+        <!-- Ação de Envio -->
+        <div class="flex-end mt-4">
+          <button mat-flat-button color="primary" class="submit-btn" (click)="submitCobranca()"
+                  [disabled]="!tipoOcorrencia || !valorComplemento || valorComplemento <= 0 || justificativa.length < 15">
+            <mat-icon>send</mat-icon> Solicitar Cobrança Complementar
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Visualização do Custo Solicitado & Fluxo de Aprovação (Após Envio) -->
+  <div *ngIf="cobrancaSubmetida()">
+    <mat-card class="main-card mt-4 card-cobranca-detalhe">
+      <mat-card-header>
+        <div class="header-main">
+          <mat-card-title>Status da Cobrança Complementar</mat-card-title>
+          <span class="status-chip" [attr.data-status]="cobrancaStatus()">{{ cobrancaStatus() }}</span>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <div class="info-group col-4">
+            <label>Tipo de Custo</label>
+            <div class="disabled-field">{{ tipoOcorrencia }}</div>
+          </div>
+          <div class="info-group col-4">
+            <label>Valor Solicitado (Delta)</label>
+            <div class="disabled-field price-delta font-bold text-danger">{{ valorComplemento | currency:'BRL' }}</div>
+          </div>
+          <div class="info-group col-4" *ngIf="nomeArquivoEvidencia">
+            <label>Evidência Anexada</label>
+            <div class="disabled-field flex-align-center">
+              <mat-icon style="font-size: 1.1rem; width: 20px; height: 20px; color: #64748b;">attachment</mat-icon>
+              <a href="javascript:void(0)" class="file-link">{{ nomeArquivoEvidencia }}</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-row mt-3">
+          <div class="info-group col-12">
+            <label>Justificativa do Transportador</label>
+            <div class="disabled-field textarea-field">{{ justificativa }}</div>
+          </div>
+        </div>
+
+        <!-- Matriz de Alçadas para o Delta -->
+        <div class="alcada-container mt-4">
+          <h4 class="alcada-title">Roteamento da Matriz de Alçadas (Exclusivo sobre o valor Delta)</h4>
+          <div class="approvers-list">
+            <div class="approver-row" *ngFor="let a of aprovadoresAlcada" [class.active-approver]="a.ativo && cobrancaStatus() === 'Pendente'">
+              <div class="approver-avatar">
+                <mat-icon>{{ cobrancaStatus() === 'Aprovado' ? 'done' : (cobrancaStatus() === 'Recusado' ? 'close' : 'hourglass_empty') }}</mat-icon>
+              </div>
+              <div class="approver-info">
+                <span class="approver-name">{{ a.nome }}</span>
+                <span class="approver-role">{{ a.funcao }}</span>
+              </div>
+              <div class="approver-status">
+                <span class="status-tag" 
+                      [class.tag-approved]="cobrancaStatus() === 'Aprovado'" 
+                      [class.tag-refused]="cobrancaStatus() === 'Recusado'"
+                      [class.tag-pending]="cobrancaStatus() === 'Pendente' && a.ativo">
+                  {{ cobrancaStatus() === 'Pendente' ? (a.ativo ? 'Aguardando Deliberação' : 'Sequência Futura') : cobrancaStatus() }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ações do Aprovador Cliente (Visível apenas se pendente) -->
+        <div class="approver-action-box mt-4" *ngIf="cobrancaStatus() === 'Pendente'">
+          <h5>Painel de Decisão do Aprovador</h5>
+          <p class="description">Valide os documentos e decida se aprova ou recusa o montante extra cobrado.</p>
+          <div class="buttons-row mt-3">
+            <button mat-flat-button color="warn" class="reject-btn mr-3" (click)="recusarCusto()">
+              <mat-icon>close</mat-icon> Recusar Custo Extra
+            </button>
+            <button mat-flat-button class="approve-btn success-btn" (click)="aprovarCusto()">
+              <mat-icon>done</mat-icon> Aprovar Custo Extra
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
