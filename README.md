@@ -17,15 +17,15 @@ O **Frete Expresso** é um protótipo avançado em Angular desenvolvido para mod
 ---
 
 ## 🎯 Sobre o Projeto
-Este sistema foi criado para substituir fluxos manuais de negociação de fretes por uma esteira digital. Ele permite que os times logísticos analisem demandas, agrupem cargas compatíveis (Aglutinação), solicitem cotações de transportadores parceiros, submetam à aprovação financeira (Alçadas) e acompanhem o histórico completo até a validação final (NOX).
+Este sistema foi criado para substituir fluxos manuais de negociação de fretes por uma esteira digital. Ele permite que os times logísticos analisem demandas, agrupem cargas compatíveis (Aglutinação), solicitem cotações de transportadores parceiros, submetam à aprovação financeira (Alçadas) e acompanhem o histórico completo até a validação final.
 
 ## ✨ Principais Funcionalidades
 * **Painel de Acompanhamento (Dashboard):** Visão geral de todas as solicitações, com indicadores de status (Em andamento, Aprovado, Pendente, Cancelado).
 * **Wizard de Solicitação (Steps):** Fluxo em etapas para aprovação interna:
   1. Cotações (Lista de transportadoras e seleção de propostas).
   2. Aprovação (Matriz de Alçadas com SLA em tempo real).
-  3. Código NOX (Integração).
-  4. Validação e Transmissão do Pedido.
+  3. Validação (Ajuste de Janelas Operacionais e Análise de Viabilidade).
+  4. Pedido (Transmissão e Faturamento).
   5. Resumo.
 * **Portal do Transportador (Inserção de Cotação):** Tela dedicada onde o transportador preenche Valores e Transit Times (TT) Coleta/Entrega.
 * **Histórico e Auditoria:** Timeline interativa detalhando quem fez o quê e quando.
